@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-zuno-dev-1255b-authRole",
+      "UnauthRoleArn": "arn:aws:iam::438591499564:role/amplify-zuno-dev-1255b-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::438591499564:role/amplify-zuno-dev-1255b-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-zuno-dev-1255b-deployment",
+      "UnauthRoleName": "amplify-zuno-dev-1255b-unauthRole",
+      "StackName": "amplify-zuno-dev-1255b",
+      "StackId": "arn:aws:cloudformation:us-east-2:438591499564:stack/amplify-zuno-dev-1255b/0452b6d0-7321-11f0-926a-021d85d7e8df",
+      "AmplifyAppId": "d16m88ew8xusbx"
+    }
+  }
+}
