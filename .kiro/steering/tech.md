@@ -1,83 +1,100 @@
 # Technology Stack
 
 ## Frontend Framework
-- **React Native** with TypeScript for mobile development
-- **Expo** or **React Native CLI** for project setup and development
-- **React Navigation** for mobile navigation patterns
+- **React 18.3.1** with TypeScript for web development
+- **Vite** for fast development and build tooling
+- **React Router** for client-side routing and navigation
 
 ## Package Manager & Runtime
 - **Bun** as the package manager and runtime
 - **ESM modules** (type: "module" in package.json)
-- **Bun compatibility** with React Native and Amplify libraries
+- **Bun compatibility** with React and web libraries
 
 ## UI Components
-- **React Native UI library** (NativeBase, React Native Elements, or Tamagui)
-- **React Native Vector Icons** for mobile iconography
-- **Custom mobile components** following React Native patterns
-- **React Native StyleSheet** for component styling
-- **Platform-specific styling** for iOS and Android
+- **shadcn/ui** components built on Radix UI primitives
+- **Tailwind CSS** for utility-first styling
+- **Lucide React** for consistent iconography
+- **Custom components** following shadcn/ui patterns
+- **Responsive design** with Tailwind breakpoints
 
 ## Data Layer
-- **AWS Amplify GraphQL** for database operations and state management
-- **AWS AppSync** for real-time data synchronization
-- **Amplify DataStore** for offline-first functionality
-- **GraphQL operations** for data queries and mutations
-- **React Hook Form** with **Zod** validation for mobile forms
+- **AWS Amplify** for full-stack serverless development
+- **AWS AppSync** for GraphQL API with real-time subscriptions
+- **AWS API Gateway** for REST API endpoints
+- **DynamoDB** NoSQL database for scalable data storage
+- **React Hook Form** with **Zod** validation for forms
+- **Amplify DataStore** for offline-first functionality and local state management
 
 ## Backend Services
-- **AWS Amplify** for backend infrastructure
-- **Amazon Cognito** for authentication and user management
-- **AWS Lambda** for custom business logic
+- **AWS Amplify** for serverless backend infrastructure
+- **AWS AppSync** for managed GraphQL API
+- **AWS API Gateway** for REST API with Lambda integration
+- **AWS DynamoDB** with auto-generated resolvers
+- **AWS Lambda** functions for custom business logic resolvers
 - **Amazon S3** for file storage and media assets
-- **Amazon DynamoDB** or **RDS** for database
+- **AWS Cognito** for authentication and user management
 
 ## State Management
 - **React Context** for global state (CoachContext)
-- **Amplify hooks** for server state management
+- **Amplify DataStore** for offline-first state management
+- **GraphQL hooks** for real-time data operations
+- **REST API hooks** for traditional CRUD operations
 - **Local state** with useState for component-level state
-- **AsyncStorage** for local data persistence
+- **Amplify DataStore** for client-side data persistence and sync
 
 ## Styling & Theming
-- **React Native StyleSheet** for component styling
-- **Dynamic theming** via React Native theme providers
+- **Tailwind CSS** for component styling
+- **CSS custom properties** for dynamic theming
 - **Coach-specific color schemes** applied at runtime
-- **Responsive design** with React Native Dimensions and screen size detection
+- **Responsive design** with Tailwind responsive utilities
 
 ## Development Tools
 - **TypeScript 5.5.3** for type safety
-- **ESLint** with React Native specific rules
-- **Metro** bundler for React Native
-- **Flipper** for debugging (optional)
+- **ESLint** with React and TypeScript rules
+- **Vite** for fast development and hot module replacement
+- **PostCSS** and **Autoprefixer** for CSS processing
 
-## Mobile Development
-- **iOS** and **Android** cross-platform support
-- **Push notifications** via Amplify Push Notifications
-- **Offline capabilities** with Amplify DataStore
-- **App Store** and **Google Play Store** deployment
+## Web Development
+- **Progressive Web App** capabilities
+- **Responsive design** for desktop and mobile browsers
+- **Web deployment** to hosting platforms
+- **Browser compatibility** across modern browsers
 
 ## Common Commands
 ```bash
 # Install dependencies
 bun install
 
-# Start React Native development server
-bun run start
+# Initialize Amplify project
+amplify init
 
-# Run on iOS simulator
-bun run ios
+# Add Amplify services
+amplify add api    # Choose GraphQL for AppSync
+amplify add api    # Choose REST for API Gateway
+amplify add auth
+amplify add storage
 
-# Run on Android emulator
-bun run android
+# Start development server
+bun run dev
+
+# Deploy Amplify backend
+amplify push
 
 # Build for production
 bun run build
+
+# Deploy to Amplify hosting
+amplify publish
 
 # Run linting
 bun run lint
 ```
 
 ## Database
-- **AWS Amplify GraphQL schema** with auto-generated resolvers
-- **Real-time subscriptions** for collaborative features
-- **Offline sync** with conflict resolution
+- **AWS DynamoDB** with NoSQL document storage
+- **Amplify GraphQL schema** with auto-generated resolvers
+- **GraphQL operations** via AppSync for real-time features
+- **REST API operations** via API Gateway for traditional CRUD
 - **Coach system** with personality configurations and user interactions
+- **Global Secondary Indexes** for efficient querying
+- **Real-time subscriptions** for collaborative features

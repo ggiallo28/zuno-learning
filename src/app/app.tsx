@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLoadAction, useMutateAction } from '@uibakery/data';
@@ -39,8 +39,8 @@ function AppContent() {
 
   // Load data
   const [userProfile, userLoading] = useLoadAction(loadUserProfileAction, [], { userId: currentUserId });
-  const [allCourses, coursesLoading] = useLoadAction(loadCoursesAction, [], { category: '' });
-  const [userCourses, userCoursesLoading] = useLoadAction(loadUserCoursesAction, [], { userId: currentUserId });
+  const [allCourses] = useLoadAction(loadCoursesAction, [], { category: '' });
+  const [userCourses] = useLoadAction(loadUserCoursesAction, [], { userId: currentUserId });
 
   // Mutations
   const [createUser, creatingUser] = useMutateAction(createUserAction);
@@ -62,8 +62,8 @@ function AppContent() {
         avatarUrl: newUserForm.avatarUrl || null
       });
       
-      if (result?.[0]) {
-        setCurrentUserId(result[0].id);
+      if (result && Array.isArray(result) && result[0]) {
+        setCurrentUserId((result[0] as any).id);
         setNewUserForm({ email: '', username: '', fullName: '', avatarUrl: '' });
         confetti({ particleCount: 100, spread: 70 });
       }

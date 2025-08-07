@@ -13,40 +13,44 @@ The core philosophy centers on "learning what you don't know" through continuous
 ```mermaid
 graph TB
     subgraph "Client Layer"
-        UI[React Native UI]
+        UI[React Web UI]
         Coach[Coach System]
         Theme[Dynamic Theming]
     end
     
     subgraph "AWS Amplify Backend"
-        API_GW[API Gateway]
+        AppSync[AWS AppSync GraphQL]
+        API_GW[AWS API Gateway REST]
         Cognito[AWS Cognito Auth]
         Lambda[Lambda Functions]
-        AppSync[AWS AppSync GraphQL]
+        DataStore[Amplify DataStore]
     end
     
-    subgraph "Core Lambda Services"
-        Coach_Logic[Coach Logic Engine]
-        Assessment[Assessment Engine]
-        Learning[Learning Engine]
-        Spaced[Spaced Repetition]
-        Analytics[Analytics Service]
-        Social[Social Features]
+    subgraph "Custom Lambda Resolvers"
+        Coach_Logic[Coach Logic Resolver]
+        Assessment[Assessment Resolver]
+        Learning[Learning Resolver]
+        Spaced[Spaced Repetition Resolver]
+        Analytics[Analytics Resolver]
+        Social[Social Features Resolver]
     end
     
     subgraph "AWS Data Layer"
         DynamoDB[(DynamoDB Tables)]
-        ElastiCache[(ElastiCache Redis)]
-        S3[(S3 Content Storage)]
-        SageMaker[SageMaker ML]
+        S3[(S3 File Storage)]
+        CloudWatch[(CloudWatch Logs)]
     end
     
-    UI --> API_GW
     UI --> AppSync
+    UI --> API_GW
+    UI --> DataStore
     Coach --> Coach_Logic
     Theme --> Coach_Logic
+    AppSync --> Cognito
     API_GW --> Cognito
+    AppSync --> Lambda
     API_GW --> Lambda
+    DataStore --> DynamoDB
     Lambda --> Coach_Logic
     Lambda --> Assessment
     Lambda --> Learning
@@ -55,42 +59,45 @@ graph TB
     Learning --> Social
     Coach_Logic --> DynamoDB
     Analytics --> DynamoDB
-    Assessment --> SageMaker
-    Social --> AppSync
-    Lambda --> ElastiCache
+    Assessment --> DynamoDB
+    Social --> DynamoDB
+    Lambda --> CloudWatch
     Learning --> S3
 ```
 
 ### Technology Stack
 
 **Frontend:**
-- React Native for cross-platform mobile development
+- React 18.3.1 for web development
 - TypeScript for type safety and better developer experience
-- React Navigation for routing and navigation
-- Reanimated 3 for smooth animations and transitions
-- React Query for state management and caching
+- React Router for client-side routing and navigation
+- Tailwind CSS for utility-first styling
+- shadcn/ui for consistent component library
 
 **Backend:**
-- AWS Amplify for serverless backend infrastructure
-- AWS Lambda functions with Node.js and TypeScript
-- AWS API Gateway for RESTful APIs and WebSocket connections
-- AWS AppSync for GraphQL APIs and real-time subscriptions
-- DynamoDB for all data storage (users, progress, content, analytics)
-- Amazon ElastiCache (Redis) for caching and session management
+- AWS Amplify for full-stack serverless development
+- AWS AppSync for managed GraphQL API with real-time subscriptions
+- AWS API Gateway for REST API endpoints with Lambda integration
+- AWS DynamoDB with auto-generated resolvers
+- AWS Lambda for custom business logic resolvers
 - AWS Cognito for authentication and user management
+- Amazon S3 for file storage and media assets
 
-**AI/ML Services:**
-- TensorFlow.js for client-side adaptive algorithms
-- AWS SageMaker for complex ML operations and model training
-- Amazon Bedrock for AI-powered premium features
-- AWS Lambda for serverless AI processing
+**State Management:**
+- React Context for global state management
+- Amplify DataStore for offline-first state management
+- GraphQL hooks for real-time data operations
+- REST API hooks for traditional CRUD operations
+- React Hook Form with Zod validation
+- Amplify DataStore for client-side persistence and sync
 
 **Infrastructure:**
-- AWS Amplify hosting for scalable deployment
-- Amazon CloudFront CDN for content delivery and offline support
-- Amazon SNS/SES for push notifications and email
-- AWS AppSync for real-time collaborative features and subscriptions
-- API Gateway WebSocket for real-time group sessions and chat
+- AWS Amplify Hosting for serverless web deployment
+- DynamoDB for scalable NoSQL database
+- CloudFront CDN (managed by Amplify)
+- AWS SES for email notifications
+- AppSync subscriptions for real-time collaborative features
+- API Gateway for REST endpoints and file upload operations
 
 ## Components and Interfaces
 

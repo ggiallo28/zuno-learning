@@ -70,6 +70,24 @@ const coachConfigs: Record<CoachType, CoachConfig> = {
       'Impariamo gli uni dagli altri',
       'Il branco cresce quando tutti crescono'
     ]
+  },
+  polpo: {
+    id: 4,
+    coach_type: 'polpo',
+    display_name: 'Coach Polpo',
+    description: 'Il tuo compagno polpo per un apprendimento adattivo e ibrido',
+    learning_style: 'Apprendimento adattivo e intelligente',
+    primary_color: '#008080',
+    secondary_color: '#FF7F50',
+    accent_color: '#C0C0C0',
+    icon_style: 'multi-faceted-flexible',
+    personality_traits: ['Adattivo', 'Intelligente', 'Flessibile', 'Multi-sfaccettato'],
+    motivation_messages: [
+      'Adattiamo il nostro approccio a quello che funziona meglio',
+      'L\'intelligenza significa sapere quando cambiare strategia',
+      'La flessibilità è la chiave per un apprendimento efficace',
+      'Ogni situazione richiede l\'approccio giusto'
+    ]
   }
 };
 
@@ -98,15 +116,24 @@ const coachThemes: Record<CoachType, CoachTheme> = {
     background: '#F1F5F9',
     text: '#475569',
     muted: '#64748B'
+  },
+  polpo: {
+    primary: '#008080',
+    secondary: '#FF7F50',
+    accent: '#C0C0C0',
+    background: '#F0FDFA',
+    text: '#0F766E',
+    muted: '#5EEAD4'
   }
 };
 
 // Coach icons mapping
-import { Brain, Zap, Users } from 'lucide-react';
+import { Brain, Zap, Users, Octagon } from 'lucide-react';
 const coachIcons: Record<CoachType, React.ComponentType<any>> = {
   elia: Brain,
   skippy: Zap,
-  lupa: Users
+  lupa: Users,
+  polpo: Octagon
 };
 
 interface CoachProviderProps {

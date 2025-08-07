@@ -1,61 +1,112 @@
 # Implementation Plan
 
-## Phase 1: Architecture Migration and Foundation
+## Phase 1: Foundation and Core System Enhancement
 
-- [ ] 1. Initialize React Native project with AWS Amplify using Bun
-  - **React Native Setup**: Initialize new React Native project with Expo or React Native CLI using Bun
-  - **Bun Configuration**: Configure Bun as package manager for React Native project (bun install, bun run build, bun run start)
-  - **Amplify Project Setup**: Initialize Amplify project with React Native configuration, ensuring Bun compatibility
-  - **Architecture Assessment**: Analyze current React web + @uibakery/data vs React Native + Amplify patterns
-  - **Database Migration Strategy**: Plan PostgreSQL to AWS RDS migration or DynamoDB restructuring
-  - **Amplify CLI with Bun**: Set up Amplify CLI to work with Bun package manager for dependency management
-  - **Environment Configuration**: Set up Amplify environments (dev, staging, prod) with proper secrets management
-  - **Source Directory**: Configure src/ directory structure for React Native with Amplify
-  - _Requirements: Mobile-first architecture, infrastructure modernization, scalability, Bun runtime_
+- [x] 1. Initialize AWS Amplify project with React web and Bun
+  - **Amplify Initialization**: Initialize new Amplify project with React web configuration
+  - **Bun Configuration**: Configure Bun as package manager for Amplify + React development
+  - **Project Structure**: Set up proper src/ directory structure for Amplify + React
+  - **Amplify CLI Setup**: Install and configure Amplify CLI with Bun compatibility
+  - **Environment Configuration**: Set up Amplify environments (dev, staging, prod)
+  - **TypeScript Configuration**: Configure TypeScript for Amplify auto-generated types
+  - **Build System**: Configure Amplify build and deployment pipeline with Bun
+  - **Development Workflow**: Set up local development with Amplify mock services
+  - _Requirements: Serverless architecture, Amplify integration, scalability, Bun runtime_
 
-- [ ] 2. Implement Amplify backend services and data migration
-  - **API Layer Migration**: Replace actions/ SQL queries with Amplify GraphQL schema and resolvers
-  - **Database Schema Translation**: Convert PostgreSQL migrations to Amplify schema definitions
-  - **Authentication Setup**: Integrate Amplify Auth (Cognito) with React Native authentication flows
-  - **Storage Configuration**: Set up S3 for file uploads, offline content caching, and media assets
-  - **Lambda Functions**: Create custom resolvers for complex business logic (assessment engine, spaced repetition)
-  - **Environment Variables**: Migrate sensitive configuration to Amplify environment management
-  - **Data Migration**: Export existing PostgreSQL data and import to new Amplify backend
-  - **Push Notifications**: Set up Amplify Push Notifications for mobile engagement
-  - _Requirements: Backend service modernization, managed infrastructure, mobile backend_
+- [ ] 2. Replace mock data with SQLite database integration
+  - **SQLite Setup**: Configure SQLite database with existing migration files (1733617549_create_learning_app_tables.sql, 1733617550_seed_sample_data.sql, 1754966272_add_coach_system.sql)
+  - **Database Connection**: Create SQLite connection utilities in src/api/database.ts with proper error handling
+  - **Data Layer Migration**: Replace src/data/mockData.ts with actual SQLite queries for all entities (users, courses, lessons, progress, coaches)
+  - **Action Updates**: Update all src/actions/*.ts files to use SQLite instead of mock data:
+    - completeLessonProgress.ts → SQLite progress updates
+    - createUser.ts → SQLite user creation
+    - enrollInCourse.ts → SQLite enrollment records
+    - loadCourses.ts → SQLite course queries
+    - loadLessons.ts → SQLite lesson queries
+    - loadQuizQuestions.ts → SQLite quiz data
+    - loadUserCourses.ts → SQLite user course relationships
+    - loadUserProfile.ts → SQLite user profile data
+    - updateUserCoach.ts → SQLite coach selection updates
+  - **Type Safety**: Ensure all TypeScript types in src/types/index.ts match SQLite schema
+  - **Error Handling**: Implement proper SQLite error handling and connection management
+  - **Data Seeding**: Use existing seed data from migrations to populate initial SQLite database
+  - **Testing**: Verify all existing React components work with SQLite data instead of mock data
+  - **Preview**: Use full app.txt 
+  - _Requirements: Local database persistence, data integrity, type safety, existing functionality preservation_
 
-- [ ] 3. Migrate React web components to React Native
-  - **Navigation Setup**: Replace React Router with React Navigation for mobile navigation patterns
-  - **UI Framework Migration**: Replace Tailwind CSS + shadcn/ui with React Native UI library (NativeBase, React Native Elements, or Tamagui)
-  - **Component Architecture**: Convert existing React components to React Native equivalents:
-    - CourseCatalog.tsx → CourseCatalog.tsx (React Native)
-    - UserProfile.tsx → UserProfile.tsx (React Native)
-    - LessonViewer.tsx → LessonViewer.tsx (React Native)
-    - CoachSelection.tsx → CoachSelection.tsx (React Native)
-    - OnboardingFlow.tsx → OnboardingFlow.tsx (React Native)
-  - **Styling System**: Replace CSS/Tailwind with React Native StyleSheet and responsive design patterns
-  - **Context Migration**: Update CoachContext for React Native state management patterns
-  - _Requirements: Mobile UI/UX, cross-platform compatibility_
+- [ ] 3. Rebrand from "LearnDaily Pro" to "Zuno://" across the application
+  - **Brand Identity Update**: Replace all "LearnDaily Pro" references with "Zuno://" in:
+    - index.html title and meta tags
+    - package.json name and description
+    - src/app/app.tsx navigation and headers
+    - All React components with brand references
+  - **Visual Identity**: Update logo, colors, and branding elements to match Zuno:// identity
+  - **Favicon and Assets**: Replace favicon and any brand assets with Zuno:// branding
+  - **Documentation**: Update README.md and any documentation with new brand name
+  - **Configuration Files**: Update any configuration files that reference the old brand name
+  - _Requirements: Consistent brand identity, professional appearance, user recognition_
 
-- [ ] 4. Integrate Amplify services with React Native frontend using Bun
-  - **API Client Integration**: Replace @uibakery/data hooks with Amplify GraphQL client for React Native, managed with Bun
-  - **Authentication Flow**: Implement React Native authentication screens using Amplify Auth
-  - **Offline Capabilities**: Leverage Amplify DataStore for offline-first mobile functionality
-  - **Error Handling**: Update error handling to work with GraphQL errors and mobile network patterns
-  - **State Management**: Integrate Amplify with React Native state management (Context API or Redux)
-  - **Bun Runtime Optimization**: Ensure Amplify libraries work optimally with Bun runtime and package management
-  - **Performance Optimization**: Implement React Native performance best practices with Amplify and Bun
-  - _Requirements: Mobile data synchronization, offline support, authentication, Bun compatibility_
+- [ ] 4. Add Polpo (Octopus) adaptive coach to the coaching system
+  - **Coach Configuration**: Add Polpo coach to src/contexts/CoachContext.tsx with adaptive personality traits
+  - **Adaptive Theming**: Implement intelligent color-shifting theme for Polpo (teal, coral, pearl gray) that adapts based on user behavior
+  - **Component Updates**: Update src/components/CoachSelection.tsx to include fourth coach option with octopus iconography
+  - **SQLite Integration**: Add Polpo coach data to coach system tables and update coach selection queries
+  - **Type Definitions**: Add Polpo coach type and adaptive personality traits to src/types/index.ts
+  - **Adaptive Logic**: Implement adaptive behavior system that combines elements from other coaches based on user learning patterns
+  - **UI Components**: Create adaptive UI elements that change based on Polpo's current adaptation mode
+  - _Requirements: Four-coach system, adaptive personalization, intelligent theming, user choice_
 
-- [ ] 5. Refactor LearnDaily Pro branding to Zuno for React Native
-  - **Branding Migration**: Update package.json, App.tsx, and all user-facing text from "LearnDaily Pro" to "Zuno://"
-  - **Coach System Extension**: Extend CoachContext from 3-coach system (Elia, Skippy, Lupa) to 4-coach system (add Polpo)
-  - **Database Schema Updates**: Add new Amplify schema definitions for Polpo coach, assessment system, and spaced repetition
-  - **Type System Updates**: Update types/index.ts to include new Coach type for Polpo and assessment-related interfaces
-  - **Steering Document Updates**: Update product.md to reflect Zuno branding and React Native mobile app
-  - _Requirements: 2.1, 2.5, 10.1, 13.1_
+- [ ] 5. Implement Zuno Manager as master assistant overseeing all coaches
+  - **Manager System**: Create ZunoManager context and components as overarching assistant that coordinates with individual coaches
+  - **Visual Integration**: Add main Zuno Manager animal logo prominently in navigation and key screens
+  - **Coach Coordination**: Implement system where Zuno Manager introduces and coordinates between the four coaches
+  - **Onboarding Enhancement**: Update src/components/OnboardingFlow.tsx to feature Zuno Manager as primary guide
+  - **Brand Hierarchy**: Establish clear visual hierarchy with Zuno Manager as primary brand, coaches as specialized assistants
+  - **Manager Personality**: Define Zuno Manager's personality as wise, coordinating, and supportive of all learning styles
+  - **Component Integration**: Update all major components to acknowledge Zuno Manager's oversight role
+  - _Requirements: Brand consistency, clear hierarchy, coordinated user experience, professional guidance_
 
-- [ ] 6. Implement React Native coach system with Polpo (Octopus) adaptive coach
+- [ ] 6. Set up Amplify backend services (Auth, API, Storage)
+  - **Amplify Auth**: Add AWS Cognito authentication with user management
+  - **Amplify GraphQL API**: Set up AppSync GraphQL API with DynamoDB integration for real-time features
+  - **Amplify REST API**: Set up API Gateway REST API with Lambda integration for traditional CRUD operations
+  - **GraphQL Schema**: Design GraphQL schema with @model directives for auto-generated resolvers
+  - **REST Endpoints**: Design REST API endpoints for file uploads, batch operations, and legacy integrations
+  - **Amplify Storage**: Configure S3 storage for file uploads and media assets
+  - **Data Migration**: Export existing SQLite data and transform for DynamoDB via GraphQL/REST
+  - **Custom Resolvers**: Create Lambda resolvers for complex business logic (assessment, spaced repetition)
+  - **IAM Permissions**: Configure proper IAM roles and policies for Amplify services
+  - **Environment Management**: Set up Amplify environments with proper resource isolation
+  - _Requirements: Serverless backend, GraphQL API, REST API, managed services, scalability_
+
+- [ ] 7. Enhance existing React web components and UI system
+  - **Navigation Enhancement**: Optimize existing React Router setup for better user experience
+  - **UI Component Enhancement**: Extend existing Tailwind CSS + shadcn/ui components with new features
+  - **Component Architecture**: Enhance existing React components with new functionality:
+    - CourseCatalog.tsx → Add filtering and search capabilities
+    - UserProfile.tsx → Add detailed analytics and progress visualization
+    - LessonViewer.tsx → Add interactive elements and assessment features
+    - CoachSelection.tsx → Add fourth coach (Polpo) and enhanced selection UI
+    - OnboardingFlow.tsx → Add assessment-driven onboarding
+  - **Styling System**: Enhance existing Tailwind CSS with coach-specific theming and animations
+  - **Context Enhancement**: Extend CoachContext for four-coach system and new features
+  - _Requirements: Enhanced web UI/UX, responsive design, accessibility_
+
+- [ ] 8. Integrate Amplify services with React web frontend using Bun
+  - **Amplify Configuration**: Configure Amplify client with AppSync GraphQL and API Gateway REST endpoints
+  - **Authentication Integration**: Replace existing auth with Amplify Auth (Cognito) flows
+  - **DataStore Integration**: Replace @uibakery/data with Amplify DataStore for offline-first functionality
+  - **GraphQL Operations**: Replace SQL actions with GraphQL queries, mutations, and subscriptions for real-time features
+  - **REST API Integration**: Create REST API service layer for traditional CRUD operations and file uploads
+  - **Error Handling**: Update error handling for GraphQL errors, REST API errors, and offline scenarios
+  - **State Management**: Integrate Amplify DataStore with React Context for global state
+  - **Bun Compatibility**: Ensure Amplify libraries work optimally with Bun runtime
+  - **Real-time Features**: Implement GraphQL subscriptions for collaborative features
+  - _Requirements: GraphQL integration, REST API integration, offline support, real-time features, Bun compatibility_
+
+
+
+- [ ] 9. Implement React Native coach system with Polpo (Octopus) adaptive coach
   - **CoachContext Extension**: Add Polpo configuration to contexts/CoachContext.tsx with React Native state management
   - **Mobile Theming System**: Implement intelligent color shifting theme for Polpo (teal, coral, pearl gray) using React Native styling
   - **Component Updates**: Update CoachSelection screen to include fourth coach option with mobile-optimized iconography
@@ -64,7 +115,7 @@
   - **Mobile UX**: Ensure coach selection works well with touch interactions and mobile screen sizes
   - _Requirements: 2.5, 2.8, 3.4, 3.5_
 
-- [ ] 7. Implement Zuno mobile visual design system and branding
+- [ ] 10. Implement Zuno Manager assistant and visual design system
   - **Brand Integration**: Update App.tsx navigation to prominently feature main Zuno manager animal logo
   - **Component Updates**: Modify CoachSelection screen to show both main brand and individual coach logos
   - **Mobile Design System**: Create React Native design system with colorful but professional mobile UI patterns
@@ -74,41 +125,43 @@
   - **Mobile Responsiveness**: Ensure design works across different mobile screen sizes and orientations
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 3.1, 3.6_
 
-- [ ] 8. Complete React Native app deployment and monitoring
-  - **App Store Setup**: Prepare React Native app for iOS App Store and Google Play Store deployment
-  - **Amplify Hosting**: Set up Amplify hosting for any web admin panels or landing pages
-  - **Monitoring Setup**: Implement CloudWatch monitoring for API performance and mobile app crashes
-  - **Analytics Integration**: Set up Amplify Analytics for mobile user behavior tracking
-  - **Push Notifications**: Configure push notification delivery and tracking
-  - **Performance Monitoring**: Set up React Native performance monitoring and crash reporting
-  - **Testing**: Verify all functionality works on both iOS and Android devices
-  - _Requirements: Mobile app deployment, monitoring, scalability_
+- [ ] 11. Deploy and monitor Amplify application
+  - **Amplify Hosting**: Deploy React web app using Amplify Hosting with CI/CD
+  - **Domain Configuration**: Set up custom domain with SSL certificate via Amplify
+  - **Monitoring Setup**: Configure CloudWatch monitoring for AppSync API and Lambda resolvers
+  - **Analytics Integration**: Set up Amplify Analytics for user behavior tracking
+  - **Performance Monitoring**: Configure X-Ray tracing for GraphQL operations
+  - **Error Handling**: Set up CloudWatch alarms and error notifications
+  - **Testing**: Verify all functionality works across different browsers and devices
+  - _Requirements: Serverless deployment, monitoring, scalability, performance_
 
 ## Phase 2: Assessment-Driven Learning System
 
-- [ ] 9. Build initial assessment and knowledge gap detection system for React Native
-  - **Amplify Schema**: Create new Amplify GraphQL schema for assessment tables (assessments, knowledge_gaps, skill_maps)
-  - **GraphQL Operations**: Create GraphQL queries and mutations for assessment operations
-  - **Assessment Engine**: Build new AssessmentEngine.tsx React Native screen for identifying known vs unknown concepts
-  - **Skill Map Dashboard**: Create SkillMapDashboard.tsx React Native screen showing mastered/in-progress/unknown concepts
-  - **Learning Plan Generator**: Implement LearningPlanGenerator.tsx React Native component for personalized plans
-  - **Focus Check System**: Add FocusCheck.tsx React Native screen for periodic learning plan realignment
-  - **Type Definitions**: Add Assessment, SkillMap, LearningPlan interfaces to types/index.ts
-  - **Mobile UX**: Ensure assessment interfaces work well with touch interactions and mobile screen sizes
+- [ ] 12. Build initial assessment and knowledge gap detection system for React web
+  - **GraphQL Schema**: Extend Amplify GraphQL schema for assessment entities (Assessment, KnowledgeGap, SkillMap)
+  - **REST API Endpoints**: Create REST API endpoints for assessment submission and batch processing
+  - **Custom Resolvers**: Create Lambda resolvers for complex assessment logic and scoring
+  - **Assessment Engine**: Build new AssessmentEngine.tsx React web component using both GraphQL and REST APIs
+  - **Skill Map Dashboard**: Create SkillMapDashboard.tsx React web component with real-time GraphQL updates
+  - **Learning Plan Generator**: Implement LearningPlanGenerator.tsx React web component with GraphQL mutations
+  - **Focus Check System**: Add FocusCheck.tsx React web component with subscription updates
+  - **Auto-generated Types**: Use Amplify auto-generated TypeScript types for type safety
+  - **Web UX**: Ensure assessment interfaces work well with responsive web design and accessibility
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7_
 
-- [ ] 10. Enhance React Native lesson system with assessment-driven adaptation
-  - **Actions Enhancement**: Modify actions/loadLessons.ts to prioritize knowledge gaps in lesson ordering
-  - **Re-assessment System**: Update actions/completeLessonProgress.ts to trigger re-assessment of weak areas
-  - **Recommendation Engine**: Enhance LessonViewer.tsx with assessment-driven lesson recommendations
-  - **Progress Integration**: Update actions/loadUserProfile.ts to include assessment results in progress tracking
-  - **XP System Integration**: Modify existing XP calculation in progress actions to factor in assessment performance
-  - **Streak System**: Update streak tracking to account for assessment-driven learning milestones
+- [ ] 13. Enhance React web lesson system with assessment-driven adaptation
+  - **GraphQL Resolvers**: Create custom resolvers to prioritize knowledge gaps in lesson ordering
+  - **REST API Integration**: Use REST API for lesson content delivery and progress updates
+  - **Re-assessment System**: Update lesson completion via GraphQL mutations to trigger re-assessment of weak areas
+  - **Recommendation Engine**: Enhance LessonViewer.tsx with assessment-driven recommendations via GraphQL subscriptions
+  - **Progress Integration**: Update user profile queries to include assessment results in progress tracking
+  - **XP System Integration**: Modify XP calculation resolvers to factor in assessment performance
+  - **Streak System**: Update streak tracking with assessment-driven learning milestones
   - _Requirements: 12.2, 12.3, 12.7, 8.2, 8.3_
 
 ## Phase 3: Enhanced Learning Features
 
-- [ ] 10. Enhance existing adaptive difficulty system
+- [ ] 14. Enhance existing adaptive difficulty system
   - **Lesson Duration Control**: Modify LessonViewer.tsx to implement 3-5 minute duration targeting with progress indicators
   - **Difficulty Logic**: Update actions/completeLessonProgress.ts with >80% accuracy for increases, <60% for decreases
   - **Analytics Enhancement**: Enhance actions/loadUserProfile.ts with detailed performance tracking and trend analysis
@@ -117,26 +170,28 @@
   - **Database Schema**: Add difficulty_adjustments table migration for tracking adaptation history
   - _Requirements: 1.1, 1.2, 1.3, 1.5, 8.2, 8.3, 8.4_
 
-- [ ] 11. Implement spaced repetition system
-  - **Database Schema**: Create migrations for spaced_repetition_cards, review_sessions, review_schedule tables
-  - **SM-2 Algorithm**: Implement SpacedRepetitionEngine.tsx with SM-2 algorithm for 24-hour initial intervals
-  - **Review Interface**: Extend LessonViewer.tsx with review session mode integrated with existing lesson viewer
-  - **Actions Layer**: Create actions/loadDueReviews.ts, actions/completeReview.ts, actions/scheduleReview.ts
-  - **Notification System**: Build ReviewNotifications.tsx with coach-specific messaging from CoachContext
-  - **Progress Integration**: Update actions/loadUserProfile.ts to include spaced repetition data in progress tracking
-  - **XP Integration**: Modify existing XP and streak systems to reward consistent review completion
+- [ ] 15. Implement spaced repetition system
+  - **GraphQL Schema**: Add spaced repetition models (ReviewCard, ReviewSession, ReviewSchedule) to Amplify schema
+  - **REST API Endpoints**: Create REST API endpoints for bulk review operations and scheduling
+  - **SM-2 Algorithm**: Implement SpacedRepetitionEngine.tsx with Lambda resolver for SM-2 algorithm
+  - **Review Interface**: Extend LessonViewer.tsx with review session mode using both GraphQL and REST APIs
+  - **GraphQL Operations**: Create GraphQL queries/mutations for loadDueReviews, completeReview, scheduleReview
+  - **Notification System**: Build ReviewNotifications.tsx with coach-specific messaging and GraphQL subscriptions
+  - **Progress Integration**: Update user profile GraphQL schema to include spaced repetition data
+  - **XP Integration**: Modify existing XP and streak resolvers to reward consistent review completion
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 12. Enhance interactive learning elements in existing lessons
-  - **Quiz Enhancement**: Extend existing quiz components in LessonViewer.tsx with immediate feedback and explanations
-  - **Practice Interface**: Add PracticeTaskInterface.tsx component with performance tracking to lesson viewer
-  - **Mini-Game Framework**: Create MiniGameFramework.tsx that integrates with existing lesson types from actions/loadLessons.ts
-  - **User Preferences**: Update actions/loadUserProfile.ts and UserProfile.tsx to track interaction type preferences
-  - **Feedback System**: Enhance existing feedback components with detailed explanations for incorrect answers
-  - **Database Schema**: Add interaction_preferences and detailed_feedback tables to support enhanced tracking
+- [ ] 16. Enhance interactive learning elements in existing lessons
+  - **Quiz Enhancement**: Extend existing quiz components in LessonViewer.tsx with immediate feedback via GraphQL
+  - **Practice Interface**: Add PracticeTaskInterface.tsx component with performance tracking using both GraphQL and REST APIs
+  - **Mini-Game Framework**: Create MiniGameFramework.tsx that integrates with lesson types from GraphQL schema
+  - **File Upload Integration**: Use REST API for uploading practice exercises and multimedia content
+  - **User Preferences**: Update GraphQL User model and UserProfile.tsx to track interaction type preferences
+  - **Feedback System**: Enhance existing feedback components with detailed explanations stored in GraphQL
+  - **Schema Enhancement**: Add interaction preferences and detailed feedback to Amplify GraphQL schema
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 13. Extend existing gamification system with professional visual enhancements
+- [ ] 17. Extend existing gamification system with professional visual enhancements
   - Enhance existing XP calculation to include performance and difficulty factors
   - Extend existing level and badge system with sophisticated, professional badge designs
   - Improve existing streak tracking with engaging visual elements (fire/energy indicators)
@@ -149,7 +204,7 @@
 
 ## Phase 4: Collaborative Learning (Lupa Mode Enhancement)
 
-- [ ] 14. Implement real-time collaborative learning features for Lupa mode
+- [ ] 18. Implement real-time collaborative learning features for Lupa mode
   - Create study group creation and management system using existing database
   - Build real-time group session functionality (may require WebSocket integration)
   - Implement group challenges and shared learning activities
@@ -161,7 +216,7 @@
 
 ## Phase 5: Content and Analytics Enhancement
 
-- [ ] 15. Enhance existing content management system
+- [ ] 19. Enhance existing content management system
   - Extend existing course/lesson system to support multi-subject expandability
   - Improve content discovery by subject and difficulty using existing filters
   - Enhance coach-specific content adaptation in existing lesson delivery
@@ -169,7 +224,7 @@
   - Add content versioning to existing content management
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
-- [ ] 16. Extend existing analytics and progress tracking
+- [ ] 20. Extend existing analytics and progress tracking
   - Enhance existing progress dashboard with detailed analytics
   - Implement learning pattern detection and automatic adaptation
   - Extend existing accuracy and time tracking with trend analysis
@@ -180,7 +235,7 @@
 
 ## Phase 6: Premium Features and User Experience
 
-- [ ] 17. Implement freemium model enhancements
+- [ ] 21. Implement freemium model enhancements
   - Extend existing subscription system with more sophisticated tier management
   - Add ad-supported free tier functionality (if not already present)
   - Implement premium feature gating for advanced analytics and offline access
@@ -189,7 +244,7 @@
   - Enhance existing subscription management with graceful downgrade
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-- [ ] 18. Add offline mode and focus mode features
+- [ ] 22. Add offline mode and focus mode features
   - Implement content download and offline storage system
   - Build offline progress tracking with sync capabilities
   - Create Focus Mode with minimized gamification and distractions
@@ -200,7 +255,7 @@
 
 ## Phase 7: Voice, Privacy, and User Control
 
-- [ ] 19. Implement Zuno voice and tone consistency system
+- [ ] 23. Implement Zuno voice and tone consistency system
   - Update all existing messaging to follow Zuno brand voice guidelines
   - Enhance coach-specific messaging within professional brand guidelines
   - Improve existing feedback system with context-aware, specific guidance
@@ -209,7 +264,7 @@
   - Enhance error messaging with helpful, intelligent tone
   - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5, 13.6_
 
-- [ ] 20. Enhance privacy controls and personalization settings
+- [ ] 24. Enhance privacy controls and personalization settings
   - Extend existing user settings with comprehensive privacy controls
   - Add options to adjust personalization depth and AI suggestions
   - Implement granular toggles for analytics tracking and recommendations
@@ -220,7 +275,7 @@
 
 ## Phase 8: Enhanced Onboarding and Final Integration
 
-- [ ] 21. Redesign onboarding experience for Zuno
+- [ ] 25. Redesign onboarding experience for Zuno
   - Update existing onboarding to feature main Zuno manager animal introduction
   - Enhance coach explanation and selection with all four coaches
   - Add sample lesson system for coach demonstration
@@ -229,7 +284,7 @@
   - Add assessment-driven learning plan generation to onboarding
   - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.8_
 
-- [ ] 22. Implement comprehensive notification system
+- [ ] 26. Implement comprehensive notification system
   - Create personalized notification system with coach-specific messaging
   - Build spaced repetition reminder scheduling
   - Enhance existing streak maintenance notifications
@@ -238,7 +293,7 @@
   - Add quiet notification system for Focus Mode
   - _Requirements: 6.4, 14.3, 15.4_
 
-- [ ] 23. Enhance error handling and recovery systems
+- [ ] 27. Enhance error handling and recovery systems
   - Improve existing error handling with graceful degradation for offline scenarios
   - Add fallback systems for any AI service failures
   - Create error recovery for coach system failures
@@ -247,7 +302,7 @@
   - Enhance user-friendly error messaging with recovery suggestions
   - _Requirements: 1.5, 15.3, 15.5_
 
-- [ ] 24. Final integration testing and quality assurance
+- [ ] 28. Final integration testing and quality assurance
   - Test all refactored systems with existing UI Bakery data layer
   - Verify coach system works properly with all four coaches
   - Test assessment-driven learning integration with existing progress tracking
