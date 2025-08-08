@@ -1,0 +1,180 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+entity users { user_id + metadata + type(users)
+  *id : SERIAL [PK]
+  email : VARCHAR
+  username : VARCHAR
+  full_name : VARCHAR
+  subscription_tier : VARCHAR
+  total_xp : INT
+  current_level : INT
+  coach_type : VARCHAR
+  onboarding_completed : BOOLEAN
+}
+
+entity user_assessments { user_id + metadata + type(assessments)
+  *id : SERIAL [PK]
+  user_id : INT [FK]
+  assessment_type : VARCHAR
+  subject_area : VARCHAR
+}
+
+entity user_courses { user_id + catalog_id + type(courses)
+  *id : SERIAL [PK]
+  user_id : INT [FK]
+  course_id : INT [FK] 
+}
+
+entity user_lesson_progress { user_id + catalog_id + type(courses)
+  *id : SERIAL [PK]
+  user_id : INT [FK]
+  lesson_id : INT [FK]
+}
+
+entity catalog {
+  *id : SERIAL [PK]
+
+  title : VARCHAR
+
+  category : VARCHAR
+  difficulty_level : VARCHAR
+
+  course_id : INT [FK]
+  lesson_order : INT
+  lesson_type : VARCHAR
+
+  lesson_id : INT [FK]
+  question_text : TEXT
+  question_type : VARCHAR
+
+  achievements
+  coach_configs
+}
+
+# entity courses {
+#   *id : SERIAL [PK]
+#   title : VARCHAR
+#   category : VARCHAR
+#   difficulty_level : VARCHAR
+# }
+
+# entity lessons {
+#   *id : SERIAL [PK]
+#   course_id : INT [FK]
+#   title : VARCHAR
+#   lesson_order : INT
+#   lesson_type : VARCHAR
+# }
+
+# entity quiz_questions {
+#   *id : SERIAL [PK]
+#   lesson_id : INT [FK]
+#   question_text : TEXT
+#   question_type : VARCHAR
+# }
+
+# entity achievements { 
+#   *id : SERIAL [PK]
+#   name : VARCHAR
+#   requirement_type : VARCHAR
+#   xp_reward : INT
+# }
+
+# entity coach_configs {
+#   *id : SERIAL [PK]
+#   coach_type : VARCHAR
+#   display_name : VARCHAR
+# }
+
+entity user_achievements { ok
+  *id : SERIAL [PK]
+  user_id : INT [FK]
+  achievement_id : INT [FK]
+}
+
+entity daily_activities { ok
+  *id : SERIAL [PK]
+  user_id : INT [FK]
+  activity_date : DATE
+}
+
+entity user_coach_interactions { ok
+  *id : SERIAL [PK]
+  user_id : INT [FK]
+  interaction_type : VARCHAR
+}
+
+entity user_knowledge_gaps { ok
+  *id : SERIAL [PK]
+  user_id : INT [FK]
+  subject_area : VARCHAR
+  concept_name : VARCHAR
+}
+
+entity spaced_repetition_schedule { ok
+  *id : SERIAL [PK]
+  user_id : INT [FK]
+  content_id : INT
+}
+
+entity learning_groups {
+  *id : SERIAL [PK]
+  name : VARCHAR
+  subject_area : VARCHAR
+  created_by : INT [FK]
+}
+
+entity group_memberships {
+  *id : SERIAL [PK]
+  group_id : INT [FK]
+  user_id : INT [FK]
+}
+
+entity group_activities {
+  *id : SERIAL [PK]
+  group_id : INT [FK]
+  title : VARCHAR
+  created_by : INT [FK]
+}
+
+entity user_learning_analytics { 
+  *id : SERIAL [PK]
+  user_id : INT [FK]
+  metric_name : VARCHAR
+}
+
+entity offline_content_cache {
+  *id : SERIAL [PK]
+  user_id : INT [FK]
+  content_type : VARCHAR
+  content_id : INT
+}
+
+' === Relationships ===
+
+lessons --> courses : course_id
+user_courses --> users : user_id
+user_courses --> courses : course_id
+user_lesson_progress --> users : user_id
+user_lesson_progress --> lessons : lesson_id
+quiz_questions --> lessons : lesson_id
+user_achievements --> users : user_id
+user_achievements --> achievements : achievement_id
+daily_activities --> users : user_id
+user_coach_interactions --> users : user_id
+user_knowledge_gaps --> users : user_id
+spaced_repetition_schedule --> users : user_id
+learning_groups --> users : created_by
+group_memberships --> users : user_id
+group_memberships --> learning_groups : group_id
+group_activities --> learning_groups : group_id
+group_activities --> users : created_by
+user_learning_analytics --> users : user_id
+offline_content_cache --> users : user_id
+user_assessments --> users : user_id
+
+@enduml
+
+You are an expert in NoSQL database, your task is to create clsuters of the above tables, then create a new abstract name  and merge all the columns of the group. Think step by step.

@@ -13,26 +13,27 @@
   - **Development Workflow**: Set up local development with Amplify mock services
   - _Requirements: Serverless architecture, Amplify integration, scalability, Bun runtime_
 
-- [ ] 2. Replace mock data with SQLite database integration
-  - **SQLite Setup**: Configure SQLite database with existing migration files (1733617549_create_learning_app_tables.sql, 1733617550_seed_sample_data.sql, 1754966272_add_coach_system.sql)
-  - **Database Connection**: Create SQLite connection utilities in src/api/database.ts with proper error handling
-  - **Data Layer Migration**: Replace src/data/mockData.ts with actual SQLite queries for all entities (users, courses, lessons, progress, coaches)
-  - **Action Updates**: Update all src/actions/*.ts files to use SQLite instead of mock data:
-    - completeLessonProgress.ts → SQLite progress updates
-    - createUser.ts → SQLite user creation
-    - enrollInCourse.ts → SQLite enrollment records
-    - loadCourses.ts → SQLite course queries
-    - loadLessons.ts → SQLite lesson queries
-    - loadQuizQuestions.ts → SQLite quiz data
-    - loadUserCourses.ts → SQLite user course relationships
-    - loadUserProfile.ts → SQLite user profile data
-    - updateUserCoach.ts → SQLite coach selection updates
-  - **Type Safety**: Ensure all TypeScript types in src/types/index.ts match SQLite schema
-  - **Error Handling**: Implement proper SQLite error handling and connection management
-  - **Data Seeding**: Use existing seed data from migrations to populate initial SQLite database
-  - **Testing**: Verify all existing React components work with SQLite data instead of mock data
-  - **Preview**: Use full app.txt 
-  - _Requirements: Local database persistence, data integrity, type safety, existing functionality preservation_
+- [ ] 2. Replace mock data with Amplify DataStore or GraphQL API integration
+  - **GraphQL Schema Setup**: Check schema in `schema.graphql` with `@model`, this is where you can get what is currently supported.
+  - **Amplify Push**: Run `amplify push` to deploy GraphQL schema and generate types
+  - **Data Layer Migration**: Replace `src/data/mockData.ts` with real GraphQL queries/mutations using Amplify DataStore or API layer
+  - **Action Updates**: Update all `src/actions/*.ts` files to use Amplify-generated operations:
+    - `completeLessonProgress.ts` → update progress via mutation
+    - `createUser.ts` → create user with mutation
+    - `enrollInCourse.ts` → create enrollment record
+    - `loadCourses.ts` → query all courses
+    - `loadLessons.ts` → query all lessons
+    - `loadQuizQuestions.ts` → query quiz data
+    - `loadUserCourses.ts` → query user-course relationships
+    - `loadUserProfile.ts` → get user profile data
+    - `updateUserCoach.ts` → update selected coach
+  - **Auto-generated Types**: Use Amplify-generated TypeScript types for all models
+  - **State Integration**: Use Amplify DataStore with React Context or SWR-like cache for global state sync
+  - **Offline Handling** (optional): Enable Amplify DataStore for offline sync, or stick with AppSync GraphQL if real-time not needed
+  - **Data Seeding**: Create a temporary seeding script or use Amplify Admin UI for initial content
+  - **Testing**: Verify all existing React components work correctly with new backend-powered data
+  - _Requirements: Cloud persistence, real-time capability (optional), type safety, production-grade scalability_
+
 
 - [ ] 3. Rebrand from "LearnDaily Pro" to "Zuno://" across the application
   - **Brand Identity Update**: Replace all "LearnDaily Pro" references with "Zuno://" in:

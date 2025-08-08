@@ -1,0 +1,292 @@
+enum DifficultyLevelValues {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CoachNameValues {
+  ELIA
+  SKIPPY
+  LUPA
+  POLPO
+}
+
+enum ContentTypeValues {
+  LESSON
+  ASSESSMENT
+  REVIEW
+  CHALLENGE
+}
+
+enum CourseCategoryValues {
+  MATH
+  SCIENCE
+  LANGUAGE
+  HISTORY
+  TECHNOLOGY
+  ART
+  MUSIC
+  BUSINESS
+  HEALTH
+  OTHER
+}
+
+type CourseObject {
+  title: String
+  category: CourseCategoryValues
+  difficultyLevel: DifficultyLevelValues
+}
+
+enum LessonTypeValues {
+  VIDEO
+  READING
+  PRACTICE
+  QUIZ
+  DISCUSSION
+  PROJECT
+  ASSIGNMENT
+  SUMMARY
+  LIVE
+  OTHER
+}
+
+type LessonObject {
+  courseId: ID
+  title: String
+  lessonOrder: Int
+  lessonType: LessonTypeValues
+}
+
+enum QuestionTypeValues {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+  FILL_IN_THE_BLANK
+  MATCHING
+  ORDERING
+  ESSAY
+  CODING
+  IMAGE
+  AUDIO
+  VIDEO
+  OTHER
+}
+
+type QuizObject {
+  courseId: ID
+  lessonId: ID
+  questionText: String
+  questionType: QuestionTypeValues
+}
+
+type CoachObject {
+  coachName: CoachNameValues
+  displayName: String
+  avatarUrl: String
+  bio: String
+}
+
+enum RequirementTypeValues {
+  COMPLETE_LESSON
+  COMPLETE_COURSE
+  PERFECT_SCORE
+  DAILY_STREAK
+  WEEKLY_STREAK
+  MASTERY_LEVEL
+  PARTICIPATION
+  FIRST_LOGIN
+  REFER_A_FRIEND
+  CUSTOM
+}
+
+type AchievementObject {
+  name: String
+  requirementType: RequirementTypeValues
+  xpReward: Int
+  badgeIcon: String
+}
+
+enum CatalogResourceTypeValues {
+  COURSE
+  LESSON
+  QUIZ
+}
+
+enum AssessmentGradingModeValues {
+  AUTO
+  MANUAL
+  MIXED
+}
+
+type CatalogResourceItemObject {
+  id: ID!
+  type: CatalogResourceTypeValues!
+}
+
+type AssessmentTemplateObject {
+  title: String!
+  description: String
+  difficulty: DifficultyLevelValues
+  passingScore: Float
+  totalScore: Float
+  estimatedDuration: Int
+  gradingMode: AssessmentGradingModeValues
+  objectives: [String]
+  randomizeQuestions: Boolean
+  allowRetry: Boolean
+  maxAttempts: Int
+  resourceItems: [CatalogResourceItemObject!]
+}
+
+type UserProfileObject {
+  email: AWSEmail!
+  username: String!
+  fullName: String
+  subscriptionTier: String
+  totalXp: Int! 
+  currentLevel: Int!
+  coachName: CoachNameValues
+  onboardingCompleted: Boolean!
+}
+
+type UserProgressObject {
+  totalXpEarned: Int
+  completedLessons: Int
+  currentStreak: Int
+  masteryLevel: String
+}
+
+type UserActivityObject {
+  activityDate: AWSDate
+  activityType: String
+  description: String
+}
+
+type KnowledgeGapObject {
+  subjectArea: String
+  conceptName: String
+  severity: String
+}
+
+type CoachInteractionObject {
+  interactionType: String
+  notes: String
+  occurredAt: AWSDateTime
+}
+
+type ScheduledReviewObject {
+  contentId: ID
+  nextReviewDate: AWSDate
+  repetitionCount: Int
+}
+
+type LearningAnalyticsObject {
+  metricName: String
+  metricValue: Float
+  recordedAt: AWSDateTime
+}
+
+type AssessmentResultObject {
+  score: Float
+  passed: Boolean
+}
+
+enum GroupActivityTypeValues {
+  SESSION
+  DISCUSSION
+  CHALLENGE
+  VOTE
+  ANNOUNCEMENT
+  MEETING
+  OTHER
+}
+
+type GroupActivityObject {
+  activityId: ID
+  groupId: ID
+  activityType: GroupActivityTypeValues
+  title: String
+  description: String
+  startedAt: AWSDateTime
+  endedAt: AWSDateTime
+  participants: [ID]
+}
+
+type EntryMetadataObject {
+  userProfile: UserProfileObject
+  assessmentResult: AssessmentResultObject
+  assessmentDefinition: AssessmentTemplateObject
+  userProgress: UserProgressObject
+  userActivity: UserActivityObject
+  knowledgeGap: KnowledgeGapObject
+  coachInteraction: CoachInteractionObject
+  scheduledReview: ScheduledReviewObject
+  userLearningAnalytics: LearningAnalyticsObject
+  groupActivity: GroupActivityObject 
+}
+
+enum ZunoEntryTypeValues {
+  USER_PROGRESS
+  ASSESSMENT_RESULT
+  LESSON_COMPLETION
+  QUIZ_ATTEMPT
+  COURSE_COMPLETION
+  GROUP_ACTIVITY
+  REVIEW
+  LEADERBOARD_ENTRY
+  SESSION_LOG
+  ACHIEVEMENT_UNLOCKED
+  SCHEDULED_EVENT
+  KNOWLEDGE_GAP
+  COACH_INTERACTION
+  LEARNING_ANALYTICS
+  OTHER
+}
+
+type ZunoEntry @model {
+  id: ID!
+  userId: ID @index(name: "byUser", sortKeyFields: ["entryType", "timestamp"])
+  entryType: ZunoEntryTypeValues 
+  catalogId: ID @index(name: "byCatalog", sortKeyFields: ["entryType", "timestamp"])
+  catalog: ZunoCatalog @belongsTo(fields: ["catalogId"])
+  groupId: ID @index(name: "byGroup", sortKeyFields: ["entryType", "timestamp"])
+  group: ZunoGroup @belongsTo(fields: ["groupId"])
+  timestamp: AWSDateTime
+  metadata: EntryMetadataObject
+}
+
+type CatalogMetadataObject {
+  course: CourseObject
+  quiz: QuizObject 
+  lesson: LessonObject
+  coach: CoachObject
+  achievement: AchievementObject
+  assessment: AssessmentTemplateObject
+}
+
+enum CatalogItemTypeValues {
+  COURSE
+  QUIZ
+  LESSON
+  COACH
+  ACHIEVEMENT
+  ASSESSMENT # potrebbe essere privato per utente, unica entita con accessi diversi
+}
+
+type ZunoCatalog @model {
+  id: ID!
+  parentId: ID @index(name: "byParent", sortKeyFields: ["itemType", "timestamp"])
+  itemType: CatalogItemTypeValues! @index(name: "byItemType", sortKeyFields: ["timestamp"])
+  timestamp: AWSDateTime
+  metadata: CatalogMetadataObject
+  facts: [ZunoEntry] @hasMany
+}
+
+type ZunoGroup @model {
+  id: ID!
+  name: String
+  subjectArea: String
+  createdBy: ID
+  members: [ID!]
+  facts: [ZunoEntry] @hasMany
+}

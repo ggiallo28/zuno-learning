@@ -9,7 +9,7 @@
     "framework": "react",
     "config": {
       "SourceDir": "src",
-      "DistributionDir": "dist",
+      "DistributionDir": "build",
       "BuildCommand": "bun run build",
       "StartCommand": "bun run dev"
     }

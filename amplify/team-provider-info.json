@@ -10,6 +10,11 @@
       "StackName": "amplify-zuno-dev-1255b",
       "StackId": "arn:aws:cloudformation:us-east-2:438591499564:stack/amplify-zuno-dev-1255b/0452b6d0-7321-11f0-926a-021d85d7e8df",
       "AmplifyAppId": "d16m88ew8xusbx"
+    },
+    "categories": {
+      "api": {
+        "zuno": {}
+      }
     }
   }
 }
