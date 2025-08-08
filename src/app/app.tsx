@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useLoadAction, useMutateAction } from '@uibakery/data';
+import { useState, useEffect } from 'react';
 import { UserProfile } from '@/components/UserProfile';
 import { CourseCatalog } from '@/components/CourseCatalog';
 import { OnboardingFlow } from '@/components/OnboardingFlow';
@@ -24,9 +24,10 @@ import enrollInCourseAction from '@/actions/enrollInCourse';
 import updateUserCoachAction from '@/actions/updateUserCoach';
 
 import type { User, Course, CoachType } from '@/types';
+import { CoachNameValues } from '@/api/amplify';
 
 function AppContent() {
-  const [currentUserId, setCurrentUserId] = useState<number>(1); // Demo user
+  const [currentUserId, setCurrentUserId] = useState<string>('user_1'); // Demo user
   const [newUserForm, setNewUserForm] = useState({
     email: '',
     username: '',
@@ -35,65 +36,106 @@ function AppContent() {
   });
   const [showCoachSettings, setShowCoachSettings] = useState(false);
 
+  // Data state
+  const [user, setUser] = useState<User | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
+  
+  // Loading states
+  const [userLoading, setUserLoading] = useState(true);
+  const [creatingUser, setCreatingUser] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
+  const [updatingCoach, setUpdatingCoach] = useState(false);
+
   const { currentCoach, coachConfig, theme, setCoach, getMotivationMessage } = useCoach();
 
-  // Load data
-  const [userProfile, userLoading] = useLoadAction(loadUserProfileAction, [], { userId: currentUserId });
-  const [allCourses] = useLoadAction(loadCoursesAction, [], { category: '' });
-  const [userCourses] = useLoadAction(loadUserCoursesAction, [], { userId: currentUserId });
+  // Helper function to convert CoachType to CoachNameValues
+  const coachTypeToNameValue = (coachType: CoachType): CoachNameValues => {
+    const mapping: Record<CoachType, CoachNameValues> = {
+      'elia': CoachNameValues.ELIA,
+      'skippy': CoachNameValues.SKIPPY,
+      'lupa': CoachNameValues.LUPA,
+      'polpo': CoachNameValues.POLPO
+    };
+    return mapping[coachType];
+  };
 
-  // Mutations
-  const [createUser, creatingUser] = useMutateAction(createUserAction);
-  const [enrollInCourse, enrolling] = useMutateAction(enrollInCourseAction);
-  const [updateUserCoach, updatingCoach] = useMutateAction(updateUserCoachAction);
+  // Load data on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setUserLoading(true);
+        const [userProfile, allCourses, userCourses] = await Promise.all([
+          loadUserProfileAction(currentUserId),
+          loadCoursesAction(),
+          loadUserCoursesAction(currentUserId)
+        ]);
+        
+        setUser(userProfile);
+        setCourses(allCourses);
+        setEnrolledCourses(userCourses);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setUserLoading(false);
+      }
+    };
 
-  const user: User | null = userProfile?.[0] || null;
-  const courses: Course[] = allCourses || [];
-  const enrolledCourses: Course[] = userCourses || [];
+    loadData();
+  }, [currentUserId]);
 
   const handleCreateUser = async () => {
     if (!newUserForm.email || !newUserForm.username || !newUserForm.fullName) return;
     
     try {
-      const result = await createUser({
+      setCreatingUser(true);
+      const result = await createUserAction({
         email: newUserForm.email,
         username: newUserForm.username,
         fullName: newUserForm.fullName,
-        avatarUrl: newUserForm.avatarUrl || null
+        avatarUrl: newUserForm.avatarUrl || undefined
       });
       
-      if (result && Array.isArray(result) && result[0]) {
-        setCurrentUserId((result[0] as any).id);
+      if (result) {
+        setCurrentUserId(result.id);
+        setUser(result);
         setNewUserForm({ email: '', username: '', fullName: '', avatarUrl: '' });
         confetti({ particleCount: 100, spread: 70 });
       }
     } catch (error) {
       console.error('Error creating user:', error);
+    } finally {
+      setCreatingUser(false);
     }
   };
 
   const handleCompleteOnboarding = async (coachType: CoachType) => {
     try {
-      await updateUserCoach({
+      setUpdatingCoach(true);
+      await updateUserCoachAction({
         userId: currentUserId,
-        coachType: coachType,
+        coachType: coachTypeToNameValue(coachType),
         onboardingCompleted: true
       });
       
       setCoach(coachType);
       confetti({ particleCount: 200, spread: 100 });
       // Refresh user data
-      window.location.reload();
+      const updatedUser = await loadUserProfileAction(currentUserId);
+      setUser(updatedUser);
     } catch (error) {
       console.error('Error completing onboarding:', error);
+    } finally {
+      setUpdatingCoach(false);
     }
   };
 
   const handleCoachChange = async (coachType: CoachType) => {
     try {
-      await updateUserCoach({
+      setUpdatingCoach(true);
+      await updateUserCoachAction({
         userId: currentUserId,
-        coachType: coachType,
+        coachType: coachTypeToNameValue(coachType),
         onboardingCompleted: true
       });
       
@@ -102,17 +144,23 @@ function AppContent() {
       confetti({ particleCount: 100, spread: 70 });
     } catch (error) {
       console.error('Error updating coach:', error);
+    } finally {
+      setUpdatingCoach(false);
     }
   };
 
-  const handleEnrollInCourse = async (courseId: number) => {
+  const handleEnrollInCourse = async (courseId: string) => {
     try {
-      await enrollInCourse({ userId: currentUserId, courseId });
+      setEnrolling(true);
+      await enrollInCourseAction({ userId: currentUserId, courseId });
       confetti({ particleCount: 50, spread: 60 });
-      // Refresh data would happen automatically in a real app
-      window.location.reload(); // Simple refresh for demo
+      // Refresh data
+      const userCourses = await loadUserCoursesAction(currentUserId);
+      setEnrolledCourses(userCourses);
     } catch (error) {
       console.error('Error enrolling in course:', error);
+    } finally {
+      setEnrolling(false);
     }
   };
 
@@ -123,7 +171,7 @@ function AppContent() {
   };
 
   // Show onboarding if user hasn't completed it
-  if (user && !user.onboarding_completed) {
+  if (user && !user.onboardingCompleted) {
     return (
       <OnboardingFlow 
         onComplete={handleCompleteOnboarding}
@@ -237,10 +285,10 @@ function AppContent() {
               <div className="flex items-center gap-3 mb-2">
                 <div className="text-sm">
                   <div className="font-semibold" style={{ color: theme.primary }}>
-                    {coachConfig.display_name}
+                    {coachConfig.displayName}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {coachConfig.learning_style}
+                    {coachConfig.learningStyle}
                   </div>
                 </div>
                 <div 
@@ -349,7 +397,7 @@ function AppContent() {
                   <div>
                     <h4 className="font-semibold">Coach Attuale</h4>
                     <p className="text-sm text-muted-foreground">
-                      {coachConfig?.display_name} - {coachConfig?.learning_style}
+                      {coachConfig?.displayName} - {coachConfig?.learningStyle}
                     </p>
                   </div>
                   <Button

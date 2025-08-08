@@ -32,9 +32,11 @@ enum CourseCategoryValues {
 }
 
 type CourseObject {
-  title: String
-  category: CourseCategoryValues
-  difficultyLevel: DifficultyLevelValues
+  title: String!
+  category: CourseCategoryValues!
+  difficultyLevel: DifficultyLevelValues!
+  description: String!
+  extraLessonIds: [ID]
 }
 
 enum LessonTypeValues {
@@ -48,6 +50,8 @@ enum LessonTypeValues {
   SUMMARY
   LIVE
   OTHER
+  GAME
+  TEXT
 }
 
 type LessonObject {
@@ -55,6 +59,7 @@ type LessonObject {
   title: String
   lessonOrder: Int
   lessonType: LessonTypeValues
+  extraQuizIds: [ID]
 }
 
 enum QuestionTypeValues {
@@ -72,11 +77,20 @@ enum QuestionTypeValues {
   OTHER
 }
 
+type QuizPossibilityObject {
+  text: String!
+  isCorrect: Boolean 
+  imageUrl: String
+  audioUrl: String
+}
+
 type QuizObject {
   courseId: ID
   lessonId: ID
   questionText: String
-  questionType: QuestionTypeValues
+  questionType: String
+  possibilities: [QuizPossibilityObject!]
+  rightAnswerCount: Int
 }
 
 type CoachObject {
@@ -228,6 +242,7 @@ type EntryMetadataObject {
 enum ZunoEntryTypeValues {
   USER_PROGRESS
   ASSESSMENT_RESULT
+  ASSESSMENT_DEFINITION
   LESSON_COMPLETION
   QUIZ_ATTEMPT
   COURSE_COMPLETION
@@ -243,7 +258,7 @@ enum ZunoEntryTypeValues {
   OTHER
 }
 
-type ZunoEntry @model {
+type ZunoEntry @model @auth(rules: [{ allow: public }]) {
   id: ID!
   userId: ID @index(name: "byUser", sortKeyFields: ["entryType", "timestamp"])
   entryType: ZunoEntryTypeValues 
@@ -261,7 +276,6 @@ type CatalogMetadataObject {
   lesson: LessonObject
   coach: CoachObject
   achievement: AchievementObject
-  assessment: AssessmentTemplateObject
 }
 
 enum CatalogItemTypeValues {
@@ -270,10 +284,9 @@ enum CatalogItemTypeValues {
   LESSON
   COACH
   ACHIEVEMENT
-  ASSESSMENT # potrebbe essere privato per utente, unica entita con accessi diversi
 }
 
-type ZunoCatalog @model {
+type ZunoCatalog @model @auth(rules: [{ allow: public }]) {
   id: ID!
   parentId: ID @index(name: "byParent", sortKeyFields: ["itemType", "timestamp"])
   itemType: CatalogItemTypeValues! @index(name: "byItemType", sortKeyFields: ["timestamp"])
@@ -282,7 +295,7 @@ type ZunoCatalog @model {
   facts: [ZunoEntry] @hasMany
 }
 
-type ZunoGroup @model {
+type ZunoGroup @model @auth(rules: [{ allow: public }]) {
   id: ID!
   name: String
   subjectArea: String

@@ -1,0 +1,167 @@
+enum CatalogItemType {
+  COURSE
+  LESSON
+  QUIZ
+  COACH
+  ACHIEVEMENT
+  ASSESSMENT
+}
+
+type Course {
+  title: String
+  category: String
+  difficultyLevel: String
+}
+
+type Lesson {
+  courseId: ID
+  title: String
+  lessonOrder: Int
+  lessonType: String
+}
+
+type Quiz {
+  courseId: ID
+  lessonId: ID
+  questionText: String
+  questionType: String
+}
+
+type Coach {
+  coachType: String
+  displayName: String
+  avatarUrl: String
+  bio: String
+}
+
+type Achievement {
+  name: String
+  requirementType: String
+  xpReward: Int
+  badgeIcon: String
+}
+
+# enum AssessmentContentItemType {
+#   COURSE
+#   LESSON
+#   QUIZ
+# }
+# 
+# enum AssessmentScoringType {
+#   AUTO
+#   MANUAL
+#   MIXED
+# }
+# 
+# type ContentItem {
+#   id: ID!
+#   type: AssessmentContentItemType!
+# }
+# 
+# type AssessmentContent {
+#   title: String!
+#   description: String
+#   difficulty: String
+#   passingScore: Float
+#   totalScore: Float
+#   estimatedDuration: Int
+#   scoringType: AssessmentScoringType
+#   objectives: [String]
+#   randomizeQuestions: Boolean
+#   allowRetry: Boolean
+#   maxAttempts: Int
+# 
+#   contentItemIds: [ContentItem!]
+# }
+
+type ZunoCatalog @model {
+  id: ID! @primaryKey
+  parentId: ID @index(name: "byParent", sortKeyFields: ["itemType"])
+  itemType: CatalogItemType! @index(name: "byItemType")
+
+  course: Course
+  quiz: Quiz 
+  lesson: Lesson
+  coach: Coach
+  # achievement: Achievement
+  # assessment: AssessmentContent
+
+  facts: [ZunoEntry] @hasMany(indexName: "byUser", fields: ["id"])
+}
+
+type User {
+  id: ID!
+  email: AWSEmail! 
+  username: String!
+  fullName: String
+  subscriptionTier: String
+  totalXp: Int! 
+  currentLevel: Int!
+  coachType: String
+  onboardingCompleted: Boolean!
+}
+
+type Assessment {
+  score: Float
+  passed: Boolean
+}
+
+type Progress {
+  totalXpEarned: Int
+  completedLessons: Int
+  currentStreak: Int
+  masteryLevel: String
+}
+
+type Activity {
+  activityDate: AWSDate
+  activityType: String
+  description: String
+}
+
+type KnowledgeGap {
+  subjectArea: String
+  conceptName: String
+  severity: String
+}
+
+type CoachInteraction {
+  interactionType: String
+  notes: String
+  occurredAt: AWSDateTime
+}
+
+type Scheduled {
+  contentId: ID
+  nextReviewDate: AWSDate
+  repetitionCount: Int
+}
+
+type LearningAnalytics {
+  metricName: String
+  metricValue: Float
+  recordedAt: AWSDateTime
+}
+
+type Metadata {
+  user: User
+  # assessment: Assessment
+  # progress: Progress
+  # activity: Activity
+  # knowledge: KnowledgeGap
+  # coachInteraction: CoachInteraction
+  # scheduled: Scheduled
+  # userLearningAnalytics: LearningAnalytics
+}
+
+type ZunoEntry @model {
+  id: ID! @primaryKey
+  
+  userId: ID @index(name: "byUser", sortKeyFields: ["entryType", "timestamp"])
+  catalogId: ID @index(name: "byCatalog", sortKeyFields: ["entryType", "timestamp"])
+
+  entryType: String 
+  timestamp: AWSDateTime
+
+  metadata: Metadata
+}

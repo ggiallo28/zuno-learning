@@ -15,7 +15,7 @@
 
 - [ ] 2. Replace mock data with Amplify DataStore or GraphQL API integration
   - **GraphQL Schema Setup**: Check schema in `schema.graphql` with `@model`, this is where you can get what is currently supported.
-  - **Amplify Push**: Run `amplify push` to deploy GraphQL schema and generate types
+  - **Amplify Push**: The `amplify push` to deploy GraphQL schema and generate types has already been executed
   - **Data Layer Migration**: Replace `src/data/mockData.ts` with real GraphQL queries/mutations using Amplify DataStore or API layer
   - **Action Updates**: Update all `src/actions/*.ts` files to use Amplify-generated operations:
     - `completeLessonProgress.ts` → update progress via mutation

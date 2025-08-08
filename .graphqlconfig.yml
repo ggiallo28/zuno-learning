@@ -1,0 +1,15 @@
+projects:
+  zuno:
+    schemaPath: src/graphql/schema.json
+    includes:
+      - src/api/graphql/**/*.ts
+    excludes:
+      - ./amplify/**
+    extensions:
+      amplify:
+        codeGenTarget: typescript
+        generatedFileName: src/api/amplify.ts
+        docsFilePath: src/api/graphql
+extensions:
+  amplify:
+    version: 3

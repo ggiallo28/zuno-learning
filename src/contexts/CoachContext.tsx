@@ -3,6 +3,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import type { CoachType, CoachConfig, CoachTheme } from '@/types';
+import { CoachNameValues } from '@/types';
 
 interface CoachContextValue {
   currentCoach: CoachType;
@@ -18,71 +19,71 @@ const CoachContext = createContext<CoachContextValue | undefined>(undefined);
 // Coach configurations
 const coachConfigs: Record<CoachType, CoachConfig> = {
   elia: {
-    id: 1,
-    coach_type: 'elia',
-    display_name: 'Coach Elia',
+    id: '1',
+    coachName: CoachNameValues.ELIA,
+    displayName: 'Coach Elia',
     description: 'Il tuo compagno elefante per un apprendimento profondo e riflessivo',
-    learning_style: 'Apprendimento lento, riflessivo, approfondito',
-    primary_color: '#8B7355',
-    secondary_color: '#A0927B',
-    accent_color: '#6B5B47',
-    icon_style: 'solid-stable',
-    personality_traits: ['Solido', 'Stabile', 'Paziente', 'Metodico'],
-    motivation_messages: [
+    learningStyle: 'Apprendimento lento, riflessivo, approfondito',
+    primaryColor: '#8B7355',
+    secondaryColor: '#A0927B',
+    accentColor: '#6B5B47',
+    iconStyle: 'solid-stable',
+    personalityTraits: ['Solido', 'Stabile', 'Paziente', 'Metodico'],
+    motivationMessages: [
       'Prendiamoci il tempo necessario per comprendere a fondo',
       'La conoscenza profonda richiede pazienza',
       'Ogni concetto merita la giusta attenzione',
       'Costruiamo solide fondamenta insieme'
     ]
   },
-  skippy: {
-    id: 2,
-    coach_type: 'skippy',
-    display_name: 'Coach Skippy',
-    description: 'Il tuo compagno scoiattolo per un apprendimento veloce e dinamico',
-    learning_style: 'Apprendimento veloce, leggero, esplorativo',
-    primary_color: '#E67E22',
-    secondary_color: '#F39C12',
-    accent_color: '#D68910',
-    icon_style: 'dynamic-light',
-    personality_traits: ['Vivace', 'Dinamico', 'Curioso', 'Agile'],
-    motivation_messages: [
-      'Esploriamo insieme nuovi orizzonti!',
-      'Velocità e agilità mentale sono i nostri punti di forza',
-      'Scopriamo rapidamente quello che ci serve!',
-      'Manteniamo il ritmo, ma sempre con leggerezza'
-    ]
-  },
   lupa: {
-    id: 3,
-    coach_type: 'lupa',
-    display_name: 'Coach Lupa',
+    id: '2',
+    coachName: CoachNameValues.LUPA,
+    displayName: 'Coach Lupa',
     description: 'Il tuo compagno lupa per un apprendimento collaborativo e sociale',
-    learning_style: 'Apprendimento collaborativo e sociale',
-    primary_color: '#2C3E50',
-    secondary_color: '#34495E',
-    accent_color: '#B7472A',
-    icon_style: 'connected-intense',
-    personality_traits: ['Intenso', 'Connesso', 'Empatico', 'Sociale'],
-    motivation_messages: [
+    learningStyle: 'Apprendimento collaborativo e sociale',
+    primaryColor: '#2C3E50',
+    secondaryColor: '#34495E',
+    accentColor: '#B7472A',
+    iconStyle: 'connected-intense',
+    personalityTraits: ['Intenso', 'Connesso', 'Empatico', 'Sociale'],
+    motivationMessages: [
       'Insieme siamo più forti',
       'La conoscenza condivisa è più preziosa',
       'Impariamo gli uni dagli altri',
       'Il branco cresce quando tutti crescono'
     ]
   },
+  skippy: {
+    id: '3',
+    coachName: CoachNameValues.SKIPPY,
+    displayName: 'Coach Skippy',
+    description: 'Il tuo compagno canguro per un apprendimento rapido ed esplorativo',
+    learningStyle: 'Apprendimento veloce, leggero, esplorativo',
+    primaryColor: '#E67E22',
+    secondaryColor: '#F39C12',
+    accentColor: '#D68910',
+    iconStyle: 'dynamic-light',
+    personalityTraits: ['Vivace', 'Dinamico', 'Curioso', 'Agile'],
+    motivationMessages: [
+      'Esploriamo nuovi orizzonti insieme!',
+      'Velocità e agilità mentale sono i nostri punti di forza',
+      'Scopriamo rapidamente ciò che ci serve!',
+      'Manteniamo il ritmo, con leggerezza'
+    ]
+  },
   polpo: {
-    id: 4,
-    coach_type: 'polpo',
-    display_name: 'Coach Polpo',
+    id: '4',
+    coachName: CoachNameValues.POLPO,
+    displayName: 'Coach Polpo',
     description: 'Il tuo compagno polpo per un apprendimento adattivo e ibrido',
-    learning_style: 'Apprendimento adattivo e intelligente',
-    primary_color: '#008080',
-    secondary_color: '#FF7F50',
-    accent_color: '#C0C0C0',
-    icon_style: 'multi-faceted-flexible',
-    personality_traits: ['Adattivo', 'Intelligente', 'Flessibile', 'Multi-sfaccettato'],
-    motivation_messages: [
+    learningStyle: 'Apprendimento adattivo e intelligente',
+    primaryColor: '#008080',
+    secondaryColor: '#FF7F50',
+    accentColor: '#C0C0C0',
+    iconStyle: 'multi-faceted-flexible',
+    personalityTraits: ['Adattivo', 'Intelligente', 'Flessibile', 'Multi-sfaccettato'],
+    motivationMessages: [
       'Adattiamo il nostro approccio a quello che funziona meglio',
       'L\'intelligenza significa sapere quando cambiare strategia',
       'La flessibilità è la chiave per un apprendimento efficace',
@@ -154,7 +155,7 @@ export function CoachProvider({ children, initialCoach = 'elia' }: CoachProvider
   };
 
   const getMotivationMessage = () => {
-    const messages = coachConfig.motivation_messages;
+    const messages = coachConfig.motivationMessages;
     return messages[Math.floor(Math.random() * messages.length)];
   };
 

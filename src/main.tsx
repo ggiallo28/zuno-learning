@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Amplify } from 'aws-amplify'
-import App from './app/app-with-mock-data.tsx'
+import App from './app/app.tsx'
 import './app/globals.css'
 
 // Import Amplify configuration

@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, Clock, Award, ArrowRight, ArrowLeft } from 'lucide-react';
 import type { Lesson } from '@/types';
+import { LessonTypeValues } from '@/types';
 
 interface QuizQuestion {
   id: number;
@@ -39,12 +40,14 @@ export function LessonViewer({
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState<number>(0);
 
+  const lessonType = lesson.lessonType ?? LessonTypeValues.QUIZ;
+
   const handleAnswerChange = (questionId: number, answer: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: answer }));
   };
 
   const handleSubmitQuiz = async () => {
-    if (lesson.lesson_type !== 'quiz') return;
+    if (lessonType !== LessonTypeValues.QUIZ) return;
 
     let correct = 0;
     const total = questions.length;
@@ -67,19 +70,19 @@ export function LessonViewer({
   };
 
   const getLessonTypeIcon = () => {
-    switch (lesson.lesson_type) {
-      case 'quiz': return '🧠';
-      case 'practice': return '💪';
-      case 'game': return '🎮';
+    switch (lesson.lessonType) {
+      case LessonTypeValues.QUIZ: return '🧠';
+      case LessonTypeValues.PRACTICE: return '💪';
+      case LessonTypeValues.GAME: return '🎮';
       default: return '📖';
     }
   };
 
   const getLessonTypeColor = () => {
-    switch (lesson.lesson_type) {
-      case 'quiz': return 'bg-blue-100 text-blue-800';
-      case 'practice': return 'bg-green-100 text-green-800';
-      case 'game': return 'bg-purple-100 text-purple-800';
+    switch (lesson.lessonType) {
+      case LessonTypeValues.QUIZ: return 'bg-blue-100 text-blue-800';
+      case LessonTypeValues.PRACTICE: return 'bg-green-100 text-green-800';
+      case LessonTypeValues.GAME: return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -95,15 +98,15 @@ export function LessonViewer({
                 <CardTitle className="text-xl">{lesson.title}</CardTitle>
                 <div className="flex items-center space-x-2 mt-1">
                   <Badge className={getLessonTypeColor()}>
-                    {lesson.lesson_type}
+                    {lesson.lessonType}
                   </Badge>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Clock className="h-3 w-3 mr-1" />
-                    {lesson.estimated_minutes} min
+                    {lesson.estimatedMinutes} min
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Award className="h-3 w-3 mr-1" />
-                    {lesson.xp_reward} XP
+                    {lesson.xpReward} XP
                   </div>
                 </div>
               </div>
@@ -112,7 +115,7 @@ export function LessonViewer({
         </CardHeader>
         
         <CardContent className="space-y-6">
-          {lesson.lesson_type === 'text' && (
+          {lessonType === LessonTypeValues.TEXT && (
             <div className="prose max-w-none">
               <div className="whitespace-pre-line text-base leading-relaxed">
                 {lesson.content}
@@ -120,7 +123,7 @@ export function LessonViewer({
             </div>
           )}
 
-          {lesson.lesson_type === 'quiz' && !showResults && (
+          {lessonType === LessonTypeValues.QUIZ && !showResults && (
             <div className="space-y-6">
               <div className="prose max-w-none mb-6">
                 <div className="whitespace-pre-line text-base leading-relaxed">
@@ -172,7 +175,7 @@ export function LessonViewer({
             </div>
           )}
 
-          {lesson.lesson_type === 'quiz' && showResults && (
+          {lessonType === LessonTypeValues.QUIZ && showResults && (
             <div className="space-y-6">
               <Card className="p-6 text-center">
                 <div className="space-y-4">
@@ -229,7 +232,7 @@ export function LessonViewer({
             </div>
           )}
 
-          {lesson.lesson_type === 'practice' && (
+          {lessonType === LessonTypeValues.PRACTICE && (
             <div className="space-y-4">
               <div className="prose max-w-none">
                 <div className="whitespace-pre-line text-base leading-relaxed">
@@ -258,7 +261,7 @@ export function LessonViewer({
         </Button>
 
         <div className="flex space-x-2">
-          {lesson.lesson_type === 'quiz' && !showResults && (
+          {lessonType === LessonTypeValues.QUIZ && !showResults && (
             <Button 
               onClick={handleSubmitQuiz}
               disabled={Object.keys(answers).length < questions.length || isCompleting}
@@ -267,7 +270,7 @@ export function LessonViewer({
             </Button>
           )}
           
-          {(lesson.lesson_type !== 'quiz' || showResults) && (
+          {(lessonType !== LessonTypeValues.QUIZ || showResults) && (
             <Button 
               onClick={handleCompleteLesson}
               disabled={isCompleting}

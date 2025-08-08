@@ -1,8 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
-// https://vitejs.dev/config/
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -10,12 +13,10 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
       '@/components': path.resolve(__dirname, './src/components'),
       '@/contexts': path.resolve(__dirname, './src/contexts'),
-      '@/types': path.resolve(__dirname, './src/types/index.ts'),
-      '@/actions': path.resolve(__dirname, './src/actions'),
+      '@/types': path.resolve(__dirname, './src/types'),
       '@/lib': path.resolve(__dirname, './src/lib'),
       '@/app': path.resolve(__dirname, './src/app')
-    },
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
+    }
   },
   server: {
     port: 3000,

@@ -119,14 +119,14 @@ entity spaced_repetition_schedule { ok
   content_id : INT
 }
 
-entity learning_groups {
+entity learning_groups { ok
   *id : SERIAL [PK]
   name : VARCHAR
   subject_area : VARCHAR
   created_by : INT [FK]
 }
 
-entity group_memberships {
+entity group_memberships { ok
   *id : SERIAL [PK]
   group_id : INT [FK]
   user_id : INT [FK]
@@ -139,7 +139,7 @@ entity group_activities {
   created_by : INT [FK]
 }
 
-entity user_learning_analytics { 
+entity user_learning_analytics { ok
   *id : SERIAL [PK]
   user_id : INT [FK]
   metric_name : VARCHAR

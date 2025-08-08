@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { CoachType, CoachConfig } from '@/types';
+import { CoachNameValues } from '@/types';
 import { Brain, Zap, Users, Octagon } from 'lucide-react';
 
 interface CoachSelectionProps {
@@ -14,17 +15,17 @@ interface CoachSelectionProps {
 // Coach configurations
 const coachConfigs: Record<CoachType, CoachConfig> = {
   elia: {
-    id: 1,
-    coach_type: 'elia',
-    display_name: 'Coach Elia',
+    id: '1',
+    coachName: CoachNameValues.ELIA,
+    displayName: 'Coach Elia',
     description: 'Deep, reflective, methodical learning approach',
-    learning_style: 'Slow, reflective, thorough learning',
-    primary_color: '#8B7355',
-    secondary_color: '#A0927B',
-    accent_color: '#6B5B47',
-    icon_style: 'solid-stable',
-    personality_traits: ['Solid', 'Stable', 'Patient', 'Methodical'],
-    motivation_messages: [
+    learningStyle: 'Slow, reflective, thorough learning',
+    primaryColor: '#8B7355',
+    secondaryColor: '#A0927B',
+    accentColor: '#6B5B47',
+    iconStyle: 'solid-stable',
+    personalityTraits: ['Solid', 'Stable', 'Patient', 'Methodical'],
+    motivationMessages: [
       'Let\'s take the time needed to understand deeply',
       'Deep knowledge requires patience',
       'Every concept deserves proper attention',
@@ -32,17 +33,17 @@ const coachConfigs: Record<CoachType, CoachConfig> = {
     ]
   },
   skippy: {
-    id: 2,
-    coach_type: 'skippy',
-    display_name: 'Coach Skippy',
+    id: '2',
+    coachName: CoachNameValues.SKIPPY,
+    displayName: 'Coach Skippy',
     description: 'Fast, dynamic, exploratory learning style',
-    learning_style: 'Quick, light, exploratory learning',
-    primary_color: '#E67E22',
-    secondary_color: '#F39C12',
-    accent_color: '#D68910',
-    icon_style: 'dynamic-light',
-    personality_traits: ['Lively', 'Dynamic', 'Curious', 'Agile'],
-    motivation_messages: [
+    learningStyle: 'Quick, light, exploratory learning',
+    primaryColor: '#E67E22',
+    secondaryColor: '#F39C12',
+    accentColor: '#D68910',
+    iconStyle: 'dynamic-light',
+    personalityTraits: ['Lively', 'Dynamic', 'Curious', 'Agile'],
+    motivationMessages: [
       'Let\'s explore new horizons together!',
       'Speed and mental agility are our strengths',
       'Let\'s quickly discover what we need!',
@@ -50,17 +51,17 @@ const coachConfigs: Record<CoachType, CoachConfig> = {
     ]
   },
   lupa: {
-    id: 3,
-    coach_type: 'lupa',
-    display_name: 'Coach Lupa',
+    id: '3',
+    coachName: CoachNameValues.LUPA,
+    displayName: 'Coach Lupa',
     description: 'Collaborative, social learning experience',
-    learning_style: 'Collaborative and social learning',
-    primary_color: '#2C3E50',
-    secondary_color: '#34495E',
-    accent_color: '#B7472A',
-    icon_style: 'connected-intense',
-    personality_traits: ['Intense', 'Connected', 'Empathetic', 'Social'],
-    motivation_messages: [
+    learningStyle: 'Collaborative and social learning',
+    primaryColor: '#2C3E50',
+    secondaryColor: '#34495E',
+    accentColor: '#B7472A',
+    iconStyle: 'connected-intense',
+    personalityTraits: ['Intense', 'Connected', 'Empathetic', 'Social'],
+    motivationMessages: [
       'Together we are stronger',
       'Shared knowledge is more precious',
       'We learn from each other',
@@ -68,17 +69,17 @@ const coachConfigs: Record<CoachType, CoachConfig> = {
     ]
   },
   polpo: {
-    id: 4,
-    coach_type: 'polpo',
-    display_name: 'Coach Polpo',
+    id: '4',
+    coachName: CoachNameValues.POLPO,
+    displayName: 'Coach Polpo',
     description: 'Adaptive hybrid approach that intelligently combines multiple learning strategies',
-    learning_style: 'Intelligent adaptive learning',
-    primary_color: '#008080',
-    secondary_color: '#FF7F50',
-    accent_color: '#C0C0C0',
-    icon_style: 'multi-faceted-flexible',
-    personality_traits: ['Adaptive', 'Intelligent', 'Flexible', 'Multi-faceted'],
-    motivation_messages: [
+    learningStyle: 'Intelligent adaptive learning',
+    primaryColor: '#008080',
+    secondaryColor: '#FF7F50',
+    accentColor: '#C0C0C0',
+    iconStyle: 'multi-faceted-flexible',
+    personalityTraits: ['Adaptive', 'Intelligent', 'Flexible', 'Multi-faceted'],
+    motivationMessages: [
       'Let\'s adapt our approach to what works best',
       'Intelligence means knowing when to change strategy',
       'Flexibility is the key to effective learning',
@@ -115,17 +116,17 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
               <div className="flex items-center gap-3">
                 <div 
                   className="p-2 rounded-lg"
-                  style={{ backgroundColor: config.primary_color + '20' }}
+                  style={{ backgroundColor: config.primaryColor + '20' }}
                 >
                   <Icon 
                     className="h-6 w-6" 
-                    style={{ color: config.primary_color }}
+                    style={{ color: config.primaryColor }}
                   />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">{config.display_name}</CardTitle>
+                  <CardTitle className="text-lg">{config.displayName}</CardTitle>
                   <CardDescription className="text-sm">
-                    {config.learning_style}
+                    {config.learningStyle}
                   </CardDescription>
                 </div>
               </div>
@@ -135,14 +136,14 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
                 {config.description}
               </p>
               <div className="flex flex-wrap gap-1 mb-3">
-                {config.personality_traits.map((trait: string) => (
+                {config.personalityTraits.map((trait: string) => (
                   <Badge 
                     key={trait} 
                     variant="secondary" 
                     className="text-xs"
                     style={{ 
-                      backgroundColor: config.secondary_color + '20',
-                      color: config.primary_color
+                      backgroundColor: config.secondaryColor + '20',
+                      color: config.primaryColor
                     }}
                   >
                     {trait}
@@ -154,8 +155,8 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
                 className="w-full"
                 disabled={isSubmitting}
                 style={isSelected ? {
-                  backgroundColor: config.primary_color,
-                  borderColor: config.primary_color
+                  backgroundColor: config.primaryColor,
+                  borderColor: config.primaryColor
                 } : {}}
               >
                 {isSubmitting ? 'Updating...' : isSelected ? 'Selected' : 'Choose Coach'}

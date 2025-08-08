@@ -9,7 +9,7 @@ import type { Course } from '@/types';
 
 interface CourseCatalogProps {
   courses: Course[];
-  onEnrollInCourse: (courseId: number) => Promise<void>;
+  onEnrollInCourse: (courseId: string) => Promise<void>;
   isEnrolling?: boolean;
 }
 
@@ -22,7 +22,7 @@ export function CourseCatalog({ courses, onEnrollInCourse, isEnrolling }: Course
 
   const filteredCourses = courses.filter(course => {
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
-    const matchesDifficulty = selectedDifficulty === 'all' || course.difficulty_level === selectedDifficulty;
+    const matchesDifficulty = selectedDifficulty === 'all' || course.difficultyLevel === selectedDifficulty;
     return matchesCategory && matchesDifficulty;
   });
 
@@ -35,8 +35,8 @@ export function CourseCatalog({ courses, onEnrollInCourse, isEnrolling }: Course
     }
   };
 
-  const isEnrolled = (course: Course) => course.enrolled_at !== undefined;
-  const isCompleted = (course: Course) => course.completed_at !== undefined;
+  const isEnrolled = (course: Course) => course.enrolledAt !== undefined;
+  const isCompleted = (course: Course) => course.completedAt !== undefined;
 
   return (
     <div className="space-y-6">
@@ -73,7 +73,7 @@ export function CourseCatalog({ courses, onEnrollInCourse, isEnrolling }: Course
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => (
           <Card key={course.id} className="relative overflow-hidden">
-            {course.is_premium && (
+            {course.isPremium && (
               <div className="absolute top-3 right-3 z-10">
                 <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
                   <Lock className="h-3 w-3 mr-1" />
@@ -94,8 +94,8 @@ export function CourseCatalog({ courses, onEnrollInCourse, isEnrolling }: Course
             
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Badge className={getDifficultyColor(course.difficulty_level)}>
-                  {course.difficulty_level}
+                <Badge className={getDifficultyColor(course.difficultyLevel)}>
+                  {course.difficultyLevel}
                 </Badge>
                 <Badge variant="outline">{course.category}</Badge>
               </div>
@@ -103,11 +103,11 @@ export function CourseCatalog({ courses, onEnrollInCourse, isEnrolling }: Course
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div className="flex items-center">
                   <Users className="h-4 w-4 mr-1" />
-                  <span>{course.lesson_count || 0} lessons</span>
+                  <span>{course.lessonCount || 0} lessons</span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-1" />
-                  <span>{course.estimated_duration_days} days</span>
+                  <span>{course.estimatedDurationDays} days</span>
                 </div>
               </div>
 
@@ -115,9 +115,9 @@ export function CourseCatalog({ courses, onEnrollInCourse, isEnrolling }: Course
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Progress</span>
-                    <span>{Math.round(course.progress_percentage || 0)}%</span>
+                    <span>{Math.round(course.progressPercentage || 0)}%</span>
                   </div>
-                  <Progress value={course.progress_percentage || 0} className="h-2" />
+                  <Progress value={course.progressPercentage || 0} className="h-2" />
                   {isCompleted(course) && (
                     <Badge variant="default" className="w-full justify-center">
                       <Star className="h-3 w-3 mr-1" />
@@ -132,9 +132,9 @@ export function CourseCatalog({ courses, onEnrollInCourse, isEnrolling }: Course
                   onClick={() => onEnrollInCourse(course.id)}
                   disabled={isEnrolling}
                   className="w-full"
-                  variant={course.is_premium ? "secondary" : "default"}
+                  variant={course.isPremium ? "secondary" : "default"}
                 >
-                  {course.is_premium ? 'Upgrade to Access' : 'Enroll Now'}
+                  {course.isPremium ? 'Upgrade to Access' : 'Enroll Now'}
                 </Button>
               )}
               
