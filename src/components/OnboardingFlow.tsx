@@ -88,7 +88,7 @@ export function OnboardingFlow({ onComplete, isSubmitting }: OnboardingFlowProps
               <div className="mx-auto mb-4 p-3 bg-blue-100 rounded-full w-fit">
                 <Sparkles className="h-8 w-8 text-blue-600" />
               </div>
-              <CardTitle className="text-3xl">Benvenuto in Zuno://</CardTitle>
+              <CardTitle className="text-3xl">Benvenuto in Zuno</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

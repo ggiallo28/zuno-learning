@@ -12,8 +12,10 @@ import { UserProfile } from '@/components/UserProfile';
 import { CourseCatalog } from '@/components/CourseCatalog';
 import { OnboardingFlow } from '@/components/OnboardingFlow';
 import { CoachSelection } from '@/components/CoachSelection';
+import { ZunoBrandHeader } from '@/components/ZunoBrandHeader';
+import { AssessmentSystem } from '@/components/AssessmentSystem';
 import { CoachProvider, useCoach } from '@/contexts/CoachContext';
-import { BookOpen, User as UserIcon, Trophy, Settings, Plus, Palette } from 'lucide-react';
+import { BookOpen, User as UserIcon, /* Trophy,*/ Settings, Plus, Palette, Target, Users } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 import loadCoursesAction from '@/actions/loadCourses';
@@ -22,8 +24,11 @@ import loadUserCoursesAction from '@/actions/loadUserCourses';
 import createUserAction from '@/actions/createUser';
 import enrollInCourseAction from '@/actions/enrollInCourse';
 import updateUserCoachAction from '@/actions/updateUserCoach';
+import loadUserAssessmentsAction from '@/actions/loadUserAssessments';
+import loadUserKnowledgeGapsAction from '@/actions/loadUserKnowledgeGaps';
+import createAssessmentAction from '@/actions/createAssessment';
 
-import type { User, Course, CoachType } from '@/types';
+import type { User, Course, CoachType, Assessment, KnowledgeGap } from '@/types';
 import { CoachNameValues } from '@/api/amplify';
 
 function AppContent() {
@@ -40,14 +45,17 @@ function AppContent() {
   const [user, setUser] = useState<User | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [knowledgeGaps, setKnowledgeGaps] = useState<KnowledgeGap[]>([]);
   
   // Loading states
   const [userLoading, setUserLoading] = useState(true);
   const [creatingUser, setCreatingUser] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
   const [updatingCoach, setUpdatingCoach] = useState(false);
+  const [assessmentLoading, setAssessmentLoading] = useState(false);
 
-  const { currentCoach, coachConfig, theme, setCoach, getMotivationMessage } = useCoach();
+  const { currentCoach, coachConfig, theme, setCoach/*, getMotivationMessage*/ } = useCoach();
 
   // Helper function to convert CoachType to CoachNameValues
   const coachTypeToNameValue = (coachType: CoachType): CoachNameValues => {
@@ -65,15 +73,19 @@ function AppContent() {
     const loadData = async () => {
       try {
         setUserLoading(true);
-        const [userProfile, allCourses, userCourses] = await Promise.all([
+        const [userProfile, allCourses, userCourses, userAssessments, userKnowledgeGaps] = await Promise.all([
           loadUserProfileAction(currentUserId),
           loadCoursesAction(),
-          loadUserCoursesAction(currentUserId)
+          loadUserCoursesAction(currentUserId),
+          loadUserAssessmentsAction(currentUserId, 10),
+          loadUserKnowledgeGapsAction(currentUserId)
         ]);
         
         setUser(userProfile);
         setCourses(allCourses);
         setEnrolledCourses(userCourses);
+        setAssessments(userAssessments);
+        setKnowledgeGaps(userKnowledgeGaps);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -162,6 +174,45 @@ function AppContent() {
     } finally {
       setEnrolling(false);
     }
+  };
+
+  const handleStartAssessment = async (type: 'initial' | 'progress' | 'focus_check') => {
+    try {
+      setAssessmentLoading(true);
+      
+      // Create a sample assessment for demonstration
+      const sampleQuestions = [
+        { id: '1', question: 'Sample question 1', type: 'multiple_choice' },
+        { id: '2', question: 'Sample question 2', type: 'multiple_choice' }
+      ];
+      
+      const result = await createAssessmentAction({
+        userId: currentUserId,
+        assessmentType: type,
+        subjectArea: 'General Knowledge',
+        questionsData: sampleQuestions,
+        answersData: [],
+        score: Math.floor(Math.random() * 40) + 60, // Random score between 60-100
+        identifiedGaps: ['Sample gap 1', 'Sample gap 2'],
+        recommendations: ['Focus on area 1', 'Practice more in area 2']
+      });
+
+      if (result.success) {
+        confetti({ particleCount: 100, spread: 70 });
+        // Refresh assessments data
+        const updatedAssessments = await loadUserAssessmentsAction(currentUserId, 10);
+        setAssessments(updatedAssessments);
+      }
+    } catch (error) {
+      console.error('Error starting assessment:', error);
+    } finally {
+      setAssessmentLoading(false);
+    }
+  };
+
+  const handleViewSkillMap = () => {
+    console.log('Opening skill map view');
+    // In a real app, this would navigate to a detailed skill map
   };
 
   // Demo data seeding button
@@ -266,61 +317,25 @@ function AppContent() {
     );
   }
 
+  // Ho cambiato user={user} in user={user!} #TODO
   return (
     <div className="max-w-7xl mx-auto p-6" style={{ backgroundColor: theme.background }}>
-      {/* Header with Coach Integration */}
-      <div className="mb-8 relative">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2" style={{ color: theme.primary }}>
-              Zuno://
-            </h1>
-            <p className="text-muted-foreground">
-              La tua esperienza di apprendimento personalizzata
-            </p>
-          </div>
-          
-          {coachConfig && (
-            <div className="text-right">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="text-sm">
-                  <div className="font-semibold" style={{ color: theme.primary }}>
-                    {coachConfig.displayName}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {coachConfig.learningStyle}
-                  </div>
-                </div>
-                <div 
-                  className="p-2 rounded-full"
-                  style={{ backgroundColor: `${theme.primary}15` }}
-                >
-                  {(() => {
-                    const IconComponent = currentCoach === 'elia' ? BookOpen : 
-                                        currentCoach === 'skippy' ? Trophy : 
-                                        UserIcon;
-                    return <IconComponent className="h-5 w-5" style={{ color: theme.primary }} />;
-                  })()}
-                </div>
-              </div>
-              <div 
-                className="text-xs italic px-3 py-1 rounded-full text-center"
-                style={{ 
-                  backgroundColor: `${theme.accent}10`,
-                  color: theme.accent 
-                }}
-              >
-                {getMotivationMessage()}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      <ZunoBrandHeader 
+        user={user!}
+        onSettingsClick={() => {
+          const settingsTab = document.querySelector('[data-radix-collection-item][value="settings"]') as HTMLElement;
+          settingsTab?.click();
+        }}
+      />
 
       {user && <UserProfile user={user} />}
 
-      <Tabs defaultValue="catalog" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="assessment" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="assessment" className="flex items-center">
+            <Target className="h-4 w-4 mr-2" />
+            Focus
+          </TabsTrigger>
           <TabsTrigger value="catalog" className="flex items-center">
             <BookOpen className="h-4 w-4 mr-2" />
             Catalogo
@@ -329,15 +344,26 @@ function AppContent() {
             <UserIcon className="h-4 w-4 mr-2" />
             I miei Corsi
           </TabsTrigger>
-          <TabsTrigger value="achievements" className="flex items-center">
-            <Trophy className="h-4 w-4 mr-2" />
-            Obiettivi
+          <TabsTrigger value="social" className="flex items-center">
+            <Users className="h-4 w-4 mr-2" />
+            Collaborativo
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center">
             <Settings className="h-4 w-4 mr-2" />
             Impostazioni
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="assessment">
+          <AssessmentSystem 
+            userId={currentUserId}
+            onStartAssessment={handleStartAssessment}
+            onViewSkillMap={handleViewSkillMap}
+            knowledgeGaps={knowledgeGaps}
+            recentAssessments={assessments}
+            isLoading={assessmentLoading}
+          />
+        </TabsContent>
 
         <TabsContent value="catalog">
           <CourseCatalog 
@@ -373,13 +399,32 @@ function AppContent() {
           </div>
         </TabsContent>
 
-        <TabsContent value="achievements">
+        <TabsContent value="social">
           <Card className="p-12 text-center">
-            <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Achievements Coming Soon</h3>
-            <p className="text-muted-foreground">
-              Complete lessons and courses to earn badges and unlock achievements!
+            <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">
+              {currentCoach === 'lupa' 
+                ? 'Apprendimento Collaborativo' 
+                : 'Funzionalità Sociale'
+              }
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              {currentCoach === 'lupa' 
+                ? 'Unisciti a gruppi di studio, partecipa a discussioni guidate e impara insieme ai tuoi colleghi.'
+                : 'Connettiti con altri learner, condividi progressi e partecipa alla community Zuno.'
+              }
             </p>
+            {currentCoach === 'lupa' && (
+              <div className="space-y-4 max-w-md mx-auto">
+                <Button className="w-full">
+                  <Users className="h-4 w-4 mr-2" />
+                  Trova Gruppi di Studio
+                </Button>
+                <Button variant="outline" className="w-full">
+                  Crea Nuovo Gruppo
+                </Button>
+              </div>
+            )}
           </Card>
         </TabsContent>
 

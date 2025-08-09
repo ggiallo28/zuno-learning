@@ -18,7 +18,7 @@
         "@radix-ui/react-tabs": "^1.1.12",
         "@uibakery/data": "0.0.6",
         "aws-amplify": "^6.15.5",
-        "canvas-confetti": "1.9.3",
+        "canvas-confetti": "^1.9.3",
         "class-variance-authority": "0.7.0",
         "clsx": "2.1.1",
         "lucide-react": "0.446.0",

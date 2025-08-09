@@ -119,6 +119,72 @@ export interface Achievement {
   earnedAt?: string;
 }
 
+// New interfaces for expanded functionality
+
+export interface KnowledgeGap {
+  id: string;
+  user_id: string;
+  subject_area: string;
+  concept_name: string;
+  confidence_level: number;
+  assessment_date: string;
+  last_reviewed_at?: string;
+  review_count: number;
+  mastery_status: 'unknown' | 'weak' | 'developing' | 'strong' | 'mastered';
+}
+
+export interface Assessment {
+  id: string;
+  user_id: string;
+  assessment_type: 'initial' | 'progress' | 'focus_check';
+  subject_area?: string;
+  questions_data: any[];
+  answers_data?: any[];
+  score?: number;
+  identified_gaps: string[];
+  recommendations: string[];
+  completed_at?: string;
+  created_at: string;
+}
+
+export interface LearningGroup {
+  id: string;
+  name: string;
+  description?: string;
+  subject_area?: string;
+  max_members: number;
+  is_active: boolean;
+  created_by: string;
+  member_count?: number;
+  user_role?: 'member' | 'moderator' | 'leader';
+}
+
+export interface SpacedRepetitionItem {
+  id: string;
+  user_id: string;
+  content_id: string;
+  content_type: 'lesson' | 'quiz' | 'concept';
+  next_review_date: string;
+  interval_days: number;
+  repetition_count: number;
+  ease_factor: number;
+  last_performance?: number;
+}
+
+export interface InteractiveElement {
+  type: 'quiz' | 'practice' | 'game' | 'discussion' | 'simulation';
+  weight: number;
+  config?: Record<string, any>;
+}
+
+// Enhanced lesson interface
+export interface EnhancedLesson extends Lesson {
+  interactive_elements?: InteractiveElement[];
+  difficulty_score?: number;
+  prerequisites?: string[];
+  learning_objectives?: string[];
+}
+
 export {
   CoachNameValues,
   DifficultyLevelValues,
