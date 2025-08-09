@@ -76,95 +76,6 @@ export const listZunoEntries = /* GraphQL */ `query ListZunoEntries(
   APITypes.ListZunoEntriesQueryVariables,
   APITypes.ListZunoEntriesQuery
 >;
-export const getZunoCatalog = /* GraphQL */ `query GetZunoCatalog($id: ID!) {
-  getZunoCatalog(id: $id) {
-    id
-    parentId
-    itemType
-    timestamp
-    metadata {
-      __typename
-    }
-    facts {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.GetZunoCatalogQueryVariables,
-  APITypes.GetZunoCatalogQuery
->;
-export const listZunoCatalogs = /* GraphQL */ `query ListZunoCatalogs(
-  $filter: ModelZunoCatalogFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  listZunoCatalogs(filter: $filter, limit: $limit, nextToken: $nextToken) {
-    items {
-      id
-      parentId
-      itemType
-      timestamp
-      createdAt
-      updatedAt
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.ListZunoCatalogsQueryVariables,
-  APITypes.ListZunoCatalogsQuery
->;
-export const getZunoGroup = /* GraphQL */ `query GetZunoGroup($id: ID!) {
-  getZunoGroup(id: $id) {
-    id
-    name
-    subjectArea
-    createdBy
-    members
-    facts {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.GetZunoGroupQueryVariables,
-  APITypes.GetZunoGroupQuery
->;
-export const listZunoGroups = /* GraphQL */ `query ListZunoGroups(
-  $filter: ModelZunoGroupFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  listZunoGroups(filter: $filter, limit: $limit, nextToken: $nextToken) {
-    items {
-      id
-      name
-      subjectArea
-      createdBy
-      members
-      createdAt
-      updatedAt
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.ListZunoGroupsQueryVariables,
-  APITypes.ListZunoGroupsQuery
->;
 export const zunoEntriesByUserIdAndEntryTypeAndTimestamp = /* GraphQL */ `query ZunoEntriesByUserIdAndEntryTypeAndTimestamp(
   $userId: ID!
   $entryTypeTimestamp: ModelZunoEntryByUserCompositeKeyConditionInput
@@ -276,6 +187,51 @@ export const zunoEntriesByGroupIdAndEntryTypeAndTimestamp = /* GraphQL */ `query
   APITypes.ZunoEntriesByGroupIdAndEntryTypeAndTimestampQueryVariables,
   APITypes.ZunoEntriesByGroupIdAndEntryTypeAndTimestampQuery
 >;
+export const getZunoCatalog = /* GraphQL */ `query GetZunoCatalog($id: ID!) {
+  getZunoCatalog(id: $id) {
+    id
+    parentId
+    itemType
+    timestamp
+    metadata {
+      __typename
+    }
+    facts {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetZunoCatalogQueryVariables,
+  APITypes.GetZunoCatalogQuery
+>;
+export const listZunoCatalogs = /* GraphQL */ `query ListZunoCatalogs(
+  $filter: ModelZunoCatalogFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listZunoCatalogs(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      parentId
+      itemType
+      timestamp
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListZunoCatalogsQueryVariables,
+  APITypes.ListZunoCatalogsQuery
+>;
 export const zunoCatalogsByParentIdAndItemTypeAndTimestamp = /* GraphQL */ `query ZunoCatalogsByParentIdAndItemTypeAndTimestamp(
   $parentId: ID!
   $itemTypeTimestamp: ModelZunoCatalogByParentCompositeKeyConditionInput
@@ -341,4 +297,48 @@ export const zunoCatalogsByItemTypeAndTimestamp = /* GraphQL */ `query ZunoCatal
 ` as GeneratedQuery<
   APITypes.ZunoCatalogsByItemTypeAndTimestampQueryVariables,
   APITypes.ZunoCatalogsByItemTypeAndTimestampQuery
+>;
+export const getZunoGroup = /* GraphQL */ `query GetZunoGroup($id: ID!) {
+  getZunoGroup(id: $id) {
+    id
+    name
+    subjectArea
+    createdBy
+    members
+    facts {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetZunoGroupQueryVariables,
+  APITypes.GetZunoGroupQuery
+>;
+export const listZunoGroups = /* GraphQL */ `query ListZunoGroups(
+  $filter: ModelZunoGroupFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listZunoGroups(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      name
+      subjectArea
+      createdBy
+      members
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListZunoGroupsQueryVariables,
+  APITypes.ListZunoGroupsQuery
 >;

@@ -1,14 +1,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { Amplify } from 'aws-amplify'
 import App from './app/app.tsx'
 import './app/globals.css'
 
-// Import Amplify configuration
-import amplifyconfig from './amplifyconfiguration.json'
+// Import and configure Amplify with auth mode support
+import { configureAmplify } from './lib/authConfig'
 
-// Configure Amplify
-Amplify.configure(amplifyconfig)
+// Configure Amplify with appropriate auth mode
+const authConfig = configureAmplify()
+console.log(`🚀 Starting Zuno with ${authConfig.mode.toUpperCase()} authentication`)
 
 import ErrorBoundary from './components/ErrorBoundary'
 

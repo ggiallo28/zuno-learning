@@ -67,12 +67,12 @@
         "FunctionName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "zuno1a50e3caPostConfirmation",
+            "zuno6362eb38PostConfirmation",
             {
               "Fn::Join": [
                 "",
                 [
-                  "zuno1a50e3caPostConfirmation",
+                  "zuno6362eb38PostConfirmation",
                   "-",
                   {
                     "Ref": "env"
@@ -122,12 +122,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "zuno1a50e3caPostConfirmation",
+            "zuno6362eb38PostConfirmation",
             {
               "Fn::Join": [
                 "",
                 [
-                  "zuno1a50e3caPostConfirmation",
+                  "zuno6362eb38PostConfirmation",
                   "-",
                   {
                     "Ref": "env"

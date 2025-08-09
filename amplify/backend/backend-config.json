@@ -1,15 +1,32 @@
 {
   "api": {
     "zuno": {
-      "dependsOn": [],
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "zuno6362eb38"
+        }
+      ],
       "output": {
         "authConfig": {
-          "additionalAuthenticationProviders": [],
+          "additionalAuthenticationProviders": [
+            {
+              "apiKeyConfig": {
+                "apiKeyExpirationDate": "2026-08-09T16:34:32.301Z",
+                "apiKeyExpirationDays": 365,
+                "description": "zuno-api"
+              },
+              "authenticationType": "API_KEY"
+            }
+          ],
           "defaultAuthentication": {
-            "apiKeyConfig": {
-              "apiKeyExpirationDays": 7
-            },
-            "authenticationType": "API_KEY"
+            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+            "userPoolConfig": {
+              "userPoolId": "authzuno6362eb38"
+            }
           }
         }
       },
@@ -18,7 +35,7 @@
     }
   },
   "auth": {
-    "zuno1a50e3ca": {
+    "zuno6362eb38": {
       "customAuth": false,
       "dependsOn": [
         {
@@ -27,7 +44,7 @@
             "Name"
           ],
           "category": "function",
-          "resourceName": "zuno1a50e3caPostConfirmation",
+          "resourceName": "zuno6362eb38PostConfirmation",
           "triggerProvider": "Cognito"
         }
       ],
@@ -41,14 +58,8 @@
           "passwordPolicyMinLength": 8
         },
         "signupAttributes": [
-          "BIRTHDATE",
           "EMAIL",
-          "GENDER",
-          "LOCALE",
-          "NAME",
-          "PICTURE",
-          "PROFILE",
-          "ZONEINFO"
+          "NAME"
         ],
         "socialProviders": [],
         "usernameAttributes": [],
@@ -61,34 +72,34 @@
     }
   },
   "function": {
-    "zuno1a50e3caPostConfirmation": {
+    "zuno6362eb38PostConfirmation": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     }
   },
   "parameters": {
-    "AMPLIFY_function_zuno1a50e3caPostConfirmation_GROUP": {
+    "AMPLIFY_function_zuno6362eb38PostConfirmation_GROUP": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "zuno1a50e3caPostConfirmation"
+          "resourceName": "zuno6362eb38PostConfirmation"
         }
       ]
     },
-    "AMPLIFY_function_zuno1a50e3caPostConfirmation_deploymentBucketName": {
+    "AMPLIFY_function_zuno6362eb38PostConfirmation_deploymentBucketName": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "zuno1a50e3caPostConfirmation"
+          "resourceName": "zuno6362eb38PostConfirmation"
         }
       ]
     },
-    "AMPLIFY_function_zuno1a50e3caPostConfirmation_s3Key": {
+    "AMPLIFY_function_zuno6362eb38PostConfirmation_s3Key": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "zuno1a50e3caPostConfirmation"
+          "resourceName": "zuno6362eb38PostConfirmation"
         }
       ]
     }

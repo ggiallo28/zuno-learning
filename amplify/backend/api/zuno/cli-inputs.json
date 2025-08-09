@@ -4,8 +4,16 @@
     "apiName": "zuno",
     "serviceName": "AppSync",
     "defaultAuthType": {
-      "mode": "API_KEY",
-      "expirationTime": 7
-    }
+      "mode": "AMAZON_COGNITO_USER_POOLS",
+      "cognitoUserPoolId": "authzuno6362eb38"
+    },
+    "additionalAuthTypes": [
+      {
+        "mode": "API_KEY",
+        "expirationTime": 365,
+        "apiKeyExpirationDate": "2026-08-09T16:34:32.301Z",
+        "keyDescription": "zuno-api"
+      }
+    ]
   }
 }

@@ -75,7 +75,11 @@
   - **Protected Routes**: Implement route protection using Amplify Auth guards
   - **Session Management**: Replace current session handling with Cognito JWT tokens
   - **User Actions Update**: Update src/actions/createUser.ts and src/actions/loadUserProfile.ts to work with Cognito
-  - **Context Integration**: Update existing contexts to use Cognito authentication state
+  - **Auth Modes Support (Cognito Only)**: Support only auth modes—Cognito for the public app and for local development. (keep API key in the GraphQL)
+  - **Email Confirmation Flow**: Implement Cognito post-signup verification with confirm/resend code, error handling, redirect on success, deep-link username prefill, and tests for happy/error paths.
+  - **Password Reset Flow**: Add forgot/reset password screens using Cognito APIs with validation, error handling, security checks, and tests for request/confirm scenarios.
+  - **Essential Attributes at Registration**: Require only name and email during sign-up, allowing users to set remaining attributes later in the app settings.
+  - **Context Integration**: Update existing contexts to use Cognito authentication state, make sure the existing api works with new Auth
   - _Requirements: Secure authentication, user management, session handling, GraphQL integration_
 
 - [ ] 7. Optimize existing React web components and performance

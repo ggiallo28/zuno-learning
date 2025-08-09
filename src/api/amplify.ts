@@ -735,25 +735,6 @@ export type DeleteZunoGroupInput = {
   id: string,
 };
 
-export type ModelZunoGroupFilterInput = {
-  id?: ModelIDInput | null,
-  name?: ModelStringInput | null,
-  subjectArea?: ModelStringInput | null,
-  createdBy?: ModelIDInput | null,
-  members?: ModelIDInput | null,
-  createdAt?: ModelStringInput | null,
-  updatedAt?: ModelStringInput | null,
-  and?: Array< ModelZunoGroupFilterInput | null > | null,
-  or?: Array< ModelZunoGroupFilterInput | null > | null,
-  not?: ModelZunoGroupFilterInput | null,
-};
-
-export type ModelZunoGroupConnection = {
-  __typename: "ModelZunoGroupConnection",
-  items:  Array<ZunoGroup | null >,
-  nextToken?: string | null,
-};
-
 export type ModelZunoEntryByCatalogCompositeKeyConditionInput = {
   eq?: ModelZunoEntryByCatalogCompositeKeyInput | null,
   le?: ModelZunoEntryByCatalogCompositeKeyInput | null,
@@ -782,6 +763,25 @@ export type ModelZunoEntryByGroupCompositeKeyConditionInput = {
 export type ModelZunoEntryByGroupCompositeKeyInput = {
   entryType?: ZunoEntryTypeValues | null,
   timestamp?: string | null,
+};
+
+export type ModelZunoGroupFilterInput = {
+  id?: ModelIDInput | null,
+  name?: ModelStringInput | null,
+  subjectArea?: ModelStringInput | null,
+  createdBy?: ModelIDInput | null,
+  members?: ModelIDInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelZunoGroupFilterInput | null > | null,
+  or?: Array< ModelZunoGroupFilterInput | null > | null,
+  not?: ModelZunoGroupFilterInput | null,
+};
+
+export type ModelZunoGroupConnection = {
+  __typename: "ModelZunoGroupConnection",
+  items:  Array<ZunoGroup | null >,
+  nextToken?: string | null,
 };
 
 export type ModelSubscriptionZunoEntryFilterInput = {
@@ -1826,95 +1826,6 @@ export type ListZunoEntriesQuery = {
   } | null,
 };
 
-export type GetZunoCatalogQueryVariables = {
-  id: string,
-};
-
-export type GetZunoCatalogQuery = {
-  getZunoCatalog?:  {
-    __typename: "ZunoCatalog",
-    id: string,
-    parentId?: string | null,
-    itemType: CatalogItemTypeValues,
-    timestamp?: string | null,
-    metadata?:  {
-      __typename: "CatalogMetadataObject",
-    } | null,
-    facts?:  {
-      __typename: "ModelZunoEntryConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
-export type ListZunoCatalogsQueryVariables = {
-  filter?: ModelZunoCatalogFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type ListZunoCatalogsQuery = {
-  listZunoCatalogs?:  {
-    __typename: "ModelZunoCatalogConnection",
-    items:  Array< {
-      __typename: "ZunoCatalog",
-      id: string,
-      parentId?: string | null,
-      itemType: CatalogItemTypeValues,
-      timestamp?: string | null,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
-export type GetZunoGroupQueryVariables = {
-  id: string,
-};
-
-export type GetZunoGroupQuery = {
-  getZunoGroup?:  {
-    __typename: "ZunoGroup",
-    id: string,
-    name?: string | null,
-    subjectArea?: string | null,
-    createdBy?: string | null,
-    members?: Array< string > | null,
-    facts?:  {
-      __typename: "ModelZunoEntryConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
-export type ListZunoGroupsQueryVariables = {
-  filter?: ModelZunoGroupFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type ListZunoGroupsQuery = {
-  listZunoGroups?:  {
-    __typename: "ModelZunoGroupConnection",
-    items:  Array< {
-      __typename: "ZunoGroup",
-      id: string,
-      name?: string | null,
-      subjectArea?: string | null,
-      createdBy?: string | null,
-      members?: Array< string > | null,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
 export type ZunoEntriesByUserIdAndEntryTypeAndTimestampQueryVariables = {
   userId: string,
   entryTypeTimestamp?: ModelZunoEntryByUserCompositeKeyConditionInput | null,
@@ -2002,6 +1913,51 @@ export type ZunoEntriesByGroupIdAndEntryTypeAndTimestampQuery = {
   } | null,
 };
 
+export type GetZunoCatalogQueryVariables = {
+  id: string,
+};
+
+export type GetZunoCatalogQuery = {
+  getZunoCatalog?:  {
+    __typename: "ZunoCatalog",
+    id: string,
+    parentId?: string | null,
+    itemType: CatalogItemTypeValues,
+    timestamp?: string | null,
+    metadata?:  {
+      __typename: "CatalogMetadataObject",
+    } | null,
+    facts?:  {
+      __typename: "ModelZunoEntryConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListZunoCatalogsQueryVariables = {
+  filter?: ModelZunoCatalogFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListZunoCatalogsQuery = {
+  listZunoCatalogs?:  {
+    __typename: "ModelZunoCatalogConnection",
+    items:  Array< {
+      __typename: "ZunoCatalog",
+      id: string,
+      parentId?: string | null,
+      itemType: CatalogItemTypeValues,
+      timestamp?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type ZunoCatalogsByParentIdAndItemTypeAndTimestampQueryVariables = {
   parentId: string,
   itemTypeTimestamp?: ModelZunoCatalogByParentCompositeKeyConditionInput | null,
@@ -2045,6 +2001,50 @@ export type ZunoCatalogsByItemTypeAndTimestampQuery = {
       parentId?: string | null,
       itemType: CatalogItemTypeValues,
       timestamp?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetZunoGroupQueryVariables = {
+  id: string,
+};
+
+export type GetZunoGroupQuery = {
+  getZunoGroup?:  {
+    __typename: "ZunoGroup",
+    id: string,
+    name?: string | null,
+    subjectArea?: string | null,
+    createdBy?: string | null,
+    members?: Array< string > | null,
+    facts?:  {
+      __typename: "ModelZunoEntryConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListZunoGroupsQueryVariables = {
+  filter?: ModelZunoGroupFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListZunoGroupsQuery = {
+  listZunoGroups?:  {
+    __typename: "ModelZunoGroupConnection",
+    items:  Array< {
+      __typename: "ZunoGroup",
+      id: string,
+      name?: string | null,
+      subjectArea?: string | null,
+      createdBy?: string | null,
+      members?: Array< string > | null,
       createdAt: string,
       updatedAt: string,
     } | null >,

@@ -1,23 +1,31 @@
 import { client } from '../lib/graphql';
 import { createZunoEntryWithMetadata } from '../api/graphql/customMutations';
+import { getCurrentUser } from 'aws-amplify/auth';
 import type { ZunoEntryTypeValues } from '../types';
 import type { GraphQLResult } from '@aws-amplify/api-graphql';
 
 interface EnrollInCourseParams {
-  userId: string;
+  userId?: string;
   courseId: string;
 }
 
 async function enrollInCourse(params: EnrollInCourseParams): Promise<{ success: boolean; enrolledAt: string }> {
   try {
-    const enrollmentId = `${params.userId}_${params.courseId}_enrollment`;
+    // Get current user ID from Cognito if not provided
+    let actualUserId = params.userId;
+    if (!actualUserId) {
+      const cognitoUser = await getCurrentUser();
+      actualUserId = cognitoUser.userId;
+    }
+
+    const enrollmentId = `${actualUserId}_${params.courseId}_enrollment`;
     
     const response = await client.graphql({
       query: createZunoEntryWithMetadata,
       variables: {
         input: {
           id: enrollmentId,
-          userId: params.userId,
+          userId: actualUserId,
           catalogId: params.courseId,
           entryType: 'COURSE_COMPLETION' as ZunoEntryTypeValues,
           timestamp: new Date().toISOString(),

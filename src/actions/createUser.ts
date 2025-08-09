@@ -1,18 +1,36 @@
 import { client } from '../lib/graphql';
 import { createZunoEntryWithMetadata } from '../api/graphql/customMutations';
+import { getCurrentUser } from 'aws-amplify/auth';
 import type { User, ZunoEntryTypeValues } from '../types';
 import type { GraphQLResult } from '@aws-amplify/api-graphql';
 
 interface CreateUserParams {
-  email: string;
-  username: string;
+  email?: string;
+  username?: string;
   fullName?: string;
   avatarUrl?: string;
 }
 
-async function createUser(params: CreateUserParams): Promise<User> {
+async function createUser(params: CreateUserParams = {}): Promise<User> {
   try {
-    const userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    // Get the current authenticated user from Cognito or use API key defaults
+    let userId: string;
+    let email: string;
+    let username: string;
+    
+    try {
+      const cognitoUser = await getCurrentUser();
+      userId = cognitoUser.userId;
+      email = params.email || cognitoUser.signInDetails?.loginId || '';
+      username = params.username || cognitoUser.username;
+    } catch (error) {
+      // Fallback for API Key mode
+      userId = `api_user_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+      email = params.email || 'developer@localhost';
+      username = params.username || 'developer';
+    }
+    
+    const fullName = params.fullName || username;
     
     const response = await client.graphql({
       query: createZunoEntryWithMetadata,
@@ -24,9 +42,9 @@ async function createUser(params: CreateUserParams): Promise<User> {
           timestamp: new Date().toISOString(),
           metadata: {
             userProfile: {
-              email: params.email,
-              username: params.username,
-              fullName: params.fullName,
+              email,
+              username,
+              fullName,
               subscriptionTier: 'free',
               totalXp: 0,
               currentLevel: 1,
@@ -43,9 +61,9 @@ async function createUser(params: CreateUserParams): Promise<User> {
 
     return {
       id: userId,
-      email: params.email,
-      username: params.username,
-      fullName: params.fullName,
+      email,
+      username,
+      fullName,
       subscriptionTier: 'free',
       totalXp: 0,
       currentLevel: 1,

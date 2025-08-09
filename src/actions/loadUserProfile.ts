@@ -1,15 +1,28 @@
 import { client } from '../lib/graphql';
 import { zunoEntriesByUserWithMetadata } from '../api/graphql/customQueries';
+import { getCurrentUser } from 'aws-amplify/auth';
 import type { User, ZunoEntryTypeValues, ZunoEntry } from '../types';
 import type { GraphQLResult } from '@aws-amplify/api-graphql';
 
-async function loadUserProfile(userId: string): Promise<User | null> {
+async function loadUserProfile(userId?: string): Promise<User | null> {
   try {
+    // If no userId provided, get current authenticated user or use API key default
+    let actualUserId = userId;
+    if (!actualUserId) {
+      try {
+        const cognitoUser = await getCurrentUser();
+        actualUserId = cognitoUser.userId;
+      } catch (error) {
+        // Fallback for API Key mode
+        actualUserId = 'api-key-user';
+      }
+    }
+
     // Get user profile entry
     const profileResponse = await client.graphql({
       query: zunoEntriesByUserWithMetadata,
       variables: {
-        userId,
+        userId: actualUserId,
         entryTypeTimestamp: {
           beginsWith: {
             entryType: 'USER_PROGRESS' as ZunoEntryTypeValues
@@ -23,7 +36,7 @@ async function loadUserProfile(userId: string): Promise<User | null> {
     const enrollmentResponse = await client.graphql({
       query: zunoEntriesByUserWithMetadata,
       variables: {
-        userId,
+        userId: actualUserId,
         entryTypeTimestamp: {
           beginsWith: {
             entryType: 'COURSE_COMPLETION' as ZunoEntryTypeValues
@@ -47,7 +60,7 @@ async function loadUserProfile(userId: string): Promise<User | null> {
       .filter((item: ZunoEntry) => item?.metadata?.assessmentResult?.passed).length;
 
     return {
-      id: userId,
+      id: actualUserId,
       email: profile.email,
       username: profile.username,
       fullName: profile.fullName || undefined,

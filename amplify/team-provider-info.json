@@ -13,18 +13,18 @@
       "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-zuno-dev-1255b-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
-      "api": {
-        "zuno": {}
-      },
       "auth": {
-        "zuno1a50e3ca": {}
+        "zuno6362eb38": {}
       },
       "function": {
-        "zuno1a50e3caPostConfirmation": {
+        "zuno6362eb38PostConfirmation": {
           "GROUP": "zuno-free",
           "deploymentBucketName": "amplify-zuno-dev-1255b-deployment",
-          "s3Key": "amplify-builds/zuno1a50e3caPostConfirmation-64672b59414d374f5979-build.zip"
+          "s3Key": "amplify-builds/zuno6362eb38PostConfirmation-2f614766314e70313250-build.zip"
         }
+      },
+      "api": {
+        "zuno": {}
       }
     }
   }

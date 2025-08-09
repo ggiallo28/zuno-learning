@@ -1,15 +1,23 @@
 import { client } from '../lib/graphql';
 import { zunoEntriesByUserWithMetadata, getZunoCatalogWithMetadata } from '../api/graphql/customQueries';
+import { getCurrentUser } from 'aws-amplify/auth';
 import type { Course, ZunoEntryTypeValues, ZunoEntry, ZunoCatalog, CourseCategoryValues, DifficultyLevelValues } from '../types';
 import type { GraphQLResult } from '@aws-amplify/api-graphql';
 
-async function loadUserCourses(userId: string): Promise<Course[]> {
+async function loadUserCourses(userId?: string): Promise<Course[]> {
   try {
+    // Get current user ID from Cognito if not provided
+    let actualUserId = userId;
+    if (!actualUserId) {
+      const cognitoUser = await getCurrentUser();
+      actualUserId = cognitoUser.userId;
+    }
+
     // Get user's course enrollments
     const enrollmentResponse = await client.graphql({
       query: zunoEntriesByUserWithMetadata,
       variables: {
-        userId,
+        userId: actualUserId,
         entryTypeTimestamp: {
           beginsWith: {
             entryType: 'COURSE_COMPLETION' as ZunoEntryTypeValues
@@ -41,7 +49,7 @@ async function loadUserCourses(userId: string): Promise<Course[]> {
           const lessonCompletionResponse = await client.graphql({
             query: zunoEntriesByUserWithMetadata,
             variables: {
-              userId,
+              userId: actualUserId,
               entryTypeTimestamp: {
                 beginsWith: {
                   entryType: 'LESSON_COMPLETION' as ZunoEntryTypeValues

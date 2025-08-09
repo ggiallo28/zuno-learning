@@ -258,7 +258,11 @@ enum ZunoEntryTypeValues {
   OTHER
 }
 
-type ZunoEntry @model @auth(rules: [{ allow: public }]) {
+type ZunoEntry @model 
+  @auth(rules: [
+    { allow: private, provider: userPools }
+    { allow: public, provider: apiKey }
+  ]) {
   id: ID!
   userId: ID @index(name: "byUser", sortKeyFields: ["entryType", "timestamp"])
   entryType: ZunoEntryTypeValues 
@@ -286,7 +290,11 @@ enum CatalogItemTypeValues {
   ACHIEVEMENT
 }
 
-type ZunoCatalog @model @auth(rules: [{ allow: public }]) {
+type ZunoCatalog @model 
+  @auth(rules: [
+    { allow: private, provider: userPools }
+    { allow: public, provider: apiKey }
+  ]) {
   id: ID!
   parentId: ID @index(name: "byParent", sortKeyFields: ["itemType", "timestamp"])
   itemType: CatalogItemTypeValues! @index(name: "byItemType", sortKeyFields: ["timestamp"])
@@ -295,7 +303,11 @@ type ZunoCatalog @model @auth(rules: [{ allow: public }]) {
   facts: [ZunoEntry] @hasMany
 }
 
-type ZunoGroup @model @auth(rules: [{ allow: public }]) {
+type ZunoGroup @model 
+  @auth(rules: [
+    { allow: private, provider: userPools }
+    { allow: public, provider: apiKey }
+  ]) {
   id: ID!
   name: String
   subjectArea: String

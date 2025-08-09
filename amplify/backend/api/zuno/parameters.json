@@ -1,5 +1,11 @@
 {
   "AppSyncApiName": "zuno",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authzuno6362eb38",
+      "Outputs.UserPoolId"
+    ]
+  }
 }

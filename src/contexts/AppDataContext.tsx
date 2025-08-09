@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer, ReactNode } from 'react';
+import { getCurrentUser } from 'aws-amplify/auth';
 import type { User, Course } from '@/types';
 import loadUserProfile from '@/actions/loadUserProfile';
 import loadCourses from '@/actions/loadCourses';
@@ -159,13 +160,13 @@ function appDataReducer(state: AppDataState, action: AppDataAction): AppDataStat
 interface AppDataContextValue {
   state: AppDataState;
   actions: {
-    loadUser: (userId: string, forceRefresh?: boolean) => Promise<void>;
+    loadUser: (userId?: string, forceRefresh?: boolean) => Promise<void>;
     loadCourses: (forceRefresh?: boolean) => Promise<void>;
-    loadUserCourses: (userId: string, forceRefresh?: boolean) => Promise<void>;
+    loadUserCourses: (userId?: string, forceRefresh?: boolean) => Promise<void>;
     updateUserXP: (xpGained: number) => void;
     updateCourseProgress: (courseId: string, completedLessons: number) => void;
     clearAllData: () => void;
-    refreshAll: (userId: string) => Promise<void>;
+    refreshAll: (userId?: string) => Promise<void>;
   };
 }
 
@@ -188,16 +189,28 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
   };
 
   // Load user data
-  const loadUser = async (userId: string, forceRefresh = false) => {
-    if (!forceRefresh && !needsRefresh(state.lastUpdated.user) && state.user?.id === userId) {
-      return;
-    }
-
-    dispatch({ type: 'SET_LOADING', payload: { key: 'user', value: true } });
-    dispatch({ type: 'SET_ERROR', payload: { key: 'user', value: null } });
-
+  const loadUser = async (userId?: string, forceRefresh = false) => {
     try {
-      const user = await loadUserProfile(userId);
+      // Get current user ID from Cognito or use API key default
+      let actualUserId = userId;
+      if (!actualUserId) {
+        try {
+          const cognitoUser = await getCurrentUser();
+          actualUserId = cognitoUser.userId;
+        } catch (error) {
+          // Fallback for API Key mode
+          actualUserId = 'api-key-user';
+        }
+      }
+
+      if (!forceRefresh && !needsRefresh(state.lastUpdated.user) && state.user?.id === actualUserId) {
+        return;
+      }
+
+      dispatch({ type: 'SET_LOADING', payload: { key: 'user', value: true } });
+      dispatch({ type: 'SET_ERROR', payload: { key: 'user', value: null } });
+
+      const user = await loadUserProfile(actualUserId);
       dispatch({ type: 'SET_USER', payload: user });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to load user profile';
@@ -230,16 +243,28 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
   };
 
   // Load user's enrolled courses
-  const loadUserEnrolledCourses = async (userId: string, forceRefresh = false) => {
-    if (!forceRefresh && !needsRefresh(state.lastUpdated.userCourses)) {
-      return;
-    }
-
-    dispatch({ type: 'SET_LOADING', payload: { key: 'userCourses', value: true } });
-    dispatch({ type: 'SET_ERROR', payload: { key: 'userCourses', value: null } });
-
+  const loadUserEnrolledCourses = async (userId?: string, forceRefresh = false) => {
     try {
-      const userCourses = await loadUserCourses(userId);
+      // Get current user ID from Cognito or use API key default
+      let actualUserId = userId;
+      if (!actualUserId) {
+        try {
+          const cognitoUser = await getCurrentUser();
+          actualUserId = cognitoUser.userId;
+        } catch (error) {
+          // Fallback for API Key mode
+          actualUserId = 'api-key-user';
+        }
+      }
+
+      if (!forceRefresh && !needsRefresh(state.lastUpdated.userCourses)) {
+        return;
+      }
+
+      dispatch({ type: 'SET_LOADING', payload: { key: 'userCourses', value: true } });
+      dispatch({ type: 'SET_ERROR', payload: { key: 'userCourses', value: null } });
+
+      const userCourses = await loadUserCourses(actualUserId);
       dispatch({ type: 'SET_USER_COURSES', payload: userCourses });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to load user courses';
@@ -266,7 +291,7 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
   };
 
   // Refresh all data
-  const refreshAll = async (userId: string) => {
+  const refreshAll = async (userId?: string) => {
     await Promise.all([
       loadUser(userId, true),
       loadAllCourses(true),

@@ -3,14 +3,14 @@
   "modules": [
     "add-to-group"
   ],
-  "parentResource": "zuno1a50e3ca",
-  "functionName": "zuno1a50e3caPostConfirmation",
-  "resourceName": "zuno1a50e3caPostConfirmation",
+  "parentResource": "zuno6362eb38",
+  "functionName": "zuno6362eb38PostConfirmation",
+  "resourceName": "zuno6362eb38PostConfirmation",
   "parentStack": "auth",
   "triggerEnvs": "[]",
   "triggerDir": "/snapshot/amplify-cli/build/node_modules/@aws-amplify/amplify-category-auth/provider-utils/awscloudformation/triggers/PostConfirmation",
   "triggerTemplate": "PostConfirmation.json.ejs",
   "triggerEventPath": "PostConfirmation.event.json",
-  "roleName": "zuno1a50e3caPostConfirmation",
+  "roleName": "zuno6362eb38PostConfirmation",
   "skipEdit": true
 }

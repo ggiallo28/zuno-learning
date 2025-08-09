@@ -1,10 +1,10 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "identityPoolName": "zuno1a50e3ca_identitypool_1a50e3ca",
+    "identityPoolName": "zuno6362eb38_identitypool_6362eb38",
     "allowUnauthenticatedIdentities": false,
-    "resourceNameTruncated": "zuno1a50e3ca",
-    "userPoolName": "zuno1a50e3ca_userpool_1a50e3ca",
+    "resourceNameTruncated": "zuno6362eb38",
+    "userPoolName": "zuno6362eb38_userpool_6362eb38",
     "autoVerifiedAttributes": [
       "email"
     ],
@@ -20,14 +20,8 @@
     "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": [],
     "requiredAttributes": [
-      "birthdate",
       "email",
-      "gender",
-      "locale",
-      "name",
-      "picture",
-      "profile",
-      "zoneinfo"
+      "name"
     ],
     "aliasAttributes": [],
     "userpoolClientGenerateSecret": false,
@@ -38,10 +32,10 @@
     "userpoolClientReadAttributes": [
       "email"
     ],
-    "userpoolClientLambdaRole": "zuno1a1a50e3ca_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "zuno636362eb38_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "1a50e3ca",
-    "resourceName": "zuno1a50e3ca",
+    "sharedId": "6362eb38",
+    "resourceName": "zuno6362eb38",
     "authSelections": "identityPoolAndUserPool",
     "useDefault": "defaultSocial",
     "hostedUI": true,
