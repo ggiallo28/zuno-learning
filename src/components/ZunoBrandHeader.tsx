@@ -10,12 +10,13 @@ import {
   Brain, 
   Zap, 
   Users, 
-  Sparkles,
+  Shuffle,
   Settings,
   Target,
   TrendingUp
 } from 'lucide-react';
 import { useCoach } from '@/contexts/CoachContext';
+import { AdaptiveCoachIndicator } from '@/components/AdaptiveCoachIndicator';
 import type { User } from '@/types';
 
 interface ZunoBrandHeaderProps {
@@ -32,7 +33,7 @@ export function ZunoBrandHeader({ user, onSettingsClick }: ZunoBrandHeaderProps)
       case 'elia': return Brain;
       case 'skippy': return Zap;
       case 'lupa': return Users;
-      case 'polpo': return Sparkles;
+      case 'polpo': return Shuffle;
       default: return Brain;
     }
   };
@@ -248,6 +249,13 @@ export function ZunoBrandHeader({ user, onSettingsClick }: ZunoBrandHeaderProps)
                     </>
                   )}
                 </div>
+                
+                {/* Show adaptive indicator for Polpo */}
+                {currentCoach === 'polpo' && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <AdaptiveCoachIndicator compact={true} />
+                  </div>
+                )}
               </div>
             )}
           </CardContent>

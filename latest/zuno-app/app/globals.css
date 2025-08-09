@@ -1,0 +1,88 @@
+/* Global styles for dynamic coach theming */
+:root {
+    --coach-primary: #8B7355;
+    --coach-secondary: #A0927B;
+    --coach-accent: #6B5B47;
+    --coach-background: #FEF7ED;
+    --coach-text: #78716C;
+    --coach-muted: #A8A29E;
+  }
+  
+  .coach-themed {
+    background-color: var(--coach-background);
+    color: var(--coach-text);
+  }
+  
+  .coach-primary {
+    color: var(--coach-primary);
+  }
+  
+  .coach-secondary {
+    color: var(--coach-secondary);
+  }
+  
+  .coach-accent {
+    color: var(--coach-accent);
+  }
+  
+  .coach-bg-primary {
+    background-color: var(--coach-primary);
+  }
+  
+  .coach-bg-secondary {
+    background-color: var(--coach-secondary);
+  }
+  
+  .coach-bg-accent {
+    background-color: var(--coach-accent);
+  }
+  
+  /* Coach-specific animations */
+  .coach-elia .animate-pulse {
+    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .coach-skippy .animate-bounce {
+    animation: bounce-quick 0.8s infinite;
+  }
+  
+  .coach-lupa .animate-pulse {
+    animation: pulse-group 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: .7;
+    }
+  }
+  
+  @keyframes bounce-quick {
+    0%, 100% {
+      transform: translateY(-8%);
+      animation-timing-function: cubic-bezier(0.8,0,1,1);
+    }
+    50% {
+      transform: none;
+      animation-timing-function: cubic-bezier(0,0,0.2,1);
+    }
+  }
+  
+  @keyframes pulse-group {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: .8;
+      transform: scale(1.02);
+    }
+  }
+  
+  /* Smooth transitions for coach changes */
+  * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+  

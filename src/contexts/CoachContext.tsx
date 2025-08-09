@@ -2,16 +2,35 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import type { CoachType, CoachConfig, CoachTheme } from '@/types';
+import type { CoachType, CoachConfig, CoachTheme, UserBehaviorData } from '@/types';
 import { CoachNameValues } from '@/types';
+
+interface AdaptiveState {
+  currentMode: 'deep' | 'fast' | 'collaborative' | 'balanced';
+  adaptationHistory: Array<{
+    mode: string;
+    timestamp: Date;
+    trigger: string;
+    performance?: number;
+  }>;
+  learningPatterns: {
+    preferredPace: 'slow' | 'medium' | 'fast';
+    socialPreference: 'solo' | 'mixed' | 'group';
+    difficultyPreference: 'gradual' | 'challenging';
+    timeOfDay: 'morning' | 'afternoon' | 'evening' | 'flexible';
+  };
+}
 
 interface CoachContextValue {
   currentCoach: CoachType;
   coachConfig: CoachConfig | null;
   theme: CoachTheme;
+  adaptiveState: AdaptiveState | null;
   setCoach: (coach: CoachType) => void;
   getMotivationMessage: () => string;
   getCoachIcon: () => React.ComponentType<any>;
+  adaptPolpoMode: (userBehavior: UserBehaviorData) => void;
+  getAdaptiveTheme: () => CoachTheme;
 }
 
 const CoachContext = createContext<CoachContextValue | undefined>(undefined);
@@ -87,7 +106,12 @@ const coachConfigs: Record<CoachType, CoachConfig> = {
       'Adattiamo il nostro approccio a quello che funziona meglio',
       'L\'intelligenza significa sapere quando cambiare strategia',
       'La flessibilità è la chiave per un apprendimento efficace',
-      'Ogni situazione richiede l\'approccio giusto'
+      'Ogni situazione richiede l\'approccio giusto',
+      // Adaptive mode-specific messages
+      'Modalità Profonda: Prendiamoci il tempo per comprendere a fondo',
+      'Modalità Veloce: Esploriamo rapidamente nuovi concetti',
+      'Modalità Collaborativa: Impariamo insieme agli altri',
+      'Modalità Bilanciata: Combiniamo il meglio di ogni approccio'
     ]
   }
 };
@@ -128,13 +152,49 @@ const coachThemes: Record<CoachType, CoachTheme> = {
   }
 };
 
+// Adaptive theme variations for Polpo
+const polpoAdaptiveThemes: Record<string, CoachTheme> = {
+  deep: {
+    primary: '#2C5F5F', // Deeper teal for focused learning
+    secondary: '#4A7C7C',
+    accent: '#8B7355', // Borrowing from Elia for stability
+    background: '#F0F8F8',
+    text: '#1F4A4A',
+    muted: '#5EAAA4'
+  },
+  fast: {
+    primary: '#FF6B47', // More vibrant coral for energy
+    secondary: '#FF8C69',
+    accent: '#E67E22', // Borrowing from Skippy for dynamism
+    background: '#FFF5F0',
+    text: '#CC4125',
+    muted: '#FF9A7B'
+  },
+  collaborative: {
+    primary: '#4A6B8A', // Blue-teal blend for social connection
+    secondary: '#5A7BA0',
+    accent: '#B7472A', // Borrowing from Lupa for intensity
+    background: '#F2F6FA',
+    text: '#2C4A6B',
+    muted: '#7A9BC4'
+  },
+  balanced: {
+    primary: '#008080', // Original teal
+    secondary: '#FF7F50', // Original coral
+    accent: '#C0C0C0', // Original pearl gray
+    background: '#F0FDFA',
+    text: '#0F766E',
+    muted: '#5EEAD4'
+  }
+};
+
 // Coach icons mapping
-import { Brain, Zap, Users, Octagon } from 'lucide-react';
+import { Brain, Zap, Users, Shuffle } from 'lucide-react';
 const coachIcons: Record<CoachType, React.ComponentType<any>> = {
   elia: Brain,
   skippy: Zap,
   lupa: Users,
-  polpo: Octagon
+  polpo: Shuffle // More appropriate for adaptive nature
 };
 
 interface CoachProviderProps {
@@ -144,9 +204,10 @@ interface CoachProviderProps {
 
 export function CoachProvider({ children, initialCoach = 'elia' }: CoachProviderProps) {
   const [currentCoach, setCurrentCoach] = useState<CoachType>(initialCoach);
+  const [adaptiveState, setAdaptiveState] = useState<AdaptiveState | null>(null);
 
   const coachConfig = coachConfigs[currentCoach];
-  const theme = coachThemes[currentCoach];
+  const baseTheme = coachThemes[currentCoach];
 
   const setCoach = (coach: CoachType) => {
     setCurrentCoach(coach);
@@ -156,12 +217,119 @@ export function CoachProvider({ children, initialCoach = 'elia' }: CoachProvider
 
   const getMotivationMessage = () => {
     const messages = coachConfig.motivationMessages;
+    
+    // For Polpo, provide mode-specific messages
+    if (currentCoach === 'polpo' && adaptiveState) {
+      const modeMessages: Record<string, string[]> = {
+        deep: [
+          'Modalità Profonda attiva: Prendiamoci il tempo per comprendere a fondo',
+          'Approfondiamo questo concetto con calma e metodicità',
+          'La comprensione profonda richiede pazienza - procediamo step by step'
+        ],
+        fast: [
+          'Modalità Veloce attiva: Esploriamo rapidamente nuovi orizzonti!',
+          'Il tuo ritmo è ottimo - manteniamo questa energia!',
+          'Velocità e agilità mentale sono i nostri punti di forza ora'
+        ],
+        collaborative: [
+          'Modalità Collaborativa attiva: Impariamo insieme agli altri',
+          'La conoscenza condivisa è più preziosa - connettiamoci!',
+          'Il gruppo cresce quando tutti crescono insieme'
+        ],
+        balanced: [
+          'Modalità Bilanciata: Combiniamo il meglio di ogni approccio',
+          'Adattiamo la strategia in base alle tue esigenze',
+          'L\'equilibrio è la chiave per un apprendimento ottimale'
+        ]
+      };
+      
+      const modeSpecificMessages = modeMessages[adaptiveState.currentMode] || messages;
+      return modeSpecificMessages[Math.floor(Math.random() * modeSpecificMessages.length)];
+    }
+    
     return messages[Math.floor(Math.random() * messages.length)];
   };
 
   const getCoachIcon = () => {
     return coachIcons[currentCoach];
   };
+
+  // Initialize adaptive state for Polpo
+  useEffect(() => {
+    if (currentCoach === 'polpo' && !adaptiveState) {
+      setAdaptiveState({
+        currentMode: 'balanced',
+        adaptationHistory: [],
+        learningPatterns: {
+          preferredPace: 'medium',
+          socialPreference: 'mixed',
+          difficultyPreference: 'gradual',
+          timeOfDay: 'flexible'
+        }
+      });
+    } else if (currentCoach !== 'polpo') {
+      setAdaptiveState(null);
+    }
+  }, [currentCoach, adaptiveState]);
+
+  // Adaptive logic for Polpo
+  const adaptPolpoMode = (userBehavior: UserBehaviorData) => {
+    if (currentCoach !== 'polpo' || !adaptiveState) return;
+
+    let newMode: 'deep' | 'fast' | 'collaborative' | 'balanced' = 'balanced';
+    let trigger = 'user_behavior_analysis';
+
+    // Analyze user behavior to determine best mode
+    if (userBehavior.accuracy < 0.6 && userBehavior.timeSpentOnDifficultContent > 0.7) {
+      // User struggling with difficult content - switch to deep mode (Elia-like)
+      newMode = 'deep';
+      trigger = 'struggling_with_difficulty';
+    } else if (userBehavior.completionRate > 0.8 && userBehavior.sessionDuration < 300) {
+      // User completing quickly - switch to fast mode (Skippy-like)
+      newMode = 'fast';
+      trigger = 'high_completion_fast_pace';
+    } else if (userBehavior.socialEngagement > 0.7) {
+      // User engaging socially - switch to collaborative mode (Lupa-like)
+      newMode = 'collaborative';
+      trigger = 'high_social_engagement';
+    } else if (userBehavior.accuracy > 0.8 && userBehavior.completionRate > 0.7) {
+      // User performing well overall - maintain balanced mode
+      newMode = 'balanced';
+      trigger = 'optimal_performance';
+    }
+
+    // Update adaptive state if mode changed
+    if (newMode !== adaptiveState.currentMode) {
+      const newAdaptiveState: AdaptiveState = {
+        ...adaptiveState,
+        currentMode: newMode,
+        adaptationHistory: [
+          ...adaptiveState.adaptationHistory.slice(-9), // Keep last 10 entries
+          {
+            mode: newMode,
+            timestamp: new Date(),
+            trigger,
+            performance: userBehavior.accuracy
+          }
+        ]
+      };
+
+      setAdaptiveState(newAdaptiveState);
+      
+      // Store in localStorage for persistence
+      localStorage.setItem('polpoAdaptiveState', JSON.stringify(newAdaptiveState));
+    }
+  };
+
+  // Get adaptive theme based on current mode
+  const getAdaptiveTheme = (): CoachTheme => {
+    if (currentCoach === 'polpo' && adaptiveState) {
+      return polpoAdaptiveThemes[adaptiveState.currentMode] || baseTheme;
+    }
+    return baseTheme;
+  };
+
+  const theme = getAdaptiveTheme();
 
   // Apply CSS custom properties for dynamic theming
   useEffect(() => {
@@ -174,11 +342,29 @@ export function CoachProvider({ children, initialCoach = 'elia' }: CoachProvider
     root.style.setProperty('--coach-muted', theme.muted);
   }, [theme]);
 
-  // Load coach preference from localStorage
+  // Load coach preference and adaptive state from localStorage
   useEffect(() => {
     const savedCoach = localStorage.getItem('selectedCoach') as CoachType;
     if (savedCoach && coachConfigs[savedCoach]) {
       setCurrentCoach(savedCoach);
+    }
+
+    // Load Polpo adaptive state if available
+    if (savedCoach === 'polpo') {
+      const savedAdaptiveState = localStorage.getItem('polpoAdaptiveState');
+      if (savedAdaptiveState) {
+        try {
+          const parsedState = JSON.parse(savedAdaptiveState);
+          // Convert timestamp strings back to Date objects
+          parsedState.adaptationHistory = parsedState.adaptationHistory.map((entry: any) => ({
+            ...entry,
+            timestamp: new Date(entry.timestamp)
+          }));
+          setAdaptiveState(parsedState);
+        } catch (error) {
+          console.error('Error parsing adaptive state:', error);
+        }
+      }
     }
   }, []);
 
@@ -186,9 +372,12 @@ export function CoachProvider({ children, initialCoach = 'elia' }: CoachProvider
     currentCoach,
     coachConfig,
     theme,
+    adaptiveState,
     setCoach,
     getMotivationMessage,
-    getCoachIcon
+    getCoachIcon,
+    adaptPolpoMode,
+    getAdaptiveTheme
   };
 
   return (

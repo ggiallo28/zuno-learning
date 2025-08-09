@@ -177,6 +177,18 @@ export interface InteractiveElement {
   config?: Record<string, any>;
 }
 
+export interface UserBehaviorData {
+  sessionDuration: number;
+  accuracy: number;
+  completionRate: number;
+  preferredContentType: 'text' | 'video' | 'interactive' | 'mixed';
+  strugglingAreas: string[];
+  strongAreas: string[];
+  socialEngagement: number; // 0-1 scale
+  timeSpentOnDifficultContent: number;
+  helpSeekingBehavior: 'frequent' | 'moderate' | 'rare';
+}
+
 // Enhanced lesson interface
 export interface EnhancedLesson extends Lesson {
   interactive_elements?: InteractiveElement[];

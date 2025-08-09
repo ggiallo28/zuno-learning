@@ -35,7 +35,7 @@
   - _Requirements: Cloud persistence, real-time capability (optional), type safety, production-grade scalability_
 
 
-- [ ] 3. Rebrand from "LearnDaily Pro" to "Zuno://" across the application
+- [x] 3. Rebrand from "LearnDaily Pro" to "Zuno://" across the application
   - **Code Integration**: Merge the code from the latest version (latest folder) of the app (which contains more features) into the current application, ensuring all existing functionality is preserved and enhanced with the new features.
   - **Brand Identity Update**: Replace all "LearnDaily Pro" references with "Zuno://" in:
     - index.html title and meta tags
@@ -48,11 +48,11 @@
   - **Configuration Files**: Update any configuration files that reference the old brand name
   - _Requirements: Consistent brand identity, professional appearance, user recognition_
 
-- [ ] 4. Add Polpo (Octopus) adaptive coach to the coaching system
+- [x] 4. Add Polpo (Octopus) adaptive coach to the coaching system
   - **Coach Configuration**: Add Polpo coach to src/contexts/CoachContext.tsx with adaptive personality traits
   - **Adaptive Theming**: Implement intelligent color-shifting theme for Polpo (teal, coral, pearl gray) that adapts based on user behavior
   - **Component Updates**: Update src/components/CoachSelection.tsx to include fourth coach option with octopus iconography
-  - **SQLite Integration**: Add Polpo coach data to coach system tables and update coach selection queries
+  - **Amplify Integration**: Add Polpo coach data to coach system tables and update coach selection queries
   - **Type Definitions**: Add Polpo coach type and adaptive personality traits to src/types/index.ts
   - **Adaptive Logic**: Implement adaptive behavior system that combines elements from other coaches based on user learning patterns
   - **UI Components**: Create adaptive UI elements that change based on Polpo's current adaptation mode
@@ -72,6 +72,7 @@
   - **Amplify Auth**: Add AWS Cognito authentication with user management
   - **Amplify GraphQL API**: Set up AppSync GraphQL API with DynamoDB integration for real-time features
   - **Amplify REST API**: Set up API Gateway REST API with Lambda integration for traditional CRUD operations
+  - **Amplify DataStore**: Set Amplify DataStore for offline learning capabilities
   - **GraphQL Schema**: Design GraphQL schema with @model directives for auto-generated resolvers
   - **REST Endpoints**: Design REST API endpoints for file uploads, batch operations, and legacy integrations
   - **Amplify Storage**: Configure S3 storage for file uploads and media assets

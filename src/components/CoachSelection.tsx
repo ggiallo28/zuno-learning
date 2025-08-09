@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { CoachType, CoachConfig } from '@/types';
 import { CoachNameValues } from '@/types';
-import { Brain, Zap, Users, Octagon } from 'lucide-react';
+import { Brain, Zap, Users, Shuffle } from 'lucide-react';
+import { useCoach } from '@/contexts/CoachContext';
 
 interface CoachSelectionProps {
   onCoachSelect: (coach: CoachType) => void;
@@ -72,13 +73,13 @@ const coachConfigs: Record<CoachType, CoachConfig> = {
     id: '4',
     coachName: CoachNameValues.POLPO,
     displayName: 'Coach Polpo',
-    description: 'Adaptive hybrid approach that intelligently combines multiple learning strategies',
-    learningStyle: 'Intelligent adaptive learning',
+    description: 'Adaptive hybrid approach that intelligently combines multiple learning strategies based on your behavior and performance',
+    learningStyle: 'Intelligent adaptive learning with dynamic mode switching',
     primaryColor: '#008080',
     secondaryColor: '#FF7F50',
     accentColor: '#C0C0C0',
     iconStyle: 'multi-faceted-flexible',
-    personalityTraits: ['Adaptive', 'Intelligent', 'Flexible', 'Multi-faceted'],
+    personalityTraits: ['Adaptive', 'Intelligent', 'Flexible', 'Multi-faceted', 'Dynamic'],
     motivationMessages: [
       'Let\'s adapt our approach to what works best',
       'Intelligence means knowing when to change strategy',
@@ -93,10 +94,12 @@ const coachIcons: Record<CoachType, React.ComponentType<any>> = {
   elia: Brain,
   skippy: Zap,
   lupa: Users,
-  polpo: Octagon
+  polpo: Shuffle // More appropriate for adaptive nature
 };
 
 export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = false }: CoachSelectionProps) {
+  const { adaptiveState } = useCoach();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {(Object.keys(coachConfigs) as CoachType[]).map((coachType) => {
@@ -135,6 +138,22 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
               <p className="text-sm text-muted-foreground mb-3">
                 {config.description}
               </p>
+              
+              {/* Show adaptive state for Polpo */}
+              {coachType === 'polpo' && adaptiveState && (
+                <div className="mb-3 p-2 rounded-lg bg-gradient-to-r from-teal-50 to-orange-50 border border-teal-200">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Shuffle className="h-3 w-3 text-teal-600" />
+                    <span className="text-xs font-medium text-teal-700">
+                      Current Mode: {adaptiveState.currentMode.charAt(0).toUpperCase() + adaptiveState.currentMode.slice(1)}
+                    </span>
+                  </div>
+                  <div className="text-xs text-teal-600">
+                    Adapts automatically based on your learning patterns
+                  </div>
+                </div>
+              )}
+              
               <div className="flex flex-wrap gap-1 mb-3">
                 {config.personalityTraits.map((trait: string) => (
                   <Badge 

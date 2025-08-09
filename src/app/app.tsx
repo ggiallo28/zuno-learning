@@ -15,7 +15,9 @@ import { CoachSelection } from '@/components/CoachSelection';
 import { ZunoBrandHeader } from '@/components/ZunoBrandHeader';
 import { AssessmentSystem } from '@/components/AssessmentSystem';
 import { CoachProvider, useCoach } from '@/contexts/CoachContext';
-import { BookOpen, User as UserIcon, /* Trophy,*/ Settings, Plus, Palette, Target, Users } from 'lucide-react';
+import { useAdaptiveBehavior } from '@/hooks/useAdaptiveBehavior';
+import { AdaptiveCoachIndicator } from '@/components/AdaptiveCoachIndicator';
+import { BookOpen, User as UserIcon, /* Trophy,*/ Settings, Plus, Palette, Target, Users, Zap } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 import loadCoursesAction from '@/actions/loadCourses';
@@ -56,6 +58,10 @@ function AppContent() {
   const [assessmentLoading, setAssessmentLoading] = useState(false);
 
   const { currentCoach, coachConfig, theme, setCoach/*, getMotivationMessage*/ } = useCoach();
+  const { adaptToScenario, currentMode } = useAdaptiveBehavior({
+    enableAutoAdaptation: true,
+    adaptationInterval: 45000 // 45 seconds for demo
+  });
 
   // Helper function to convert CoachType to CoachNameValues
   const coachTypeToNameValue = (coachType: CoachType): CoachNameValues => {
@@ -478,6 +484,62 @@ function AppContent() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Polpo Adaptive Testing Panel */}
+            {currentCoach === 'polpo' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5" />
+                    Test Adattività Polpo
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="mb-4">
+                    <AdaptiveCoachIndicator showHistory={true} />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => adaptToScenario('struggling')}
+                      className="text-xs"
+                    >
+                      Simula Difficoltà
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => adaptToScenario('excelling')}
+                      className="text-xs"
+                    >
+                      Simula Eccellenza
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => adaptToScenario('social')}
+                      className="text-xs"
+                    >
+                      Simula Sociale
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => adaptToScenario('focused')}
+                      className="text-xs"
+                    >
+                      Simula Focus
+                    </Button>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground text-center">
+                    Modalità corrente: <strong>{currentMode || 'balanced'}</strong>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="p-8 text-center">
               <Settings className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
