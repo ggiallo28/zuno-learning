@@ -86,6 +86,7 @@
   - **Mobile Responsiveness**: Optimize existing components for mobile and tablet devices
   - **Code Splitting**: Implement lazy loading for better bundle size and performance
   - **Build Warning Resolution (chunk size)**: Some chunks are larger than 500 kB after minification—consider using `dynamic import()` for code-splitting, `build.rollupOptions.output.manualChunks` for improved chunking, or adjust the limit via `build.chunkSizeWarningLimit`.
+  - **Amplify DataStore Integration**: Migrate or enhance data handling to use Amplify DataStore for real-time sync, offline capabilities, and simplified data querying
   - **Testing**: Add comprehensive unit and integration tests for all existing components
   - _Requirements: Performance optimization, accessibility, mobile support, testing coverage_
 
@@ -207,11 +208,12 @@
 
 - [ ] 19. Implement freemium model and subscription management
   - **Subscription Tiers**: Extend existing subscription system with sophisticated tier management and feature gating
-  - **Premium Features**: Implement premium feature access for advanced analytics, unlimited content, and priority support
+  - **Premium Features**: Implement premium feature access for generative AI, collaborative learning, group learning, advanced analytics, unlimited content, and priority support.
   - **Payment Integration**: Add payment processing and subscription management using Stripe or similar service
   - **Feature Gating**: Create intelligent feature gating system that gracefully handles tier limitations
   - **Upgrade Flow**: Build seamless upgrade and downgrade flows with clear value proposition communication
   - **Trial Management**: Implement free trial periods and conversion optimization features
+  - **Access Control (Cognito Groups)**: Users in zuno-free have access to free capabilities; users in zuno-premium have access to all capabilities
   - _Requirements: Subscription management, payment processing, feature gating, conversion optimization_
 
 - [ ] 20. Add offline mode and enhanced user experience features

@@ -9,11 +9,22 @@
       "UnauthRoleName": "amplify-zuno-dev-1255b-unauthRole",
       "StackName": "amplify-zuno-dev-1255b",
       "StackId": "arn:aws:cloudformation:us-east-2:438591499564:stack/amplify-zuno-dev-1255b/0452b6d0-7321-11f0-926a-021d85d7e8df",
-      "AmplifyAppId": "d16m88ew8xusbx"
+      "AmplifyAppId": "d16m88ew8xusbx",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-zuno-dev-1255b-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
       "api": {
         "zuno": {}
+      },
+      "auth": {
+        "zuno1a50e3ca": {}
+      },
+      "function": {
+        "zuno1a50e3caPostConfirmation": {
+          "GROUP": "zuno-free",
+          "deploymentBucketName": "amplify-zuno-dev-1255b-deployment",
+          "s3Key": "amplify-builds/zuno1a50e3caPostConfirmation-64672b59414d374f5979-build.zip"
+        }
       }
     }
   }
