@@ -6,6 +6,10 @@ import {
   LessonTypeValues,
   ZunoEntryTypeValues,
   CatalogItemTypeValues,
+  RequirementTypeValues,
+  GroupActivityTypeValues,
+  AssessmentGradingModeValues,
+  CatalogResourceTypeValues
 } from '../api/amplify';
 
 import type {
@@ -14,7 +18,21 @@ import type {
   LessonObject,
   AchievementObject,
   ZunoCatalog,
-  ZunoEntry
+  ZunoEntry,
+  QuizObject,
+  QuizPossibilityObject,
+  CoachObject,
+  UserProgressObject,
+  UserActivityObject,
+  KnowledgeGapObject,
+  CoachInteractionObject,
+  ScheduledReviewObject,
+  LearningAnalyticsObject,
+  GroupActivityObject,
+  AssessmentResultObject,
+  AssessmentTemplateObject,
+  EntryMetadataObject,
+  CatalogMetadataObject
 } from '../api/amplify';
 
 export interface User {
@@ -108,6 +126,10 @@ export {
   LessonTypeValues,
   ZunoEntryTypeValues,
   CatalogItemTypeValues,
+  RequirementTypeValues,
+  GroupActivityTypeValues,
+  AssessmentGradingModeValues,
+  CatalogResourceTypeValues
 };
 
 // Re-export Amplify types for convenience
@@ -117,6 +139,20 @@ export type {
   LessonObject,
   AchievementObject,
   ZunoCatalog,
-  ZunoEntry
+  ZunoEntry,
+  QuizObject,
+  QuizPossibilityObject,
+  CoachObject,
+  UserProgressObject,
+  UserActivityObject,
+  KnowledgeGapObject,
+  CoachInteractionObject,
+  ScheduledReviewObject,
+  LearningAnalyticsObject,
+  GroupActivityObject,
+  AssessmentResultObject,
+  AssessmentTemplateObject,
+  EntryMetadataObject,
+  CatalogMetadataObject
 };
   

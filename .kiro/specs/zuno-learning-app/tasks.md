@@ -13,7 +13,7 @@
   - **Development Workflow**: Set up local development with Amplify mock services
   - _Requirements: Serverless architecture, Amplify integration, scalability, Bun runtime_
 
-- [ ] 2. Replace mock data with Amplify DataStore or GraphQL API integration
+- [x] 2. Replace mock data with Amplify DataStore or GraphQL API integration
   - **GraphQL Schema Setup**: Check schema in `schema.graphql` with `@model`, this is where you can get what is currently supported.
   - **Amplify Push**: The `amplify push` to deploy GraphQL schema and generate types has already been executed
   - **Data Layer Migration**: Replace `src/data/mockData.ts` with real GraphQL queries/mutations using Amplify DataStore or API layer
@@ -36,6 +36,7 @@
 
 
 - [ ] 3. Rebrand from "LearnDaily Pro" to "Zuno://" across the application
+  - **Code Integration**: Merge the code from the latest version (latest folder) of the app (which contains more features) into the current application, ensuring all existing functionality is preserved and enhanced with the new features.
   - **Brand Identity Update**: Replace all "LearnDaily Pro" references with "Zuno://" in:
     - index.html title and meta tags
     - package.json name and description
