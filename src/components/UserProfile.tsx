@@ -2,7 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { Trophy, Flame, Star, BookOpen } from 'lucide-react';
+import { Trophy, Flame, Star, BookOpen, Crown } from 'lucide-react';
+import { useZunoManager } from '@/contexts/ZunoManagerContext';
+import { useCoach } from '@/contexts/CoachContext';
 import type { User } from '@/types';
 
 interface UserProfileProps {
@@ -10,6 +12,9 @@ interface UserProfileProps {
 }
 
 export function UserProfile({ user }: UserProfileProps) {
+  const { getCoordinationMessage } = useZunoManager();
+  const { currentCoach } = useCoach();
+  
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
@@ -88,6 +93,17 @@ export function UserProfile({ user }: UserProfileProps) {
             <span>{currentLevelXp}/{xpForNextLevel} XP</span>
           </div>
           <Progress value={progressToNextLevel} className="h-2" />
+        </div>
+        
+        {/* Zuno Manager Progress Coordination */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border border-blue-200">
+          <div className="flex items-center gap-2 mb-1">
+            <Crown className="h-4 w-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-700">Zuno Manager</span>
+          </div>
+          <p className="text-sm text-blue-700">
+            {getCoordinationMessage(currentCoach, 'progress')}
+          </p>
         </div>
       </CardContent>
     </Card>

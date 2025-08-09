@@ -5,7 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, Clock, Award, ArrowRight, ArrowLeft } from 'lucide-react';
+import { CheckCircle, Clock, Award, ArrowRight, ArrowLeft, Crown } from 'lucide-react';
+import { useZunoManager } from '@/contexts/ZunoManagerContext';
+import { useCoach } from '@/contexts/CoachContext';
 import type { Lesson } from '@/types';
 import { LessonTypeValues } from '@/types';
 
@@ -39,6 +41,8 @@ export function LessonViewer({
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState<number>(0);
+  const { getCoordinationMessage } = useZunoManager();
+  const { currentCoach } = useCoach();
 
   const lessonType = lesson.lessonType ?? LessonTypeValues.QUIZ;
 
@@ -113,6 +117,19 @@ export function LessonViewer({
             </div>
           </div>
         </CardHeader>
+        
+        {/* Zuno Manager Coordination Message */}
+        <div className="px-6 pb-4">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-2 mb-1">
+              <Crown className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-700">Zuno Manager</span>
+            </div>
+            <p className="text-sm text-blue-700">
+              {getCoordinationMessage(currentCoach, 'lesson')}
+            </p>
+          </div>
+        </div>
         
         <CardContent className="space-y-6">
           {lessonType === LessonTypeValues.TEXT && (

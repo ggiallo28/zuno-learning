@@ -44,5 +44,5 @@
     "src/**/*",
     "amplify/**/*"
   ],
-  "exclude": ["node_modules", "dist", "build", "temp-components", "src/api/database.ts", "src/api/server.ts"]
+  "exclude": ["node_modules", "dist", "build", "temp-components", "src/api/database.ts", "src/api/server.ts", "src/scripts/testPolpoAdaptive.ts"]
 }

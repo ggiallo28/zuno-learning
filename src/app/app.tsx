@@ -15,6 +15,7 @@ import { CoachSelection } from '@/components/CoachSelection';
 import { ZunoBrandHeader } from '@/components/ZunoBrandHeader';
 import { AssessmentSystem } from '@/components/AssessmentSystem';
 import { CoachProvider, useCoach } from '@/contexts/CoachContext';
+import { ZunoManagerProvider } from '@/contexts/ZunoManagerContext';
 import { useAdaptiveBehavior } from '@/hooks/useAdaptiveBehavior';
 import { AdaptiveCoachIndicator } from '@/components/AdaptiveCoachIndicator';
 import { BookOpen, User as UserIcon, /* Trophy,*/ Settings, Plus, Palette, Target, Users, Zap } from 'lucide-react';
@@ -574,7 +575,9 @@ function AppContent() {
 function App() {
   return (
     <CoachProvider>
-      <AppContent />
+      <ZunoManagerProvider>
+        <AppContent />
+      </ZunoManagerProvider>
     </CoachProvider>
   );
 }

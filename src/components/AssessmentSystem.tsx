@@ -14,9 +14,11 @@ import {
   TrendingUp,
   BookOpen,
   Clock,
-  Lightbulb
+  Lightbulb,
+  Crown
 } from 'lucide-react';
 import { useCoach } from '@/contexts/CoachContext';
+import { useZunoManager } from '@/contexts/ZunoManagerContext';
 
 interface KnowledgeGap {
   id: string;
@@ -62,6 +64,7 @@ export function AssessmentSystem({
   isLoading = false 
 }: AssessmentSystemProps) {
   const { currentCoach, theme, coachConfig } = useCoach();
+  const { getCoordinationMessage } = useZunoManager();
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
 
   // Analyze knowledge gaps to identify focus areas
@@ -118,6 +121,23 @@ export function AssessmentSystem({
 
   return (
     <div className="space-y-6">
+      {/* Zuno Manager Coordination */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+              <Crown className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-blue-900 mb-1">Zuno Manager - Sistema di Valutazione</h3>
+              <p className="text-sm text-blue-700">
+                {getCoordinationMessage(currentCoach, 'assessment')}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Header with Coach Message */}
       <Card style={{ borderLeftColor: theme.primary, borderLeftWidth: '4px' }}>
         <CardHeader>

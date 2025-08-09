@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { CoachType, CoachConfig } from '@/types';
 import { CoachNameValues } from '@/types';
-import { Brain, Zap, Users, Shuffle } from 'lucide-react';
+import { Brain, Zap, Users, Shuffle, Crown } from 'lucide-react';
 import { useCoach } from '@/contexts/CoachContext';
+import { useZunoManager } from '@/contexts/ZunoManagerContext';
 
 interface CoachSelectionProps {
   onCoachSelect: (coach: CoachType) => void;
@@ -99,13 +100,34 @@ const coachIcons: Record<CoachType, React.ComponentType<any>> = {
 
 export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = false }: CoachSelectionProps) {
   const { adaptiveState } = useCoach();
+  const { getCoachIntroduction, managerPersonality } = useZunoManager();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {(Object.keys(coachConfigs) as CoachType[]).map((coachType) => {
+    <div className="space-y-6">
+      {/* Zuno Manager Oversight Message */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+              <Crown className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-blue-900 mb-1">{managerPersonality.name}</h3>
+              <p className="text-sm text-blue-700">
+                Come tuo coordinatore di apprendimento, ho selezionato questi quattro coach specializzati. 
+                Ognuno porta competenze uniche e io supervisionerò la tua esperienza per garantire risultati ottimali.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {(Object.keys(coachConfigs) as CoachType[]).map((coachType) => {
         const config = coachConfigs[coachType];
         const Icon = coachIcons[coachType];
         const isSelected = selectedCoach === coachType;
+        const coachIntro = getCoachIntroduction(coachType);
 
         return (
           <Card 
@@ -135,9 +157,15 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              <p className="text-sm text-muted-foreground mb-3">
-                {config.description}
-              </p>
+              <div className="mb-3 p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Crown className="h-3 w-3 text-blue-600" />
+                  <span className="text-xs font-medium text-blue-700">Zuno Manager presenta:</span>
+                </div>
+                <p className="text-sm text-gray-700 italic">
+                  "{coachIntro.introduction}"
+                </p>
+              </div>
               
               {/* Show adaptive state for Polpo */}
               {coachType === 'polpo' && adaptiveState && (
@@ -184,6 +212,7 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
           </Card>
         );
       })}
+      </div>
     </div>
   );
 }

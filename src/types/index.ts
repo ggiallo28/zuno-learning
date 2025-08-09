@@ -189,6 +189,24 @@ export interface UserBehaviorData {
   helpSeekingBehavior: 'frequent' | 'moderate' | 'rare';
 }
 
+// Zuno Manager types
+export interface ZunoManagerPersonality {
+  name: string;
+  role: string;
+  description: string;
+  characteristics: string[];
+  coordinationStyle: string;
+  guidanceApproach: string;
+}
+
+export interface CoachIntroduction {
+  coachType: CoachType;
+  introduction: string;
+  whenToChoose: string;
+  strengths: string[];
+  idealFor: string[];
+}
+
 // Enhanced lesson interface
 export interface EnhancedLesson extends Lesson {
   interactive_elements?: InteractiveElement[];

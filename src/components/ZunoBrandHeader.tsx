@@ -6,16 +6,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  GraduationCap, 
   Brain, 
   Zap, 
   Users, 
   Shuffle,
   Settings,
   Target,
-  TrendingUp
+  TrendingUp,
+  Crown
 } from 'lucide-react';
 import { useCoach } from '@/contexts/CoachContext';
+import { useZunoManager } from '@/contexts/ZunoManagerContext';
 import { AdaptiveCoachIndicator } from '@/components/AdaptiveCoachIndicator';
 import type { User } from '@/types';
 
@@ -26,6 +27,7 @@ interface ZunoBrandHeaderProps {
 
 export function ZunoBrandHeader({ user, onSettingsClick }: ZunoBrandHeaderProps) {
   const { currentCoach, coachConfig, theme, getMotivationMessage } = useCoach();
+  const { getCoordinationMessage, managerPersonality } = useZunoManager();
   const [showMotivation, setShowMotivation] = useState(false);
 
   const getCoachIcon = () => {
@@ -47,26 +49,39 @@ export function ZunoBrandHeader({ user, onSettingsClick }: ZunoBrandHeaderProps)
         <div className="flex items-center gap-6">
           {/* Zuno Main Brand Logo & Identity */}
           <div className="flex items-center gap-4">
-            <div className="relative">
-              {/* Main Zuno Manager Animal Logo */}
-              <div className="p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg">
-                <GraduationCap className="h-8 w-8 text-white" />
+            <div className="relative group">
+              {/* Main Zuno Manager Animal Logo - Enhanced */}
+              <div className="p-4 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                <div className="relative">
+                  <Crown className="h-8 w-8 text-white" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                </div>
               </div>
-              {/* Coach indicator overlay */}
+              {/* Coach indicator overlay with enhanced styling */}
               <div 
-                className="absolute -bottom-2 -right-2 p-2 rounded-full border-2 border-white shadow-md"
+                className="absolute -bottom-2 -right-2 p-2 rounded-full border-3 border-white shadow-lg hover:shadow-xl transition-all duration-300"
                 style={{ backgroundColor: theme.primary }}
+                title={`Coach ${coachConfig?.displayName} attivo`}
               >
                 <CoachIcon className="h-4 w-4 text-white" />
+              </div>
+              {/* Manager role indicator */}
+              <div className="absolute -top-2 -left-2 px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold rounded-full shadow-md">
+                Manager
               </div>
             </div>
             
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Zuno://
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Zuno://
+                </h1>
+                <div className="text-xs bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                  {managerPersonality.role}
+                </div>
+              </div>
               <p className="text-sm text-muted-foreground">
-                Intelligenza Adattiva per l'Apprendimento Professionale
+                {managerPersonality.description}
               </p>
             </div>
           </div>
@@ -151,11 +166,16 @@ export function ZunoBrandHeader({ user, onSettingsClick }: ZunoBrandHeaderProps)
                   Personalità: {coachConfig.personalityTraits.slice(0, 2).join(', ')}
                 </div>
                 {showMotivation && (
-                  <div 
-                    className="text-sm italic font-medium animate-fade-in"
-                    style={{ color: theme.primary }}
-                  >
-                    "{getMotivationMessage()}"
+                  <div className="space-y-2 animate-fade-in">
+                    <div 
+                      className="text-sm italic font-medium"
+                      style={{ color: theme.primary }}
+                    >
+                      "{getMotivationMessage()}"
+                    </div>
+                    <div className="text-xs text-muted-foreground border-t pt-2">
+                      <span className="font-medium text-blue-600">Zuno Manager:</span> {getCoordinationMessage(currentCoach, 'general')}
+                    </div>
                   </div>
                 )}
               </div>
