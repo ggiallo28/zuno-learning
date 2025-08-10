@@ -2,19 +2,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { UserProfile } from '@/components/UserProfile';
-import { CourseCatalog } from '@/components/CourseCatalog';
-import { OnboardingFlow } from '@/components/OnboardingFlow';
-import { CoachSelection } from '@/components/CoachSelection';
 import { ZunoBrandHeader } from '@/components/ZunoBrandHeader';
-import { AssessmentSystem } from '@/components/AssessmentSystem';
 import { useCoach } from '@/contexts/CoachContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdaptiveBehavior } from '@/hooks/useAdaptiveBehavior';
-import { AdaptiveCoachIndicator } from '@/components/AdaptiveCoachIndicator';
 import { BookOpen, User as UserIcon, Settings, Target, Users, Zap, LogOut } from 'lucide-react';
 import confetti from 'canvas-confetti';
+
+// Lazy load heavy components
+const CourseCatalog = lazy(() => import('@/components/CourseCatalog').then(module => ({ default: module.CourseCatalog })));
+const OnboardingFlow = lazy(() => import('@/components/OnboardingFlow').then(module => ({ default: module.OnboardingFlow })));
+const CoachSelection = lazy(() => import('@/components/CoachSelection').then(module => ({ default: module.CoachSelection })));
+const AssessmentSystem = lazy(() => import('@/components/AssessmentSystem').then(module => ({ default: module.AssessmentSystem })));
+const AdaptiveCoachIndicator = lazy(() => import('@/components/AdaptiveCoachIndicator').then(module => ({ default: module.AdaptiveCoachIndicator })));
 
 import loadCoursesAction from '@/actions/loadCourses';
 import loadUserProfileAction from '@/actions/loadUserProfile';
@@ -28,6 +30,16 @@ import createAssessmentAction from '@/actions/createAssessment';
 
 import type { User, Course, CoachType, Assessment, KnowledgeGap } from '@/types';
 import { CoachNameValues } from '@/api/amplify';
+
+// Loading component for tab content
+function TabLoadingSpinner() {
+  return (
+    <Card className="p-8 text-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <div>Loading...</div>
+    </Card>
+  );
+}
 
 export function AuthenticatedApp() {
   const { user: authUser, signOut } = useAuth();
@@ -215,10 +227,12 @@ export function AuthenticatedApp() {
   // Show onboarding if user hasn't completed it
   if (user && !user.onboardingCompleted) {
     return (
-      <OnboardingFlow 
-        onComplete={handleCompleteOnboarding}
-        isSubmitting={updatingCoach}
-      />
+      <Suspense fallback={<TabLoadingSpinner />}>
+        <OnboardingFlow 
+          onComplete={handleCompleteOnboarding}
+          isSubmitting={updatingCoach}
+        />
+      </Suspense>
     );
   }
 
@@ -282,32 +296,38 @@ export function AuthenticatedApp() {
         </TabsList>
 
         <TabsContent value="assessment">
-          <AssessmentSystem 
-            userId={user.id}
-            onStartAssessment={handleStartAssessment}
-            onViewSkillMap={handleViewSkillMap}
-            knowledgeGaps={knowledgeGaps}
-            recentAssessments={assessments}
-            isLoading={assessmentLoading}
-          />
+          <Suspense fallback={<TabLoadingSpinner />}>
+            <AssessmentSystem 
+              userId={user.id}
+              onStartAssessment={handleStartAssessment}
+              onViewSkillMap={handleViewSkillMap}
+              knowledgeGaps={knowledgeGaps}
+              recentAssessments={assessments}
+              isLoading={assessmentLoading}
+            />
+          </Suspense>
         </TabsContent>
 
         <TabsContent value="catalog">
-          <CourseCatalog 
-            courses={courses}
-            onEnrollInCourse={handleEnrollInCourse}
-            isEnrolling={enrolling}
-          />
+          <Suspense fallback={<TabLoadingSpinner />}>
+            <CourseCatalog 
+              courses={courses}
+              onEnrollInCourse={handleEnrollInCourse}
+              isEnrolling={enrolling}
+            />
+          </Suspense>
         </TabsContent>
 
         <TabsContent value="mycourses">
           <div className="space-y-6">
             {enrolledCourses.length > 0 ? (
-              <CourseCatalog 
-                courses={enrolledCourses}
-                onEnrollInCourse={handleEnrollInCourse}
-                isEnrolling={false}
-              />
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <CourseCatalog 
+                  courses={enrolledCourses}
+                  onEnrollInCourse={handleEnrollInCourse}
+                  isEnrolling={false}
+                />
+              </Suspense>
             ) : (
               <Card className="p-12 text-center">
                 <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -443,7 +463,9 @@ export function AuthenticatedApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="mb-4">
-                    <AdaptiveCoachIndicator showHistory={true} />
+                    <Suspense fallback={<div className="h-16 animate-pulse bg-gray-200 rounded"></div>}>
+                      <AdaptiveCoachIndicator showHistory={true} />
+                    </Suspense>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-2">
@@ -504,11 +526,13 @@ export function AuthenticatedApp() {
                 <DialogTitle>Cambia il tuo Coach</DialogTitle>
               </DialogHeader>
               <div className="mt-4">
-                <CoachSelection 
-                  onCoachSelect={handleCoachChange}
-                  selectedCoach={currentCoach}
-                  isSubmitting={updatingCoach}
-                />
+                <Suspense fallback={<TabLoadingSpinner />}>
+                  <CoachSelection 
+                    onCoachSelect={handleCoachChange}
+                    selectedCoach={currentCoach}
+                    isSubmitting={updatingCoach}
+                  />
+                </Suspense>
               </div>
             </DialogContent>
           </Dialog>

@@ -8,6 +8,8 @@
     "scripts": {
         "dev": "vite --port 8080",
         "build": "tsc && vite build",
+        "build:analyze": "bun run build && bun run analyze",
+        "analyze": "bun scripts/analyze-bundle.js",
         "preview": "vite preview",
         "lint": "eslint .",
         "start": "bun run dev",
@@ -66,6 +68,7 @@
         "postcss": "8.4.47",
         "tailwindcss": "3.4.13",
         "tailwindcss-animate": "^1.0.7",
+        "terser": "^5.43.1",
         "typescript": "5.5.3",
         "typescript-eslint": "8.7.0",
         "vite": "^7.0.6"
