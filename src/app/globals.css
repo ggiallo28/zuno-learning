@@ -145,4 +145,131 @@
   * {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
+
+  /* Glow effect buttons with static multi-color border */
+  .glow-button {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+  
+  .glow-button::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 25%, #06b6d4 50%, #10b981 75%, #3b82f6 100%);
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.7;
+  }
+  
+  .glow-button::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    background: inherit;
+    border-radius: calc(0.5rem - 1px);
+    z-index: -1;
+  }
+  
+  .glow-button:hover {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(139, 92, 246, 0.4);
+    transform: translateY(-1px);
+    animation: glow-pulse-fast 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.3);
+    }
+  }
+  
+  @keyframes glow-pulse-fast {
+    0%, 100% {
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(139, 92, 246, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.8), 0 0 80px rgba(139, 92, 246, 0.6);
+    }
+  }
+  
+  /* Alternative glow effect for different buttons */
+  .glow-button-alt {
+    position: relative;
+    overflow: visible;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    transition: all 0.3s ease;
+  }
+  
+  .glow-button-alt::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #3b82f6);
+    background-size: 200% 200%;
+    border-radius: inherit;
+    animation: glow-pulse 2s ease-in-out infinite;
+    z-index: -1;
+    opacity: 0.6;
+  }
+  
+  .glow-button-alt:hover {
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.6), 0 0 50px rgba(139, 92, 246, 0.4);
+    transform: translateY(-1px);
+  }
+  
+  .glow-button-alt:hover::before {
+    opacity: 0.9;
+    animation-duration: 1s;
+  }
+  
+  @keyframes glow-pulse {
+    0%, 100% {
+      background-position: 0% 50%;
+      opacity: 0.7;
+    }
+    50% {
+      background-position: 100% 50%;
+      opacity: 1;
+    }
+  }
+
+  /* Enhanced glow effect for gradient buttons */
+  .glow-button-strong {
+    position: relative;
+    overflow: visible;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .glow-button-strong::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #10b981, #f59e0b, #ef4444, #3b82f6);
+    background-size: 400% 400%;
+    border-radius: inherit;
+    animation: glow-rotate 3s linear infinite;
+    z-index: -1;
+    opacity: 0.6;
+    filter: blur(2px);
+  }
+  
+  .glow-button-strong:hover {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.7), 0 0 60px rgba(139, 92, 246, 0.4), 0 0 90px rgba(6, 182, 212, 0.3);
+    transform: translateY(-2px);
+  }
+  
+  .glow-button-strong:hover::before {
+    animation-duration: 1.5s;
+    opacity: 0.8;
+    filter: blur(3px);
+  }
   

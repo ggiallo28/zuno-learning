@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { SignInForm } from './SignInForm';
 import { SignUpForm } from './SignUpForm';
 import { ConfirmSignUpForm } from './ConfirmSignUpForm';
@@ -12,7 +13,19 @@ interface AuthFlowProps {
 }
 
 export function AuthFlow({ onAuthSuccess }: AuthFlowProps) {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [currentState, setCurrentState] = useState<AuthFlowState>('signIn');
+
+  // Initialize state based on URL parameters
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    if (mode === 'register') {
+      setCurrentState('signUp');
+    } else if (mode === 'login') {
+      setCurrentState('signIn');
+    }
+  }, [searchParams]);
   const [pendingUsername, setPendingUsername] = useState<string>('');
   const [resetUsername, setResetUsername] = useState<string>('');
 
@@ -31,7 +44,8 @@ export function AuthFlow({ onAuthSuccess }: AuthFlowProps) {
 
   const handleConfirmationSuccess = () => {
     // After successful confirmation, user will be automatically signed in
-    // The AuthContext will handle the state change
+    // The AuthContext will handle the state change and redirect to /app
+    navigate('/app');
     onAuthSuccess?.();
   };
 
