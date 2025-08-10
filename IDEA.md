@@ -1,0 +1,2 @@
+- I coach in modalità Polpo possono parlare tra di loro e lavorare in team, sistema multi agente
+- Puoi caricare un documento che devi studiare, oppure un link, il sistema evidenzia le parti che non conosci sulla base di un assessment di valutazione.
