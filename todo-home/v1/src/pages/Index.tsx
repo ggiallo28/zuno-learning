@@ -807,170 +807,174 @@ const Index = () => {
 
 
     {/* Pricing */}
-    <section
-      id="pricing"
-      className="snap-start min-h-[calc(100vh-4rem)] px-4 bg-background flex items-center scroll-mt-16"
-    >
-      <div className="container mx-auto max-w-6xl">
-        <SectionHeader
-          icon={Target}
-          title="Prezzi"
-          subtitle="Inizia gratis e aggiorna quando sei pronto"
-        />
+<section
+  id="pricing"
+  className="snap-start min-h-[calc(100vh-4rem)] px-4 bg-background flex items-center scroll-mt-16"
+>
+  <div className="container mx-auto max-w-6xl">
+    <SectionHeader
+      icon={Target}
+      title="Prezzi"
+      subtitle="Inizia gratis e aggiorna quando sei pronto"
+    />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {/* Free Plan */}
-          <Card className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)]">
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl font-bold text-foreground">Free</CardTitle>
-              <p className="text-3xl font-bold text-foreground">
-                $0<span className="text-lg text-muted-foreground">/mese</span>
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ul className="space-y-3">
-                {["1 coach AI", "Apprendimento adattivo base", "Supporto community"].map(
-                  (feature, index) => (
-                    <li key={index} className="flex items-center">
-                      <CheckCircle className="w-4 h-4 text-teal-600 mr-3" />
-                      <span className="text-muted-foreground">{feature}</span>
-                    </li>
-                  )
-                )}
-              </ul>
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full bg-card border border-border rounded-lg"
-              >
-                Inizia Gratis
-              </Button>
-            </CardContent>
-          </Card>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      {/* Free Plan */}
+      <Card className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] h-full flex flex-col">
+        <CardHeader className="text-center pb-4">
+          <CardTitle className="text-2xl font-bold text-foreground">Free</CardTitle>
+          <p className="text-3xl font-bold text-foreground">
+            $0<span className="text-lg text-muted-foreground">/mese</span>
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4 flex flex-col h-full">
+          <ul className="space-y-3 flex-1">
+            {["1 coach AI", "Apprendimento adattivo base", "Supporto community"].map(
+              (feature, index) => (
+                <li key={index} className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-teal-600 mr-3" />
+                  <span className="text-muted-foreground">{feature}</span>
+                </li>
+              )
+            )}
+          </ul>
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full bg-card border border-border rounded-lg mt-auto"
+          >
+            Inizia Gratis
+          </Button>
+        </CardContent>
+      </Card>
 
-          {/* Premium Plan */}
-          <Card className="bg-card border-2 border-primary rounded-xl shadow-lg relative">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-orange-50 text-amber-700 border-amber-200">
-                Più scelto
-              </Badge>
-            </div>
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl font-bold text-foreground">Premium</CardTitle>
-              <p className="text-3xl font-bold text-foreground">
-                $12<span className="text-lg text-muted-foreground">/mese</span>
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ul className="space-y-3">
-                {[
-                  "Tutti e 4 i coach AI",
-                  "Suite adattiva completa",
-                  "Gamification avanzata",
-                  "Supporto prioritario"
-                ].map((feature, index) => (
-                  <li key={index} className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-teal-600 mr-3" />
-                    <span className="text-muted-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button
-                size="lg"
-                className="w-full bg-primary hover:bg-primary-hover text-white rounded-lg shadow-[0_2px_6px_rgba(243,154,60,0.25)]"
-              >
-                Avvia Prova Gratuita
-              </Button>
-            </CardContent>
-          </Card>
+      {/* Premium Plan */}
+      <Card className="bg-card border-2 border-primary rounded-xl shadow-lg relative h-full flex flex-col">
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+          <Badge className="bg-orange-50 text-amber-700 border-amber-200">
+            Più scelto
+          </Badge>
+        </div>
+        <CardHeader className="text-center pb-4">
+          <CardTitle className="text-2xl font-bold text-foreground">Premium</CardTitle>
+          <p className="text-3xl font-bold text-foreground">
+            $12<span className="text-lg text-muted-foreground">/mese</span>
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4 flex flex-col h-full">
+          <ul className="space-y-3 flex-1">
+            {[
+              "Tutti e 4 i coach AI",
+              "Suite adattiva completa",
+              "Gamification avanzata",
+              "Supporto prioritario"
+            ].map((feature, index) => (
+              <li key={index} className="flex items-center">
+                <CheckCircle className="w-4 h-4 text-teal-600 mr-3" />
+                <span className="text-muted-foreground">{feature}</span>
+              </li>
+            ))}
+          </ul>
+          <Button
+            size="lg"
+            className="w-full bg-primary hover:bg-primary-hover text-white rounded-lg shadow-[0_2px_6px_rgba(243,154,60,0.25)] mt-auto"
+          >
+            Avvia Prova Gratuita
+          </Button>
+        </CardContent>
+      </Card>
 
-          {/* Flex Plan */}
-          <Card className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] relative">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200">Nuovo</Badge>
-            </div>
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-xl font-bold text-foreground">Flex</CardTitle>
-              <p className="text-sm text-muted-foreground mb-2">
-                Paghi solo per ciò che usi
-              </p>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-foreground">
-                  $0<span className="text-lg text-muted-foreground">/mese</span>
-                </p>
-                <p className="text-sm text-muted-foreground">+ $0.08/lezione</p>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ul className="space-y-3">
-                {[
-                  "Accesso a 2 coach AI",
-                  "Lezioni on-demand",
-                  "Review spaziati inclusi",
-                  "Cap personalizzabile"
-                ].map((feature, index) => (
-                  <li key={index} className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-teal-600 mr-3" />
-                    <span className="text-muted-foreground text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+      {/* Flex Plan */}
+      <Card className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] relative h-full flex flex-col">
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+          <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200">Nuovo</Badge>
+        </div>
+        <CardHeader className="text-center pb-4">
+          <CardTitle className="text-xl font-bold text-foreground">Flex</CardTitle>
+          <p className="text-sm text-muted-foreground mb-2">
+            Paghi solo per ciò che usi
+          </p>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-foreground">
+              $0<span className="text-lg text-muted-foreground">/mese</span>
+            </p>
+            <p className="text-sm text-muted-foreground">+ $0.08/lezione</p>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col h-full">
+          {/* wrapper che cresce e lascia il bottone in fondo */}
+          <div className="space-y-4 flex-1">
+            <ul className="space-y-3">
+              {[
+                "Accesso a 2 coach AI",
+                "Lezioni on-demand",
+                "Review spaziati inclusi",
+                "Cap personalizzabile"
+              ].map((feature, index) => (
+                <li key={index} className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-teal-600 mr-3" />
+                  <span className="text-muted-foreground text-sm">{feature}</span>
+                </li>
+              ))}
+            </ul>
 
-              <div className="space-y-3 p-3 bg-muted rounded-lg">
-                <label className="text-sm font-medium text-foreground">
-                  Cap mensile: {capValue[0]} lezioni
-                </label>
-                <Slider
-                  value={capValue}
-                  onValueChange={setCapValue}
+            <div className="space-y-3 p-3 bg-muted rounded-lg">
+              <label className="text-sm font-medium text-foreground">
+                Cap mensile: {capValue[0]} lezioni
+              </label>
+              <Slider
+                value={capValue}
+                onValueChange={setCapValue}
+                min={20}
+                max={1000}
+                step={10}
+                className="w-full"
+              />
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  value={capValue[0]}
+                  onChange={(e) =>
+                    setCapValue([parseInt(e.target.value) || 0])
+                  }
                   min={20}
                   max={1000}
-                  step={10}
-                  className="w-full"
+                  className="w-20 h-8 text-xs"
                 />
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    value={capValue[0]}
-                    onChange={(e) =>
-                      setCapValue([parseInt(e.target.value) || 0])
-                    }
-                    min={20}
-                    max={1000}
-                    className="w-20 h-8 text-xs"
-                  />
-                  <Select value={capBehavior} onValueChange={setCapBehavior}>
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Pausa automatica">Pausa automatica</SelectItem>
-                      <SelectItem value="Chiedi conferma">Chiedi conferma</SelectItem>
-                      <SelectItem value="Sforamento fino a +10%">
-                        Sforamento +10%
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="text-center">
-                  <Badge className="bg-orange-50 text-amber-700 border-amber-200">
-                    Costo stimato: ${estimatedCost}/mese
-                  </Badge>
-                </div>
+                <Select value={capBehavior} onValueChange={setCapBehavior}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pausa automatica">Pausa automatica</SelectItem>
+                    <SelectItem value="Chiedi conferma">Chiedi conferma</SelectItem>
+                    <SelectItem value="Sforamento fino a +10%">
+                      Sforamento +10%
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+              <div className="text-center">
+                <Badge className="bg-orange-50 text-amber-700 border-amber-200">
+                  Costo stimato: ${estimatedCost}/mese
+                </Badge>
+              </div>
+            </div>
+          </div>
 
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full bg-card border border-border rounded-lg"
-              >
-                Inizia — Imposta Cap
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </section>
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full bg-card border border-border rounded-lg mt-4"
+          >
+            Inizia — Imposta Cap
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</section>
+
 
 
     {/* Footer */}
