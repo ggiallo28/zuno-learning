@@ -1,12 +1,12 @@
 /// <reference types="vite/client" />
 
-// Add any custom VITE_* vars you use so TS knows them
+// Add any custom VITE_* environment variables you use so TypeScript knows them
 interface ImportMetaEnv {
-    readonly VITE_AUTH_MODE?: 'apikey' | 'cognito';
-    readonly VITE_USE_API_KEY?: 'true' | 'false';
     readonly VITE_ASSETS_BASE_URL?: string;
     readonly VITE_DEFAULT_PROFILE?: string;
-  }
-  interface ImportMeta {
+    readonly VITE_API_BASE_URL?: string;
+}
+
+interface ImportMeta {
     readonly env: ImportMetaEnv;
-  }  
+}  

@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { SignInForm } from './SignInForm';
 import { SignUpForm } from './SignUpForm';
 import { ConfirmSignUpForm } from './ConfirmSignUpForm';
+import { ForgotPasswordForm } from './ForgotPasswordForm';
+import { ResetPasswordForm } from './ResetPasswordForm';
 
-type AuthFlowState = 'signIn' | 'signUp' | 'confirmSignUp' | 'forgotPassword';
+type AuthFlowState = 'signIn' | 'signUp' | 'confirmSignUp' | 'forgotPassword' | 'resetPassword';
 
 interface AuthFlowProps {
   onAuthSuccess?: () => void;
@@ -12,6 +14,7 @@ interface AuthFlowProps {
 export function AuthFlow({ onAuthSuccess }: AuthFlowProps) {
   const [currentState, setCurrentState] = useState<AuthFlowState>('signIn');
   const [pendingUsername, setPendingUsername] = useState<string>('');
+  const [resetUsername, setResetUsername] = useState<string>('');
 
   const handleSwitchToSignUp = () => {
     setCurrentState('signUp');
@@ -38,8 +41,21 @@ export function AuthFlow({ onAuthSuccess }: AuthFlowProps) {
 
   const handleForgotPassword = () => {
     setCurrentState('forgotPassword');
-    // TODO: Implement forgot password flow
-    console.log('Forgot password flow not implemented yet');
+  };
+
+  const handleResetCodeSent = (username: string) => {
+    setResetUsername(username);
+    setCurrentState('resetPassword');
+  };
+
+  const handleResetSuccess = () => {
+    // After successful password reset, go back to sign in
+    setCurrentState('signIn');
+    setResetUsername('');
+  };
+
+  const handleBackToForgotPassword = () => {
+    setCurrentState('forgotPassword');
   };
 
   switch (currentState) {
@@ -69,12 +85,20 @@ export function AuthFlow({ onAuthSuccess }: AuthFlowProps) {
       );
 
     case 'forgotPassword':
-      // TODO: Implement forgot password component
       return (
-        <div className="text-center">
-          <p>Forgot password flow coming soon...</p>
-          <button onClick={handleSwitchToSignIn}>Back to Sign In</button>
-        </div>
+        <ForgotPasswordForm
+          onBackToSignIn={handleSwitchToSignIn}
+          onResetCodeSent={handleResetCodeSent}
+        />
+      );
+
+    case 'resetPassword':
+      return (
+        <ResetPasswordForm
+          username={resetUsername}
+          onBackToForgotPassword={handleBackToForgotPassword}
+          onResetSuccess={handleResetSuccess}
+        />
       );
 
     default:

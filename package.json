@@ -6,9 +6,8 @@
     "description": "Zuno:// - Personalized learning platform with AI coaching",
     "keywords": ["learning", "education", "ai-coaching", "personalized", "zuno"],
     "scripts": {
-        "dev": "VITE_USE_API_KEY=true VITE_AUTH_MODE=apikey vite",
-        "cognito": "VITE_USE_API_KEY=false VITE_AUTH_MODE=cognito vite",
-        "build": "VITE_USE_API_KEY=false VITE_AUTH_MODE=cognito tsc && vite build",
+        "dev": "vite",
+        "build": "tsc && vite build",
         "preview": "vite preview",
         "lint": "eslint .",
         "start": "bun run dev",

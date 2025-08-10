@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom/client'
 import App from './app/app.tsx'
 import './app/globals.css'
 
-// Import and configure Amplify with auth mode support
+// Import and configure Amplify
 import { configureAmplify } from './lib/authConfig'
 
-// Configure Amplify with appropriate auth mode
-const authConfig = configureAmplify()
-console.log(`🚀 Starting Zuno with ${authConfig.mode.toUpperCase()} authentication`)
+// Configure Amplify with Cognito authentication
+configureAmplify()
+console.log('🚀 Starting Zuno with Cognito authentication')
 
 import ErrorBoundary from './components/ErrorBoundary'
 

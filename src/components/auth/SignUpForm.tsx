@@ -12,42 +12,7 @@ interface SignUpFormProps {
   onSignUpSuccess: (username: string) => void;
 }
 
-const ASSETS_BASE =
-  import.meta.env.VITE_ASSETS_BASE_URL ?? 'https://cdn.zuno.app/assets/avatars';
 
-function getAge(birthdate?: string) {
-  if (!birthdate) return undefined;
-  const b = new Date(birthdate);
-  if (Number.isNaN(b.getTime())) return undefined;
-  const today = new Date();
-  let age = today.getFullYear() - b.getFullYear();
-  const m = today.getMonth() - b.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < b.getDate())) age--;
-  return Math.max(age, 0);
-}
-
-function getAgeBracket(age?: number): 'child' | 'teen' | 'adult' | 'senior' {
-  if (age == null) return 'adult';
-  if (age < 13) return 'child';
-  if (age < 18) return 'teen';
-  if (age < 65) return 'adult';
-  return 'senior';
-}
-
-function normalizeGender(g?: string): 'male' | 'female' | 'other' | 'prefer-not-to-say' {
-  const v = (g ?? '').toLowerCase();
-  if (v === 'male') return 'male';
-  if (v === 'female') return 'female';
-  if (v === 'prefer-not-to-say') return 'prefer-not-to-say';
-  return 'other';
-}
-
-function getDefaultPicture(gender?: string, birthdate?: string) {
-  const age = getAge(birthdate);
-  const bracket = getAgeBracket(age);
-  const g = normalizeGender(gender);
-  return `${ASSETS_BASE}/${g}-${bracket}.png`;
-}
 
 export function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }: SignUpFormProps) {
   const [formData, setFormData] = useState({
@@ -56,12 +21,6 @@ export function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }: SignUpFormProp
     password: '',
     confirmPassword: '',
     fullName: '',
-    birthdate: '',
-    gender: '',
-    locale: 'en-US',
-    picture: '',
-    profile: '',
-    zoneinfo: 'America/New_York',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -99,26 +58,11 @@ export function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }: SignUpFormProp
     }
 
     try {
-      const clean = (v?: string) => (v && v.trim() ? v.trim() : undefined);
-    
-      const picture = clean(formData.picture) ?? getDefaultPicture(formData.gender, formData.birthdate);
-      const profile = clean(formData.profile) ?? (import.meta.env.VITE_DEFAULT_PROFILE ?? 'New Zuno user');
-    
-      const attributes: Record<string, string> = {
-        name: clean(formData.fullName)!,
-        birthdate: clean(formData.birthdate)!,
-        gender: clean(formData.gender)!,
-        locale: clean(formData.locale) ?? 'en-US',
-        zoneinfo: clean(formData.zoneinfo) ?? 'UTC',
-        picture,
-        profile,
-      };
-    
       const result = await signUp(
         formData.username.trim(),
         formData.password,
         formData.email.trim(),
-        attributes
+        formData.fullName.trim()
       );
     
       if (result.isSignUpComplete) {
@@ -149,8 +93,6 @@ export function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }: SignUpFormProp
       formData.password &&
       formData.confirmPassword &&
       formData.fullName &&
-      formData.birthdate &&
-      formData.gender &&
       formData.password === formData.confirmPassword &&
       Object.values(passwordValidation).every(Boolean)
     );
@@ -211,47 +153,7 @@ export function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }: SignUpFormProp
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="birthdate">Date of Birth</Label>
-            <Input
-              id="birthdate"
-              type="date"
-              value={formData.birthdate}
-              onChange={handleInputChange('birthdate')}
-              disabled={isLoading}
-              required
-            />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="gender">Gender</Label>
-            <select
-              id="gender"
-              value={formData.gender}
-              onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={isLoading}
-              required
-            >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-              <option value="prefer-not-to-say">Prefer not to say</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="picture">Profile Picture URL (optional)</Label>
-            <Input
-              id="picture"
-              type="url"
-              value={formData.picture}
-              onChange={handleInputChange('picture')}
-              placeholder="https://example.com/photo.jpg"
-              disabled={isLoading}
-            />
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
