@@ -96,7 +96,7 @@
   - **Memory Management**: Optimize component re-renders and prevent memory leaks
   - _Requirements: Performance optimization, efficient rendering, improved caching_
 
-- [ ] 9. Implement code splitting and bundle optimization
+- [x] 9. Implement code splitting and bundle optimization
   - **Code Splitting**: Implement lazy loading for better bundle size and performance
   - **Build Warning Resolution (chunk size)**: Some chunks are larger than 500 kB after minification—consider using `dynamic import()` for code-splitting, `build.rollupOptions.output.manualChunks` for improved chunking, or adjust the limit via `build.chunkSizeWarningLimit`.
   - **Bundle Analysis**: Analyze and optimize bundle size for production deployment
@@ -119,7 +119,10 @@
 - [ ] 12. Add comprehensive testing coverage
   - **Unit Testing**: Add comprehensive unit tests for all existing components
   - **Integration Testing**: Create integration tests for component interactions
+  - **Task Testing**: Add tests ensuring completed tasks stay completed across sessions and code updates.
   - **E2E Testing**: Implement end-to-end testing for critical user flows
+  - **Test Organization**: Place unit and integration tests alongside source files as *.test.ts[x], keep E2E tests in tests/e2e/, shared mocks in tests/mocks/, factories/fixtures in tests/factories/ and AI-generated "Kiro’s task tests" in tests/tasks/.
+  - **Cleanup Step**: Remove unused/orphaned files, obsolete mocks, outdated test data, and any code no longer needed for the app to reduce bundle size and maintenance overhead.
   - **Test Coverage**: Achieve high test coverage across all components and actions
   - _Requirements: Testing coverage, quality assurance, automated testing_
 
