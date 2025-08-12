@@ -216,3 +216,18 @@ Zuno is an engaging course-based learning application designed to help users dev
 6. WHEN a user chooses Lupa THEN the system SHALL explain collaborative features and help them find or create study groups
 7. WHEN a user chooses Polpo THEN the system SHALL explain how the adaptive system works and allow customization of learning style preferences
 8. WHEN onboarding includes assessment THEN the system SHALL use results to immediately focus the learning plan on knowledge gaps
+
+### Requirement 17: Development and Optimization Principles
+
+**User Story:** As a development team, I want to follow sound engineering principles during development, so that we build efficiently and avoid wasting time on premature optimization.
+
+#### Acceptance Criteria
+
+1. WHEN developing new features THEN the system SHALL prioritize functionality and correctness before optimization
+2. WHEN considering performance improvements THEN the system SHALL only optimize features that exist and are proven necessary
+3. WHEN planning development phases THEN optimization tasks SHALL be scheduled after core functionality is complete and stable
+4. WHEN features are working correctly THEN performance optimization SHALL be based on real usage data and measured bottlenecks
+5. WHEN optimization is performed THEN it SHALL be measurable with clear before/after performance metrics
+6. IF a feature might be changed or removed THEN optimization efforts SHALL be deferred until the feature is stable
+7. WHEN building the system THEN the principle "don't optimize what doesn't need to exist" SHALL guide all development decisions
+8. WHEN performance issues are identified THEN optimization SHALL target actual bottlenecks rather than theoretical improvements
