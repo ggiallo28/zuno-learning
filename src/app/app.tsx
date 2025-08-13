@@ -87,7 +87,9 @@ function App() {
       <AuthProvider>
         <CoachProvider>
           <ZunoManagerProvider>
-            <AppRoutes />
+            <div id="main-content">
+              <AppRoutes />
+            </div>
           </ZunoManagerProvider>
         </CoachProvider>
       </AuthProvider>

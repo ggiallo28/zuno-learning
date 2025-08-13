@@ -2,19 +2,38 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
-      className,
-    )}
-    {...props}
-  />
-))
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  interactive?: boolean
+  'aria-labelledby'?: string
+  'aria-describedby'?: string
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, interactive = false, 'aria-labelledby': ariaLabelledBy, 'aria-describedby': ariaDescribedBy, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        "rounded-lg border bg-card text-card-foreground shadow-sm",
+        // No padding on the card itself - let children handle their own padding
+        // Interactive card styles
+        interactive && [
+          "cursor-pointer hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          // Touch-friendly for mobile
+          "touch-manipulation select-none",
+          // Minimum touch target size
+          "min-h-[44px]"
+        ],
+        // High contrast mode support
+        "border-2",
+        className,
+      )}
+      aria-labelledby={ariaLabelledBy}
+      aria-describedby={ariaDescribedBy}
+      {...(interactive && { tabIndex: 0, role: 'button' })}
+      {...props}
+    />
+  )
+)
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
@@ -23,25 +42,45 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    className={cn("flex flex-col space-y-1.5 p-4 pb-2", className)}
     {...props}
   />
 ))
 CardHeader.displayName = "CardHeader"
 
-const CardTitle = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-  <h3
-    ref={ref}
-    className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
-      className,
-    )}
-    {...props}
-  />
-))
+export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  level?: 1 | 2 | 3 | 4 | 5 | 6
+}
+
+const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
+  ({ className, level = 3, ...props }, ref) => {
+    const headingProps = {
+      ref,
+      className: cn(
+        "text-lg font-semibold leading-tight tracking-tight",
+        className,
+      ),
+      ...props
+    };
+    
+    switch (level) {
+      case 1:
+        return <h1 {...headingProps} />;
+      case 2:
+        return <h2 {...headingProps} />;
+      case 3:
+        return <h3 {...headingProps} />;
+      case 4:
+        return <h4 {...headingProps} />;
+      case 5:
+        return <h5 {...headingProps} />;
+      case 6:
+        return <h6 {...headingProps} />;
+      default:
+        return <h3 {...headingProps} />;
+    }
+  }
+)
 CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef<
@@ -60,7 +99,11 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+  <div 
+    ref={ref} 
+    className={cn("px-4 pb-4", className)} 
+    {...props} 
+  />
 ))
 CardContent.displayName = "CardContent"
 
@@ -70,7 +113,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center p-6 pt-0", className)}
+    className={cn("flex items-center px-4 pb-4", className)}
     {...props}
   />
 ))

@@ -1,6 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FlashCard } from "@/components/ui/flash-card";
+import {
+    Card,
+    CardHeader,
+    CardContent,
+    CardTitle
+  } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
@@ -30,6 +36,26 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
     const [showVideoDialog, setShowVideoDialog] = useState(false);
     const [videoTitle, setVideoTitle] = useState("");
     const [userProfile, setUserProfile] = useState<any>(null);
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+    // Close mobile menu on escape key
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && showMobileMenu) {
+                setShowMobileMenu(false);
+            }
+        };
+
+        if (showMobileMenu) {
+            document.addEventListener('keydown', handleKeyDown);
+            // Prevent body scroll when menu is open
+            document.body.style.overflow = 'hidden';
+            return () => {
+                document.removeEventListener('keydown', handleKeyDown);
+                document.body.style.overflow = 'unset';
+            };
+        }
+    }, [showMobileMenu]);
 
     const { isAuthenticated, signOut } = useAuth();
 
@@ -53,6 +79,8 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
         setVideoTitle(title);
         setShowVideoDialog(true);
     };
+
+
 
     const handleSignOut = async () => {
         try {
@@ -93,7 +121,7 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
             descLong: "Zuno Manager è il tuo assistente principale: ti conosce, definisce gli obiettivi e coordina i quattro coach per offrirti il miglior mix in base a tempo, livello ed energia. Mantiene coerenza tra lezioni, review e sfide, adattando sempre il percorso.",
             traits: ["Visione d'insieme", "Piani adattivi", "Focus su obiettivi", "Bilanciamento carico"],
             whenChoose: "Sempre: imposta il piano e coordina i coach in base ai tuoi obiettivi.",
-            extraTitle: "Coordinamento coach",
+            extraTitle: "Coordinamento",
             extraPoints: [
                 "Analizza tempo, energia e progresso recente",
                 "Sceglie il coach giusto per la prossima lezione",
@@ -109,7 +137,7 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
             chipBg: "bg-amber-100",
             chipText: "text-amber-600",
             descShort: "Approccio profondo: metodo calmo e riflessivo.",
-            descLong: "Elia (l'Elefante): pensato per chi predilige un apprendimento profondo e riflessivo. Ti guida in modo metodico e pacato, assicurandosi che ogni concetto sia compreso a fondo prima di proseguire, così da costruire basi solide e durature nel tempo.",
+            descLong: "Elia (l'Elefante): pensato per chi predilige un apprendimento profondo e riflessivo. Ti guida in modo metodico e pacato, assicurandosi che ogni concetto sia compreso prima di proseguire, così da costruire basi solide e durature nel tempo.",
             traits: ["Ritmo pacato", "Esempi guidati", "Review approfondite", "Chiarezza concettuale"],
             whenChoose: "Quando vuoi basi solide e comprensione profonda, senza fretta.",
             extraTitle: "Cosa lo differenzia",
@@ -128,7 +156,7 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
             chipBg: "bg-orange-100",
             chipText: "text-orange-600",
             descShort: "Apprendimento rapido: dinamico ed esplorativo.",
-            descLong: "Skippy (lo Scoiattolo): ideale per esperienze di apprendimento rapide ed esplorative. Propone sfide brevi e dinamiche, ti permette di saltare tra argomenti diversi e mantiene alto il coinvolgimento con varietà e stimoli continui lungo il percorso.",
+            descLong: "Skippy (lo Scoiattolo): ideale per esperienze di apprendimento rapide ed esplorative. Propone sfide brevi e dinamiche, ti permette di saltare tra argomenti diversi e mantiene alto il coinvolgimento con varietà e stimoli continui.",
             traits: ["Challenge veloci", "Varietà alta", "Feedback immediati", "Flessibilità nel percorso"],
             whenChoose: "Quando cerchi sprint brevi e varietà per mantenere alta la curiosità.",
             extraTitle: "Cosa lo differenzia",
@@ -155,7 +183,7 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
                 "Organizza sessioni di gruppo e workshop",
                 "Incoraggia il confronto tra pari e discussioni",
                 "Crea progetti condivisi per imparare insieme",
-                "Sfrutta dinamiche sociali per rafforzare la memoria"
+                "Usa dinamiche sociali per rafforzare memoria"
             ]
         },
         {
@@ -179,6 +207,87 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
         }
     ];
 
+// --- helper decorazione per le feature (no testo) ---
+const FeatureDeco = ({
+    variant,
+    tint = "text-muted-foreground/20",
+  }: {
+    variant: "adaptive" | "review" | "collab" | "game";
+    tint?: string;
+  }) => {
+    return (
+      <svg
+        viewBox="0 0 180 120"
+        className={`w-[180px] h-[120px] ${tint}`}
+        aria-hidden
+      >
+        {variant === "adaptive" && (
+          <g stroke="currentColor" fill="none" strokeWidth="2">
+            {/* griglietta */}
+            {[20, 60, 100, 140, 180].map((x) => (
+              <line key={x} x1={x - 20} y1={20} x2={x - 20} y2={100} opacity="0.2" />
+            ))}
+            {[20, 60, 100].map((y) => (
+              <line key={y} x1={10} y1={y} x2={170} y2={y} opacity="0.2" />
+            ))}
+            {/* trend con nodi */}
+            <path d="M10 90 C 40 70, 70 85, 100 60 S 150 40, 170 30" />
+            {[10, 70, 100, 140, 170].map((cx, i) => (
+              <circle key={i} cx={cx} cy={[90, 78, 60, 48, 30][i]} r="4" fill="currentColor" />
+            ))}
+          </g>
+        )}
+  
+        {variant === "review" && (
+          <g stroke="currentColor" fill="none">
+            {/* calendario mini */}
+            {[0, 1, 2, 3, 4].map((r) =>
+              [0, 1, 2, 3, 4].map((c) => (
+                <rect
+                  key={`${r}-${c}`}
+                  x={20 + c * 28}
+                  y={20 + r * 18}
+                  rx="4"
+                  ry="4"
+                  width="18"
+                  height="12"
+                  opacity={r === 0 ? 0.35 : 0.55}
+                />
+              ))
+            )}
+            {/* “oggi” */}
+            <rect x="76" y="38" width="18" height="12" rx="4" ry="4" fill="currentColor" opacity="0.35" />
+          </g>
+        )}
+  
+        {variant === "collab" && (
+          <g stroke="currentColor" fill="none" strokeWidth="2">
+            {/* tre avatar sovrapposti */}
+            <circle cx="70" cy="60" r="26" opacity="0.6" />
+            <circle cx="100" cy="60" r="26" opacity="0.4" />
+            <circle cx="130" cy="60" r="26" opacity="0.25" />
+            {/* “chat bubble” */}
+            <path d="M50 30 h32 a10 10 0 0 1 10 10 v6 a10 10 0 0 1 -10 10 h-12 l-8 8 v-8 h-12 a10 10 0 0 1 -10 -10 v-6 a10 10 0 0 1 10 -10 z" opacity="0.25" />
+          </g>
+        )}
+  
+        {variant === "game" && (
+          <g stroke="currentColor" fill="none" strokeWidth="2">
+            {/* badge esagonale */}
+            <path d="M90 20 l28 16 v32 l-28 16 -28 -16 v-32 z" opacity="0.45" />
+            {/* stelline */}
+            {[60, 90, 120].map((cx, i) => (
+              <g key={i} transform={`translate(${cx}, 86)`} opacity="0.5">
+                <path d="M0,-6 L1.8,-1.8 L6,0 L1.8,1.8 L0,6 L-1.8,1.8 L-6,0 L-1.8,-1.8 Z" />
+              </g>
+            ))}
+          </g>
+        )}
+      </svg>
+    );
+  };
+
+  
     const sectionIds = [
         "hero",
         "coaches",
@@ -253,16 +362,18 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
             </div>
 
             {/* Main Navigation */}
-            <nav className="bg-white border-b border-border sticky top-0 z-50">
+            <nav className="bg-white border-b border-border sticky top-0 z-50" role="navigation" aria-label="Main navigation">
                 <div className="container mx-auto max-w-6xl px-4">
                     <div className="relative flex items-center justify-between h-16">
                         {/* Logo a sinistra */}
                         <div className="flex items-center gap-2">
-                            <Crown className="w-6 h-6 text-blue-600" />
-                            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Zuno://</span>
+                            <Crown className="w-6 h-6 text-blue-600" aria-hidden="true" />
+                            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                Zuno://
+                            </span>
                         </div>
 
-                        {/* Menu centrale */}
+                        {/* Menu centrale - Desktop */}
                         <div className="hidden md:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
                             {[
                                 { name: "Focus", href: "#hero", id: "hero" },
@@ -279,12 +390,24 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
                                     <button
                                         key={item.name}
                                         onClick={() => {
-                                            document.querySelector(item.href)?.scrollIntoView({ behavior: "smooth" });
+                                            const target = document.querySelector(item.href);
+                                            if (target) {
+                                                target.scrollIntoView({ behavior: "smooth" });
+                                                // Announce navigation for screen readers
+                                                const announcement = `Navigating to ${item.name} section`;
+                                                const announcer = document.createElement('div');
+                                                announcer.setAttribute('aria-live', 'polite');
+                                                announcer.className = 'sr-only';
+                                                announcer.textContent = announcement;
+                                                document.body.appendChild(announcer);
+                                                setTimeout(() => document.body.removeChild(announcer), 1000);
+                                            }
                                         }}
                                         aria-current={isActive ? "page" : undefined}
+                                        aria-label={`Navigate to ${item.name} section`}
                                         className={`relative text-sm font-medium transition-colors ${isActive
                                             ? "text-blue-600"
-                                            : "text-muted-foreground hover:text-foreground"
+                                            : "text-muted-foreground hover:text-foreground focus-visible:text-foreground"
                                             }`}
                                     >
                                         {item.name}
@@ -292,14 +415,28 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
                                         <span
                                             className={`absolute -bottom-2 left-1/2 h-[2px] w-0 rounded bg-blue-600 transition-all duration-300 ${isActive ? "w-4 -translate-x-1/2" : ""
                                                 }`}
+                                            aria-hidden="true"
                                         />
                                     </button>
                                 );
                             })}
                         </div>
 
-                        {/* Pulsanti a destra */}
-                        <div className="flex items-center gap-3">
+                        {/* Mobile menu button */}
+                        <button
+                            className="md:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent"
+                            onClick={() => setShowMobileMenu(!showMobileMenu)}
+                            aria-expanded={showMobileMenu}
+                            aria-controls="mobile-menu"
+                            aria-label="Toggle navigation menu"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showMobileMenu ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+                            </svg>
+                        </button>
+
+                        {/* Pulsanti a destra - Desktop */}
+                        <div className="hidden md:flex items-center gap-3">
                             {isAuthenticated ? (
                                 <>
                                     <Button
@@ -307,87 +444,248 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
                                         size="sm"
                                         onClick={() => navigate('/app')}
                                         className="flex items-center gap-2"
+                                        aria-label="Go to user profile"
                                     >
-                                        <User className="w-4 h-4" />
+                                        <User className="w-4 h-4" aria-hidden="true" />
                                         {userProfile && (
                                             <div className="flex items-center gap-3">
                                                 <div className="flex items-center gap-1">
-                                                    <Flame className="w-3 h-3 text-orange-500" />
-                                                    <span className="text-xs font-medium">{userProfile.currentStreak || 0}</span>
+                                                    <Flame className="w-3 h-3 text-orange-500" aria-hidden="true" />
+                                                    <span className="text-xs font-medium" aria-label={`Current streak: ${userProfile.currentStreak || 0} days`}>
+                                                        {userProfile.currentStreak || 0}
+                                                    </span>
                                                 </div>
                                                 <div className="flex items-center gap-1">
-                                                    <Zap className="w-3 h-3 text-blue-500" />
-                                                    <span className="text-xs font-medium">{userProfile.totalXP || 0}</span>
+                                                    <Zap className="w-3 h-3 text-blue-500" aria-hidden="true" />
+                                                    <span className="text-xs font-medium" aria-label={`Total XP: ${userProfile.totalXP || 0} points`}>
+                                                        {userProfile.totalXP || 0}
+                                                    </span>
                                                 </div>
                                             </div>
                                         )}
                                         <span className="ml-1">Profilo</span>
                                     </Button>
-                                    <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                                        <LogOut className="w-4 h-4" />
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        onClick={handleSignOut}
+                                        aria-label="Sign out"
+                                    >
+                                        <LogOut className="w-4 h-4" aria-hidden="true" />
+                                        <span className="sr-only">Sign out</span>
                                     </Button>
                                 </>
                             ) : (
                                 <>
-                                    <Button variant="ghost" size="sm" onClick={handleLogin}>Login</Button>
-                                    <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" onClick={handleRegister}>
+                                    <Button variant="ghost" size="sm" onClick={handleLogin}>
+                                        Login
+                                    </Button>
+                                    <Button 
+                                        size="sm" 
+                                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" 
+                                        onClick={handleRegister}
+                                    >
                                         Registrati
                                     </Button>
                                 </>
                             )}
                         </div>
                     </div>
+
+                    {/* Mobile menu */}
+                    {showMobileMenu && (
+                        <>
+                            {/* Backdrop */}
+                            <div 
+                                className={`md:hidden fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 ${
+                                    showMobileMenu ? 'opacity-100' : 'opacity-0'
+                                }`}
+                                onClick={() => setShowMobileMenu(false)}
+                                aria-hidden="true"
+                            />
+                            
+                            {/* Menu */}
+                            <div 
+                                id="mobile-menu"
+                                className={`md:hidden fixed inset-0 z-50 bg-white transition-all duration-300 ease-in-out ${
+                                    showMobileMenu ? 'opacity-100 visible' : 'opacity-0 invisible'
+                                }`}
+                                role="menu"
+                                aria-label="Mobile navigation menu"
+                            >
+                            {/* Close button */}
+                            <div className="flex justify-between items-center p-4 border-b border-border">
+                                <div className="flex items-center gap-2">
+                                    <Crown className="w-6 h-6 text-blue-600" aria-hidden="true" />
+                                    <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                        Zuno://
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => setShowMobileMenu(false)}
+                                    className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent"
+                                    aria-label="Close navigation menu"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div className="flex flex-col h-full px-6 py-8 space-y-2">
+                                {[
+                                    { name: "Focus", href: "#hero", id: "hero" },
+                                    { name: "Coach", href: "#coaches", id: "coaches" },
+                                    { name: "Corsi", href: "#catalog", id: "catalog" },
+                                    { name: "Features", href: "#how-features", id: "how-features" },
+                                    { name: "Community", href: "#collaborative", id: "collaborative" },
+                                    { name: "Feedback", href: "#testimonials", id: "testimonials" },
+                                    { name: "Prezzi", href: "#pricing", id: "pricing" },
+                                    { name: "Contatti", href: "#footer", id: "footer" },
+                                ].map((item) => {
+                                    const isActive = activeSection === item.id;
+                                    return (
+                                        <button
+                                            key={item.name}
+                                            onClick={() => {
+                                                const target = document.querySelector(item.href);
+                                                if (target) {
+                                                    target.scrollIntoView({ behavior: "smooth" });
+                                                    setShowMobileMenu(false);
+                                                }
+                                            }}
+                                            role="menuitem"
+                                            aria-current={isActive ? "page" : undefined}
+                                            className={`block w-full text-left px-4 py-4 rounded-lg text-lg font-medium transition-all duration-200 ${isActive
+                                                ? "text-blue-600 bg-blue-50 border-l-4 border-blue-600"
+                                                : "text-foreground hover:text-blue-600 hover:bg-blue-50 hover:translate-x-1"
+                                                }`}
+                                        >
+                                            {item.name}
+                                        </button>
+                                    );
+                                })}
+                                
+                                {/* Mobile auth buttons */}
+                                <div className="mt-auto pt-6 border-t border-border space-y-3">
+                                    {isAuthenticated ? (
+                                        <>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full justify-start"
+                                                onClick={() => {
+                                                    navigate('/app');
+                                                    setShowMobileMenu(false);
+                                                }}
+                                            >
+                                                <User className="w-4 h-4 mr-2" aria-hidden="true" />
+                                                Profilo
+                                            </Button>
+                                            <Button 
+                                                variant="ghost" 
+                                                className="w-full justify-start"
+                                                onClick={() => {
+                                                    handleSignOut();
+                                                    setShowMobileMenu(false);
+                                                }}
+                                            >
+                                                <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />
+                                                Sign out
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Button 
+                                                variant="ghost" 
+                                                className="w-full"
+                                                onClick={() => {
+                                                    handleLogin();
+                                                    setShowMobileMenu(false);
+                                                }}
+                                            >
+                                                Login
+                                            </Button>
+                                            <Button 
+                                                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                                                onClick={() => {
+                                                    handleRegister();
+                                                    setShowMobileMenu(false);
+                                                }}
+                                            >
+                                                Registrati
+                                            </Button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </nav>
 
             {/* Hero Section */}
             <section
                 id="hero"
-                className="snap-start bg-card min-h-[calc(100vh-4rem)] py-12 px-4 border-b border-border flex items-center scroll-mt-16"
+                className="snap-start bg-card min-h-[calc(100vh-4rem)] py-8 sm:py-12 px-4 sm:px-6 border-b border-border flex items-center justify-center scroll-mt-16"
+                role="banner"
+                aria-labelledby="hero-heading"
             >
-                <div className="container mx-auto max-w-6xl text-center">
+                <div className="container mx-auto max-w-6xl text-center w-full flex flex-col items-center justify-center">
                     {/* Coach icons */}
-                    <div className="flex justify-center items-center gap-3 mb-6">
-                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                            <Brain className="w-5 h-5 text-amber-600" />
+                    <div className="flex justify-center items-center gap-2 sm:gap-3 mb-6" role="img" aria-label="Four AI coaches represented by brain, lightbulb, eye, and heart icons">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amber-100 flex items-center justify-center" aria-label="Elia - Deep learning coach">
+                            <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" aria-hidden="true" />
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                            <Lightbulb className="w-5 h-5 text-orange-600" />
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-orange-100 flex items-center justify-center" aria-label="Skippy - Fast learning coach">
+                            <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" aria-hidden="true" />
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                            <Eye className="w-5 h-5 text-indigo-600" />
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-100 flex items-center justify-center" aria-label="Lupa - Collaborative learning coach">
+                            <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" aria-hidden="true" />
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
-                            <Heart className="w-5 h-5 text-teal-600" />
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-teal-100 flex items-center justify-center" aria-label="Polpo - Adaptive learning coach">
+                            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600" aria-hidden="true" />
                         </div>
                     </div>
 
-                    <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-foreground tracking-tight">
-                        Impara ciò che non sai — <span className="block">a modo tuo</span>
+                    <h1 
+                        id="hero-heading"
+                        className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 sm:mb-6 text-foreground tracking-tight leading-tight"
+                    >
+                        Impara ciò che non sai — <span className="block mt-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">a modo tuo</span>
                     </h1>
 
-                    <p className="text-lg md:text-xl mb-10 max-w-3xl mx-auto text-muted-foreground leading-relaxed">
+                    <p className="text-base sm:text-lg md:text-xl mb-8 sm:mb-10 max-w-2xl sm:max-w-3xl mx-auto text-muted-foreground leading-relaxed">
                         Lezioni brevi e adattive con coach AI personali
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full max-w-md sm:max-w-none mx-auto">
                         <Button
                             size="lg"
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg shadow-[0_2px_6px_rgba(59,130,246,0.25)]"
+                            className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg shadow-[0_2px_6px_rgba(59,130,246,0.25)]"
                             onClick={handleGetStarted}
+                            aria-describedby="cta-description"
                         >
                             Inizia Gratis
                         </Button>
                         <Button
                             variant="outline"
                             size="lg"
-                            className="bg-card border border-border text-foreground rounded-lg"
-                            onClick={() =>
-                                document.querySelector('#how-features')?.scrollIntoView({ behavior: 'smooth' })
-                            }
+                            className="w-full sm:w-auto bg-card border border-border text-foreground rounded-lg"
+                            onClick={() => {
+                                const target = document.querySelector('#how-features');
+                                if (target) {
+                                    target.scrollIntoView({ behavior: 'smooth' });
+                                }
+                            }}
+                            aria-label="Learn more about how Zuno works"
                         >
                             Scopri come funziona
                         </Button>
+                    </div>
+                    
+                    <div id="cta-description" className="sr-only">
+                        Start your free learning journey with Zuno's AI-powered coaching system
                     </div>
                 </div>
             </section>
@@ -395,9 +693,9 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
             {/* Coaches Section */}
             <section
                 id="coaches"
-                className="snap-start min-h-[calc(100vh-4rem)] px-4 bg-muted flex items-center scroll-mt-16"
+                className="snap-start min-h-[calc(100vh-4rem)] py-8 sm:py-12 px-6 sm:px-4 bg-muted flex items-center scroll-mt-16"
             >
-                <div className="container mx-auto max-w-[1200px] px-4 md:px-6 w-full">
+                <div className="container mx-auto max-w-[1200px] w-full">
                     <SectionHeader
                         icon={Target}
                         title="Coach"
@@ -534,7 +832,7 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
             {/* Course Catalog */}
             <section
                 id="catalog"
-                className="snap-start min-h-[calc(100vh-4rem)] px-4 bg-background flex items-center scroll-mt-16"
+                className="snap-start min-h-[calc(100vh-4rem)] py-8 sm:py-12 px-6 sm:px-4 bg-background flex items-center scroll-mt-16"
             >
                 <div className="container mx-auto max-w-6xl">
                     <div className="text-center mb-12">
@@ -644,93 +942,196 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
                 </div>
             </section>
 
-            {/* How It Works + Features (merged) */}
-            <section
-                id="how-features"
-                className="snap-start min-h-[calc(100vh-4rem)] px-4 bg-muted flex items-center scroll-mt-16"
-            >
-                <div className="container mx-auto max-w-6xl">
-                    {/* How It Works */}
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-4 text-foreground">Come Funziona</h2>
-                        <p className="text-muted-foreground max-w-2xl mx-auto">
-                            Tre passi semplici ed efficaci
-                        </p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                        {[{
-                            title: "Assessment",
-                            icon: Clipboard,
-                            bgColor: "bg-orange-50",
-                            iconColor: "text-orange-600",
-                            desc: "Individua rapidamente le lacune."
-                        }, {
-                            title: "Lezione",
-                            icon: BookOpen,
-                            bgColor: "bg-indigo-50",
-                            iconColor: "text-indigo-600",
-                            desc: "Lezioni giornaliere personalizzate."
-                        }, {
-                            title: "Review",
-                            icon: RotateCcw,
-                            bgColor: "bg-teal-50",
-                            iconColor: "text-teal-600",
-                            desc: "Ripassi spaziati per memorizzare."
-                        }].map((step, index) => (
-                            <Card key={index} className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] p-5 text-center">
-                                <div className={`w-14 h-14 mx-auto mb-4 rounded-xl ${step.bgColor} flex items-center justify-center`}>
-                                    <step.icon className={`w-7 h-7 ${step.iconColor}`} />
-                                </div>
-                                <h3 className="font-bold text-xl mb-2 text-foreground">{step.title}</h3>
-                                <p className="text-muted-foreground">{step.desc}</p>
-                            </Card>
-                        ))}
-                    </div>
+{/* How It Works + Features */}
+<section
+  id="how-features"
+  className="snap-start min-h-[calc(100vh-4rem)] py-8 sm:py-12 px-6 sm:px-4 bg-muted flex items-center scroll-mt-16"
+>
+  <div className="container mx-auto max-w-6xl">
+    {/* How It Works */}
+    <div className="text-center mb-10 md:mb-12">
+      <h2 className="text-3xl font-bold mb-4 text-foreground">Come Funziona</h2>
+      <p className="text-muted-foreground max-w-2xl mx-auto">Tre passi semplici ed efficaci</p>
+    </div>
 
-                    {/* Features */}
-                    <SectionHeader icon={Sparkles} title="Funzionalità" subtitle="Tutto quello di cui hai bisogno per imparare" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {[{
-                            title: "Percorsi Adattivi",
-                            icon: Sparkles,
-                            bgColor: "bg-indigo-50",
-                            iconColor: "text-indigo-600",
-                            desc: "Si adatta al tuo ritmo."
-                        }, {
-                            title: "Promemoria Review",
-                            icon: Bell,
-                            bgColor: "bg-orange-50",
-                            iconColor: "text-orange-600",
-                            desc: "Ripassa al momento giusto."
-                        }, {
-                            title: "Gruppi Collaborativi",
-                            icon: Users,
-                            bgColor: "bg-indigo-50",
-                            iconColor: "text-indigo-600",
-                            desc: "Impara con gli altri."
-                        }, {
-                            title: "Gamification Professionale",
-                            icon: ShieldCheck,
-                            bgColor: "bg-teal-50",
-                            iconColor: "text-teal-600",
-                            desc: "Streak, badge e livelli sobri."
-                        }].map((feature, index) => (
-                            <Card key={index} className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] p-6">
-                                <div className={`w-12 h-12 mb-4 rounded-xl ${feature.bgColor} flex items-center justify-center`}>
-                                    <feature.icon className={`w-6 h-6 ${feature.iconColor}`} />
-                                </div>
-                                <h3 className="font-bold text-xl mb-2 text-foreground">{feature.title}</h3>
-                                <p className="text-muted-foreground">{feature.desc}</p>
-                            </Card>
-                        ))}
-                    </div>
+    {/* ROW 1 */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 md:mb-12">
+      {[
+        {
+          title: "Assessment",
+          icon: Clipboard,
+          bgColor: "bg-orange-50",
+          iconColor: "text-orange-600",
+          desc: "Individua rapidamente le lacune.",
+          bullets: ["Test iniziale su skill chiave", "Report chiaro e sintetico", "Roadmap personalizzata"],
+          cta: "Report d’esempio",
+        },
+        {
+          title: "Lezione",
+          icon: BookOpen,
+          bgColor: "bg-indigo-50",
+          iconColor: "text-indigo-600",
+          desc: "Lezioni giornaliere personalizzate.",
+          bullets: ["Spiegazioni brevi e mirate", "Esercizi con feedback", "Adattamento costante"],
+          cta: "Lezione demo",
+        },
+        {
+          title: "Review",
+          icon: RotateCcw,
+          bgColor: "bg-teal-50",
+          iconColor: "text-teal-600",
+          desc: "Ripassi spaziati per memorizzare.",
+          bullets: ["Promemoria puntuali", "Spaziatura ottimale", "Mini quiz flashcard"],
+          cta: "Prova review",
+        },
+      ].map((step, i) => (
+        <FlashCard
+          key={i}
+          showHint
+          heightClassName="h-[220px]"
+          className="w-full"
+          front={
+            <div className="p-5 h-full text-center flex flex-col items-center justify-center">
+              <div className={`w-14 h-14 mx-auto mb-4 rounded-xl ${step.bgColor} flex items-center justify-center`}>
+                <step.icon className={`w-7 h-7 ${step.iconColor}`} />
+              </div>
+              <h3 className="font-bold text-xl mb-2 text-foreground">{step.title}</h3>
+              <p className="text-muted-foreground">{step.desc}</p>
+            </div>
+          }
+          back={
+            <div className="h-full flex flex-col">
+              <div className="px-5 pt-4 pb-2 flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-lg ${step.bgColor} flex items-center justify-center`}>
+                  <step.icon className={`w-5 h-5 ${step.iconColor}`} />
                 </div>
-            </section>
+                <h4 className="text-base font-semibold text-foreground">{step.title}</h4>
+              </div>
+              <div className="px-5 pb-4 flex-1 min-h-0 flex flex-col">
+                <ul className="text-sm text-muted-foreground space-y-1 overflow-y-auto pr-1">
+                  {step.bullets.map((b, j) => (
+                    <li key={j} className="flex gap-2 items-start">
+                      <span className="mt-1 select-none">•</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button variant="outline" size="sm" className="mt-3 self-center">
+                  {step.cta}
+                </Button>
+              </div>
+            </div>
+          }
+        />
+      ))}
+    </div>
+
+    {/* Features */}
+    <SectionHeader icon={Sparkles} title="Funzionalità" subtitle="Tutto quello di cui hai bisogno per imparare" />
+
+    {/* ROW 2 */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 md:mb-24 lg:mb-32">
+      {[
+        {
+          title: "Percorsi Adattivi",
+          icon: Sparkles,
+          bgColor: "bg-indigo-50",
+          iconColor: "text-indigo-600",
+          desc: "Si adatta al tuo ritmo.",
+          bullets: ["Obiettivi dinamici", "Difficoltà regolata", "Focus sui punti deboli"],
+          cta: "Vedi adattamento",
+          variant: "adaptive" as const,
+          tint: "text-indigo-300",
+        },
+        {
+          title: "Promemoria Review",
+          icon: Bell,
+          bgColor: "bg-orange-50",
+          iconColor: "text-orange-600",
+          desc: "Ripassa al momento giusto.",
+          bullets: ["Notifiche smart", "Calendario automatico", "Salvataggio concetti"],
+          cta: "Pianifica",
+          variant: "review" as const,
+          tint: "text-orange-300",
+        },
+        {
+          title: "Gruppi Collaborativi",
+          icon: Users,
+          bgColor: "bg-indigo-50",
+          iconColor: "text-indigo-600",
+          desc: "Impara con gli altri.",
+          bullets: ["Sessioni condivise", "Peer feedback", "Sfide in team"],
+          cta: "Trova gruppo",
+          variant: "collab" as const,
+          tint: "text-indigo-300",
+        },
+        {
+          title: "Gamification Professionale",
+          icon: ShieldCheck,
+          bgColor: "bg-teal-50",
+          iconColor: "text-teal-600",
+          desc: "Streak, badge e livelli sobri.",
+          bullets: ["Ricompense sobrie", "Progressi chiari", "Obiettivi smart"],
+          cta: "Scopri badge",
+          variant: "game" as const,
+          tint: "text-teal-300",
+        },
+      ].map((f, index) => (
+        <FlashCard
+          key={index}
+          showHint
+          heightClassName="h-[200px]"
+          className="w-full"
+          front={
+            <div className="relative p-6 h-full flex flex-col">
+              <div className="absolute inset-y-2 right-3 hidden md:flex items-center pointer-events-none">
+                <FeatureDeco variant={f.variant} tint={f.tint} />
+              </div>
+              <div className={`w-12 h-12 mb-4 rounded-xl ${f.bgColor} flex items-center justify-center`}>
+                <f.icon className={`w-6 h-6 ${f.iconColor}`} />
+              </div>
+              <h3 className="font-bold text-xl mb-2 text-foreground">{f.title}</h3>
+              <p className="text-muted-foreground">{f.desc}</p>
+            </div>
+          }
+          back={
+            <div className="relative h-full flex flex-col">
+              <div className="absolute inset-y-2 right-3 hidden md:flex items-center pointer-events-none opacity-80">
+                <FeatureDeco variant={f.variant} tint={f.tint} />
+              </div>
+              <CardHeader className="pb-2 pr-4 md:pr-40">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-lg ${f.bgColor} flex items-center justify-center`}>
+                    <f.icon className={`w-5 h-5 ${f.iconColor}`} />
+                  </div>
+                  <CardTitle className="text-lg">{f.title}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0 flex-1 min-h-0 pr-2 md:pr-40">
+                <ul className="text-sm text-muted-foreground space-y-2 mb-4 overflow-y-auto">
+                  {f.bullets.map((b, i) => (
+                    <li key={i} className="flex gap-2 items-start">
+                      <span className="mt-1 select-none">•</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-3 flex justify-center">
+                  <Button variant="outline" size="sm">{f.cta}</Button>
+                </div>
+              </CardContent>
+            </div>
+          }
+        />
+      ))}
+    </div>
+  </div>
+</section>
 
             {/* Collaborative Learning */}
             <section
                 id="collaborative"
-                className="snap-start min-h-[calc(100vh-4rem)] px-4 bg-background flex items-center scroll-mt-16"
+                className="snap-start min-h-[calc(100vh-4rem)] py-8 sm:py-12 px-6 sm:px-4 bg-background flex items-center scroll-mt-16"
             >
                 <div className="container mx-auto max-w-6xl">
                     <div className="text-center mb-12">
@@ -770,8 +1171,8 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
                                     </div>
                                     <div className="bg-white rounded-lg p-3 shadow-sm border border-green-100">
                                         <div className="flex items-center gap-2 mb-2">
-                                            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">AV</div>
-                                            <span className="font-medium text-sm">Anna Verdi (Coach AI)</span>
+                                            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">EC</div>
+                                            <span className="font-medium text-sm">Elia (Coach AI)</span>
                                         </div>
                                         <p className="text-xs text-muted-foreground">Certo! "let" è per variabili che possono essere riassegnate, "const" per quelle che non cambiano. Vuoi un esempio pratico?</p>
                                     </div>
@@ -826,7 +1227,7 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
             {/* Testimonials */}
             <section
                 id="testimonials"
-                className="snap-start min-h-[calc(100vh-4rem)] px-4 bg-muted flex items-center scroll-mt-16"
+                className="snap-start min-h-[calc(100vh-4rem)] py-8 sm:py-12 px-6 sm:px-4 bg-muted flex items-center scroll-mt-16"
             >
                 <div className="container mx-auto max-w-6xl">
                     <div className="text-center mb-12">
@@ -894,189 +1295,215 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
 
             {/* Pricing */}
             <section
-                id="pricing"
-                className="snap-start min-h-[calc(100vh-4rem)] px-4 bg-background flex items-center scroll-mt-16"
-            >
-                <div className="container mx-auto max-w-6xl">
-                    <SectionHeader
-                        icon={Target}
-                        title="Prezzi"
-                        subtitle="Inizia gratis e aggiorna quando sei pronto"
-                    />
+  id="pricing"
+  className="snap-start min-h-[calc(100vh-4rem)] py-8 sm:py-12 px-6 sm:px-4 bg-background flex items-center scroll-mt-16"
+>
+  <div className="container mx-auto max-w-6xl">
+    <SectionHeader
+      icon={Target}
+      title="Prezzi"
+      subtitle="Inizia gratis e aggiorna quando sei pronto"
+    />
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                        {/* Free Plan */}
-                        <Card className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] h-full flex flex-col">
-                            <CardHeader className="text-center pb-4">
-                                <CardTitle className="text-2xl font-bold text-foreground">Free</CardTitle>
-                                <p className="text-3xl font-bold text-foreground">
-                                    $0<span className="text-lg text-muted-foreground">/mese</span>
-                                </p>
-                            </CardHeader>
-                            <CardContent className="space-y-4 flex flex-col h-full">
-                                <ul className="space-y-3 flex-1">
-                                    {["1 coach AI", "Apprendimento adattivo base", "Supporto community"].map(
-                                        (feature, index) => (
-                                            <li key={index} className="flex items-center">
-                                                <CheckCircle className="w-4 h-4 text-teal-600 mr-3" />
-                                                <span className="text-muted-foreground">{feature}</span>
-                                            </li>
-                                        )
-                                    )}
-                                </ul>
-                                <Button
-                                    variant="outline"
-                                    size="lg"
-                                    className="w-full bg-card border border-border rounded-lg mt-auto"
-                                    onClick={handleGetStarted}
-                                >
-                                    Inizia Gratis
-                                </Button>
-                            </CardContent>
-                        </Card>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
+      {/* Free Plan */}
+      <Card className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] flex flex-col">
+        <CardHeader className="text-center pb-4 min-h-[132px]">
+          <CardTitle className="text-2xl font-bold text-foreground">Free</CardTitle>
+          <p className="text-3xl font-bold text-foreground">
+            $0<span className="text-lg text-muted-foreground">/mese</span>
+          </p>
+          <p className="text-sm text-muted-foreground">Scopri e prova senza costi</p>
+        </CardHeader>
 
-                        {/* Premium Plan */}
-                        <Card className="bg-card border-2 border-primary rounded-xl shadow-lg relative h-full flex flex-col">
-                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                                <Badge className="bg-orange-50 text-amber-700 border-amber-200">
-                                    Più scelto
-                                </Badge>
-                            </div>
-                            <CardHeader className="text-center pb-4">
-                                <CardTitle className="text-2xl font-bold text-foreground">Premium</CardTitle>
-                                <p className="text-3xl font-bold text-foreground">
-                                    $12<span className="text-lg text-muted-foreground">/mese</span>
-                                </p>
-                            </CardHeader>
-                            <CardContent className="space-y-4 flex flex-col h-full">
-                                <ul className="space-y-3 flex-1">
-                                    {[
-                                        "Tutti e 4 i coach AI",
-                                        "Suite adattiva completa",
-                                        "Gamification avanzata",
-                                        "Supporto prioritario"
-                                    ].map((feature, index) => (
-                                        <li key={index} className="flex items-center">
-                                            <CheckCircle className="w-4 h-4 text-teal-600 mr-3" />
-                                            <span className="text-muted-foreground">{feature}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                                <Button
-                                    size="lg"
-                                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg shadow-[0_2px_6px_rgba(59,130,246,0.25)] mt-auto"
-                                    onClick={handleGetStarted}
-                                >
-                                    Avvia Prova Gratuita
-                                </Button>
-                            </CardContent>
-                        </Card>
+        <CardContent className="flex-1 flex flex-col">
+          <div className="flex-1 space-y-4">
+            <ul className="space-y-3 min-h-[190px]">
+              {[
+                "1 coach AI",
+                "Apprendimento adattivo base",
+                "Supporto community",
+              ].map((feature, i) => (
+                <li key={i} className="flex items-start">
+                  <CheckCircle className="w-4 h-4 text-teal-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground text-sm leading-relaxed">
+                    {feature}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-                        {/* Flex Plan */}
-                        <Card className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] relative h-full flex flex-col">
-                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                                <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200">Nuovo</Badge>
-                            </div>
-                            <CardHeader className="text-center pb-4">
-                                <CardTitle className="text-xl font-bold text-foreground">Flex</CardTitle>
-                                <p className="text-sm text-muted-foreground mb-2">
-                                    Paghi solo per ciò che usi
-                                </p>
-                                <div className="text-center">
-                                    <p className="text-2xl font-bold text-foreground">
-                                        $0<span className="text-lg text-muted-foreground">/mese</span>
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">+ $0.08/lezione</p>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="flex flex-col h-full">
-                                {/* wrapper che cresce e lascia il bottone in fondo */}
-                                <div className="space-y-4 flex-1">
-                                    <ul className="space-y-3">
-                                        {[
-                                            "Accesso a 2 coach AI",
-                                            "Lezioni on-demand",
-                                            "Review spaziati inclusi",
-                                            "Cap personalizzabile"
-                                        ].map((feature, index) => (
-                                            <li key={index} className="flex items-center">
-                                                <CheckCircle className="w-4 h-4 text-teal-600 mr-3" />
-                                                <span className="text-muted-foreground text-sm">{feature}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
+          <Button
+            variant="outline"
+            size="lg"
+            className="mt-auto w-full bg-card border border-border rounded-lg"
+            onClick={handleGetStarted}
+          >
+            Inizia Gratis
+          </Button>
+        </CardContent>
+      </Card>
 
-                                    <div className="space-y-3 p-3 bg-muted rounded-lg">
-                                        <label className="text-sm font-medium text-foreground">
-                                            Cap mensile: {capValue[0]} lezioni
-                                        </label>
-                                        <Slider
-                                            value={capValue}
-                                            onValueChange={setCapValue}
-                                            min={20}
-                                            max={1000}
-                                            step={10}
-                                            className="w-full"
-                                        />
-                                        <div className="flex gap-2">
-                                            <Input
-                                                type="number"
-                                                value={capValue[0]}
-                                                onChange={(e) =>
-                                                    setCapValue([parseInt(e.target.value) || 0])
-                                                }
-                                                min={20}
-                                                max={1000}
-                                                className="w-20 h-8 text-xs"
-                                            />
-                                            <Select value={capBehavior} onValueChange={setCapBehavior}>
-                                                <SelectTrigger className="h-8 text-xs">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Pausa automatica">Pausa automatica</SelectItem>
-                                                    <SelectItem value="Chiedi conferma">Chiedi conferma</SelectItem>
-                                                    <SelectItem value="Sforamento fino a +10%">
-                                                        Sforamento +10%
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="text-center">
-                                            <Badge className="bg-orange-50 text-amber-700 border-amber-200">
-                                                Costo stimato: ${estimatedCost}/mese
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                </div>
+      {/* Premium Plan */}
+      <Card className="bg-card border-2 border-primary rounded-xl shadow-lg relative flex flex-col">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <Badge className="bg-orange-50 text-amber-700 border-amber-200">Più scelto</Badge>
+        </div>
 
-                                <Button
-                                    variant="outline"
-                                    size="lg"
-                                    className="w-full bg-card border border-border rounded-lg mt-4"
-                                    onClick={handleGetStarted}
-                                >
-                                    Inizia — Imposta Cap
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
-            </section>
+        <CardHeader className="text-center pb-4 min-h-[132px]">
+          <CardTitle className="text-2xl font-bold text-foreground">Premium</CardTitle>
+          <p className="text-3xl font-bold text-foreground">
+            $12<span className="text-lg text-muted-foreground">/mese</span>
+          </p>
+          <p className="text-sm text-muted-foreground">Tutte le funzioni senza limiti</p>
+        </CardHeader>
+
+        <CardContent className="flex-1 flex flex-col">
+          <div className="flex-1 space-y-4">
+            <ul className="space-y-3 min-h-[190px]">
+              {[
+                "Tutti e 4 i coach AI",
+                "Suite adattiva completa",
+                "Gamification avanzata",
+                "Supporto prioritario",
+              ].map((feature, i) => (
+                <li key={i} className="flex items-start">
+                  <CheckCircle className="w-4 h-4 text-teal-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground text-sm leading-relaxed">
+                    {feature}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <Button
+            size="lg"
+            className="mt-auto w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg shadow-[0_2px_6px_rgba(59,130,246,0.25)]"
+            onClick={handleGetStarted}
+          >
+            Avvia Prova Gratuita
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Flex Plan */}
+      <Card className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] relative flex flex-col">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200">Nuovo</Badge>
+        </div>
+
+        <CardHeader className="text-center pb-4 min-h-[132px]">
+          <CardTitle className="text-2xl font-bold text-foreground">Flex</CardTitle>
+          <p className="text-3xl font-bold text-foreground">
+            ${estimatedCost}
+            <span className="text-lg text-muted-foreground">/mese</span>
+          </p>
+          <p className="text-sm text-muted-foreground">Paghi solo per ciò che usi</p>
+        </CardHeader>
+
+        <CardContent className="flex-1 flex flex-col">
+          <div className="flex-1 space-y-4">
+            <ul className="space-y-3 min-h-[190px]">
+              {[
+                "Accesso a 2 coach AI",
+                "Lezioni on-demand",
+                "Review spaziati inclusi",
+                "Cap personalizzabile",
+              ].map((feature, i) => (
+                <li key={i} className="flex items-start">
+                  <CheckCircle className="w-4 h-4 text-teal-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground text-sm leading-relaxed">
+                    {feature}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            {/* Calcolatore Cap */}
+            <div className="flex flex-col space-y-3 p-3 bg-muted rounded-lg mb-6">
+              <label className="text-sm font-medium text-foreground">
+                Cap mensile: {capValue[0]} lezioni
+              </label>
+
+              <Slider
+                value={capValue}
+                onValueChange={setCapValue}
+                min={20}
+                max={1000}
+                step={10}
+                className="w-full"
+                aria-label="Imposta il cap mensile di lezioni"
+              />
+
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  value={capValue[0]}
+                  onChange={(e) =>
+                    setCapValue([parseInt(e.target.value) || 0])
+                  }
+                  min={20}
+                  max={1000}
+                  className="h-10 text-sm px-3 w-24 rounded-md border"
+                  aria-label="Numero lezioni mensili"
+                />
+                <Select value={capBehavior} onValueChange={setCapBehavior}>
+                  <SelectTrigger
+                    className="h-10 text-sm px-3 w-full rounded-md"
+                    aria-label="Comportamento al raggiungimento del cap"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pausa automatica">Pausa automatica</SelectItem>
+                    <SelectItem value="Chiedi conferma">Chiedi conferma</SelectItem>
+                    <SelectItem value="Sforamento fino a +10%">Sforamento +10%</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="text-center">
+                <Badge className="bg-orange-50 text-amber-700 border-amber-200">
+                  Costo €0.08/lezione
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          {/* Spacer + CTA */}
+          <div className="mt-auto" />
+          <Button
+            variant="outline"
+            size="lg"
+            className="mt-6 w-full bg-card border border-border rounded-lg"
+            onClick={handleGetStarted}
+          >
+            Inizia — Imposta Cap
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</section>
+
+
+
 
             {/* Footer */}
             <footer
                 id="footer"
-                className="snap-start snap-always min-h-screen flex flex-col justify-between bg-foreground text-background py-12 px-4 scroll-mt-16"
+                className="snap-start snap-always min-h-screen flex flex-col justify-center bg-foreground text-background py-12 px-4 scroll-mt-16"
             >
-                <div className="container mx-auto max-w-6xl flex-1 flex flex-col justify-center">
+                <div className="container mx-auto max-w-6xl text-center">
                     {/* Logo + Descrizione */}
                     <div className="text-center mb-12">
-                        <div className="flex items-center justify-center gap-2 mb-4">
+                        <div className="flex items-center justify-center gap-2 mb-6">
                             <Crown className="w-8 h-8 text-yellow-400" />
-                            <span className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Zuno://</span>
+                            <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Zuno://</span>
                         </div>
-                        <p className="text-background/80 max-w-xl mx-auto">
+                        <p className="text-background/80 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
                             Zuno è il tuo compagno intelligente per l'apprendimento: corsi, coach AI e community
                             in un'unica piattaforma per far crescere le tue competenze ogni giorno.
                         </p>
@@ -1086,71 +1513,77 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
                     <div className="bg-background/10 rounded-lg p-6 mb-12 text-center max-w-xl mx-auto">
                         <h3 className="font-bold text-lg mb-2">Iscriviti alla nostra Newsletter</h3>
                         <p className="text-background/70 text-sm mb-4">Aggiornamenti, risorse e consigli gratuiti ogni mese.</p>
-                        <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                            <Input type="email" placeholder="La tua email" className="bg-white text-foreground" />
-                            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white glow-button-alt">Iscriviti</Button>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+                            <Input 
+                                type="email" 
+                                placeholder="La tua email" 
+                                className="bg-white text-foreground flex-1" 
+                            />
+                            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white sm:px-6">
+                                Iscriviti
+                            </Button>
                         </div>
                     </div>
 
-                    {/* Link */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-start text-sm">
-                        <div>
-                            <h3 className="font-bold text-lg mb-4">Zuno</h3>
-                            <ul className="space-y-2">
+                    {/* Link - Layout responsive migliorato */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-12 text-sm max-w-4xl mx-auto justify-items-center items-start">
+                        <div className="text-center flex flex-col h-full min-h-[120px]">
+                            <h3 className="font-bold text-base mb-3 text-background">Zuno</h3>
+                            <ul className="space-y-2 flex-1">
                                 <li><a href="#" className="text-background/80 hover:text-blue-400 transition-colors">Chi siamo</a></li>
                                 <li><a href="#" className="text-background/80 hover:text-blue-400 transition-colors">Carriere</a></li>
                                 <li><a href="#" className="text-background/80 hover:text-blue-400 transition-colors">Blog</a></li>
                             </ul>
                         </div>
 
-                        <div>
-                            <h3 className="font-bold text-lg mb-4">Risorse</h3>
-                            <ul className="space-y-2">
+                        <div className="text-center flex flex-col h-full min-h-[120px]">
+                            <h3 className="font-bold text-base mb-3 text-background">Risorse</h3>
+                            <ul className="space-y-2 flex-1">
                                 <li><a href="#" className="text-background/80 hover:text-blue-400 transition-colors">Supporto</a></li>
                                 <li><a href="#" className="text-background/80 hover:text-blue-400 transition-colors">FAQ</a></li>
                                 <li><a href="#" className="text-background/80 hover:text-blue-400 transition-colors">Webinar</a></li>
                             </ul>
                         </div>
 
-                        <div>
-                            <h3 className="font-bold text-lg mb-4">Legale</h3>
-                            <ul className="space-y-2">
+                        <div className="text-center flex flex-col h-full min-h-[120px]">
+                            <h3 className="font-bold text-base mb-3 text-background">Legale</h3>
+                            <ul className="space-y-2 flex-1">
                                 <li><a href="#" className="text-background/80 hover:text-blue-400 transition-colors">Privacy Policy</a></li>
                                 <li><a href="#" className="text-background/80 hover:text-blue-400 transition-colors">Termini di Servizio</a></li>
                                 <li><a href="#" className="text-background/80 hover:text-blue-400 transition-colors">Cookie Policy</a></li>
                             </ul>
                         </div>
 
-                        <div>
-                            <h3 className="font-bold text-lg mb-4">Connetti</h3>
-                            <ul className="space-y-2">
+                        <div className="text-center flex flex-col h-full min-h-[120px]">
+                            <h3 className="font-bold text-base mb-3 text-background">Connetti</h3>
+                            <ul className="space-y-2 flex-1">
+                            <a href="#" className="inline-flex items-center gap-2 text-background/80 hover:text-blue-400 transition-colors">
+    <Twitter className="w-4 h-4" aria-hidden />
+    <span>Twitter / X</span>
+  </a>
                                 <li>
-                                    <a href="#" className="inline-flex items-center gap-2 text-background/80 hover:text-blue-400 transition-colors">
-                                        <Twitter className="w-4 h-4" />
-                                        <span>Network</span>
-                                    </a>
+                                <a href="#" className="inline-flex items-center gap-2 text-background/80 hover:text-blue-400 transition-colors">
+    <Instagram className="w-4 h-4" aria-hidden />
+    <span>Instagram</span>
+  </a>
                                 </li>
                                 <li>
-                                    <a href="#" className="inline-flex items-center gap-2 text-background/80 hover:text-blue-400 transition-colors">
-                                        <Instagram className="w-4 h-4" />
-                                        <span>Instagram</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="inline-flex items-center gap-2 text-background/80 hover:text-blue-400 transition-colors">
-                                        <Linkedin className="w-4 h-4" />
-                                        <span>LinkedIn</span>
-                                    </a>
+                                <a href="#" className="inline-flex items-center gap-2 text-background/80 hover:text-blue-400 transition-colors">
+    <Linkedin className="w-4 h-4" aria-hidden />
+    <span>LinkedIn</span>
+  </a>
                                 </li>
                             </ul>
                         </div>
                     </div>
-                </div>
 
-                {/* Footer Bottom */}
-                <div className="border-t border-background/20 mt-8 pt-8 text-center text-background/80 text-sm">
-                    <p>&copy; 2024 Zuno. Tutti i diritti riservati.</p>
-                    <p className="mt-1 text-xs">Made with ❤️ in Italy</p>
+                    {/* Footer Bottom */}
+                    <div className="w-full max-w-4xl mx-auto">
+                        <div className="border-t border-background/20 pt-6 text-center text-background/80 text-sm">
+                            <p>&copy; 2024 Zuno. Tutti i diritti riservati.</p>
+                            <p className="mt-2 text-xs">Made with ❤️ in Italy</p>
+                        </div>
+                    </div>
                 </div>
             </footer>
 

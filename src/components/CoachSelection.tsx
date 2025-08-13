@@ -108,7 +108,7 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
       <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg" aria-hidden="true">
               <Crown className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1">
@@ -122,7 +122,15 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div 
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        role="radiogroup"
+        aria-labelledby="coach-selection-heading"
+      >
+        <h2 id="coach-selection-heading" className="sr-only">
+          Choose your learning coach
+        </h2>
+        
         {(Object.keys(coachConfigs) as CoachType[]).map((coachType) => {
         const config = coachConfigs[coachType];
         const Icon = coachIcons[coachType];
@@ -132,16 +140,29 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
         return (
           <Card 
             key={coachType}
-            className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+            interactive
+            className={`transition-all duration-200 hover:shadow-lg focus-within:shadow-lg ${
               isSelected ? 'ring-2 ring-blue-500 shadow-lg' : ''
             }`}
+            role="radio"
+            aria-checked={isSelected}
+            aria-labelledby={`coach-${coachType}-title`}
+            aria-describedby={`coach-${coachType}-description`}
+            tabIndex={0}
             onClick={() => onCoachSelect(coachType)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onCoachSelect(coachType);
+              }
+            }}
           >
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
                 <div 
                   className="p-2 rounded-lg"
                   style={{ backgroundColor: config.primaryColor + '20' }}
+                  aria-hidden="true"
                 >
                   <Icon 
                     className="h-6 w-6" 
@@ -149,7 +170,9 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
                   />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">{config.displayName}</CardTitle>
+                  <CardTitle id={`coach-${coachType}-title`} className="text-lg">
+                    {config.displayName}
+                  </CardTitle>
                   <CardDescription className="text-sm">
                     {config.learningStyle}
                   </CardDescription>
@@ -157,9 +180,12 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="mb-3 p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+              <div 
+                id={`coach-${coachType}-description`}
+                className="mb-3 p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200"
+              >
                 <div className="flex items-center gap-2 mb-2">
-                  <Crown className="h-3 w-3 text-blue-600" />
+                  <Crown className="h-3 w-3 text-blue-600" aria-hidden="true" />
                   <span className="text-xs font-medium text-blue-700">Zuno Manager presenta:</span>
                 </div>
                 <p className="text-sm text-gray-700 italic">
@@ -171,7 +197,7 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
               {coachType === 'polpo' && adaptiveState && (
                 <div className="mb-3 p-2 rounded-lg bg-gradient-to-r from-teal-50 to-orange-50 border border-teal-200">
                   <div className="flex items-center gap-2 mb-1">
-                    <Shuffle className="h-3 w-3 text-teal-600" />
+                    <Shuffle className="h-3 w-3 text-teal-600" aria-hidden="true" />
                     <span className="text-xs font-medium text-teal-700">
                       Current Mode: {adaptiveState.currentMode.charAt(0).toUpperCase() + adaptiveState.currentMode.slice(1)}
                     </span>
@@ -182,7 +208,7 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
                 </div>
               )}
               
-              <div className="flex flex-wrap gap-1 mb-3">
+              <div className="flex flex-wrap gap-1 mb-3" role="list" aria-label="Coach personality traits">
                 {config.personalityTraits.map((trait: string) => (
                   <Badge 
                     key={trait} 
@@ -192,6 +218,7 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
                       backgroundColor: config.secondaryColor + '20',
                       color: config.primaryColor
                     }}
+                    role="listitem"
                   >
                     {trait}
                   </Badge>
@@ -205,8 +232,12 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
                   backgroundColor: config.primaryColor,
                   borderColor: config.primaryColor
                 } : {}}
+                aria-label={`${isSelected ? 'Selected' : 'Choose'} ${config.displayName} as your learning coach`}
+                loading={isSubmitting}
+                loadingText="Updating..."
+                tabIndex={-1} // Card handles focus
               >
-                {isSubmitting ? 'Updating...' : isSelected ? 'Selected' : 'Choose Coach'}
+                {isSelected ? 'Selected' : 'Choose Coach'}
               </Button>
             </CardContent>
           </Card>

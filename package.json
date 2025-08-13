@@ -4,9 +4,15 @@
     "version": "1.0.0",
     "type": "module",
     "description": "Zuno:// - Personalized learning platform with AI coaching",
-    "keywords": ["learning", "education", "ai-coaching", "personalized", "zuno"],
+    "keywords": [
+        "learning",
+        "education",
+        "ai-coaching",
+        "personalized",
+        "zuno"
+    ],
     "scripts": {
-        "dev": "vite --port 8080",
+        "dev": "vite --port 8080 --host",
         "build": "tsc && vite build",
         "build:analyze": "bun run build && bun run analyze",
         "analyze": "bun scripts/analyze-bundle.js",
