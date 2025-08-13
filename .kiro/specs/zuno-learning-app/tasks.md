@@ -110,7 +110,7 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Dynamic Imports**: Implement route-based and component-based code splitting
   - _Requirements: Bundle optimization, code splitting, performance improvement_
 
-- [ ] 9. Enhance accessibility and mobile responsiveness
+- [-] 9. Enhance accessibility and mobile responsiveness
   - **Check documentation**: WCAG 2.1 AA, mobile-first design, keyboard navigation, ARIA labels, semantic HTML.
   - **Accessibility**: Ensure all existing components meet WCAG 2.1 AA accessibility standards
   - **Mobile Responsiveness**: Optimize existing components for mobile and tablet devices
@@ -123,8 +123,7 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Integration Testing**: Create integration tests for component interactions
   - **Task Testing**: Add tests ensuring completed tasks stay completed across sessions and code updates.
   - **E2E Testing**: Implement end-to-end testing for critical user flows
-  - **Test Organization**: Place unit and integration tests alongside source files as *.test.ts[x], keep E2E tests in tests/e2e/, shared mocks in tests/mocks/, factories/fixtures in tests/factories/ and AI-generated "Kiro’s task tests" in tests/tasks/.
-  - **Cleanup Step**: Remove unused/orphaned files, obsolete mocks, outdated test data, and any code no longer needed for the app to reduce bundle size and maintenance overhead.
+  - **Test Organization**: Place unit and integration tests alongside source files as *.test.ts[x], keep E2E tests in tests/e2e/, shared mocks in tests/mocks/, factories/fixtures in tests/factories/ and AI-generated "Kiro’s task tests" in tests/tasks/. Ignore the tests during the  build phase.
   - **Test Coverage**: Achieve high test coverage across all components and actions
   - _Requirements: Testing coverage, quality assurance, automated testing_
 
@@ -137,6 +136,11 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Error Handling**: Set up CloudWatch alarms, error notifications, and automated recovery
   - **Testing**: Verify all functionality works across different browsers, devices, and network conditions
   - _Requirements: Production deployment, monitoring, scalability, reliability_
+
+- [ ] 12. Clean up task
+  - **Merge Specs**: Merge home-page-layout-fixes specs into zuno-learning-app (excluding tasks)
+  - **Consolidate**: Consolidate all the TASK_(1 to 11)_COMPLETION_SUMMARY.md into the steering doc, delete the summaries
+  - 
 
 ## Phase 2: Enhanced Learning Features
 

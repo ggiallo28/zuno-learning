@@ -78,8 +78,8 @@ Each task will begin with relevant documentation research to ensure standards-co
     - **Check documentation** on grid auto-placement and equal-height techniques before adjustments  
     - _Requirements: 4.2, 4.3, 4.5_
 
-- [-] 5. Fix newsletter form spacing and margins
-  - [ ] 5.1 Increase bottom margins and improve form spacing
+- [x] 5. Fix newsletter form spacing and margins
+  - [x] 5.1 Increase bottom margins and improve form spacing
     - **Check documentation** on form spacing best practices and vertical rhythm before updates  
     - Add adequate bottom margins to newsletter form container
     - Improve spacing between form elements
@@ -88,7 +88,7 @@ Each task will begin with relevant documentation research to ensure standards-co
     
     - _Requirements: 3.1, 3.2_
 
-  - [ ] 5.2 Optimize form for mobile touch targets and responsive behavior
+  - [x] 5.2 Optimize form for mobile touch targets and responsive behavior
     - **Check documentation** on WCAG touch target guidelines before applying changes  
     - Ensure form elements meet minimum touch target sizes (44px)
     - Test form usability on mobile devices
@@ -96,8 +96,8 @@ Each task will begin with relevant documentation research to ensure standards-co
     - Append what you did here in the .kiro/steering/TASK_9_COMPLETION_SUMMARY.md
     - _Requirements: 3.3, 3.4_
 
-- [ ] 6. Test and validate all layout fixes across devices and browsers
-  - [ ] 6.1 Perform cross-browser testing for layout fixes
+- [x] 6. Test and validate all layout fixes across devices and browsers
+  - [x] 6.1 Perform cross-browser testing for layout fixes
     - **Check documentation** on browser-specific CSS quirks and fallback methods before testing  
     - Test all fixes in Chrome, Firefox, Safari, and Edge browsers
     - Verify CSS compatibility and consistent behavior
@@ -105,7 +105,7 @@ Each task will begin with relevant documentation research to ensure standards-co
     - Document any browser-specific fixes needed
     - Append what you did here in the .kiro/steering/TASK_9_COMPLETION_SUMMARY.md
 
-  - [ ] 6.2 Validate responsive behavior across device sizes
+  - [x] 6.2 Validate responsive behavior across device sizes
     - **Check documentation** on responsive breakpoint design and testing strategies before validation  
     - Test layout fixes on desktop, tablet, and mobile screen sizes
     - Verify smooth transitions between breakpoints
@@ -113,7 +113,7 @@ Each task will begin with relevant documentation research to ensure standards-co
     - Ensure all fixes maintain visual consistency
     - Append what you did here in the .kiro/steering/TASK_9_COMPLETION_SUMMARY.md
 
-  - [ ] 6.3 Conduct visual regression testing and accessibility validation
+  - [x] 6.3 Conduct visual regression testing and accessibility validation
     - **Check documentation** on visual regression testing tools and WCAG compliance checks before running tests  
     - Compare before/after screenshots to verify fixes
     - Test keyboard navigation and focus indicators

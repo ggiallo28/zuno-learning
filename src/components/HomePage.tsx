@@ -40,7 +40,6 @@ import {
   Flame,
   Zap,
   FileText,
-  ArrowRight
 } from "lucide-react";
 import { ArrowUp } from "lucide-react";
 import {
@@ -1213,9 +1212,9 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
 
       {/* How It Works + Features */}
       <section
-  id="how-features"
-  className="snap-start min-h-[calc(100vh-4rem)] py-4 sm:py-6 px-6 sm:px-4 bg-muted flex items-center scroll-mt-16"
->
+        id="how-features"
+        className="snap-start min-h-[calc(100vh-4rem)] py-4 sm:py-6 px-6 sm:px-4 bg-muted flex items-center scroll-mt-16"
+      >
         <div className="container mx-auto max-w-6xl">
           {/* How It Works */}
           <div className="text-center mb-6 md:mb-8">
@@ -1289,65 +1288,67 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
                   </div>
                 }
                 back={
-                    <div className="h-full flex flex-col">
-                      {/* HEADER con icona e titolo */}
-                      <div className="px-5 pt-4 pb-2 flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-lg ${step.bgColor} flex items-center justify-center`}>
-                          <step.icon className={`w-5 h-5 ${step.iconColor}`} />
-                        </div>
-                        <h4 className="text-base font-semibold text-foreground">
-                          {step.title}
-                        </h4>
+                  <div className="h-full flex flex-col">
+                    {/* HEADER con icona e titolo */}
+                    <div className="px-5 pt-4 pb-2 flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-lg ${step.bgColor} flex items-center justify-center`}
+                      >
+                        <step.icon className={`w-5 h-5 ${step.iconColor}`} />
                       </div>
-                  
-                      {/* CONTENUTO in due colonne */}
-                      <div className="px-5 pb-4 flex-1 min-h-0 flex flex-row gap-4">
-                        {/* Colonna LISTA */}
-                        <div className="relative flex-1 min-h-0 overflow-y-auto">
-                          <ul className="text-sm text-muted-foreground space-y-1">
-                            {step.bullets.map((b, j) => (
-                              <li key={j} className="flex gap-2 items-start">
-                                <span className="mt-1 select-none">•</span>
-                                <span>{b}</span>
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent" />
-                        </div>
-                  
-                        {/* Colonna CTA (desktop) */}
-                        <div className="hidden md:flex items-center justify-center">
-                          <button
-                            type="button"
-                            aria-label={step.cta}
-                            className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border
+                      <h4 className="text-base font-semibold text-foreground">
+                        {step.title}
+                      </h4>
+                    </div>
+
+                    {/* CONTENUTO in due colonne */}
+                    <div className="px-5 pb-4 flex-1 min-h-0 flex flex-row gap-4">
+                      {/* Colonna LISTA */}
+                      <div className="relative flex-1 min-h-0 overflow-y-auto">
+                        <ul className="text-sm text-muted-foreground space-y-1">
+                          {step.bullets.map((b, j) => (
+                            <li key={j} className="flex gap-2 items-start">
+                              <span className="mt-1 select-none">•</span>
+                              <span>{b}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent" />
+                      </div>
+
+                      {/* Colonna CTA (desktop) */}
+                      <div className="hidden md:flex items-center justify-center">
+                        <button
+                          type="button"
+                          aria-label={step.cta}
+                          className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border
                                        px-3 py-2 text-xs font-medium bg-background shadow-sm
                                        hover:shadow transition-all hover:-translate-y-0.5 hover:bg-muted
                                        focus:outline-none focus:ring-2 focus:ring-ring/40 active:translate-y-0
                                        max-w-[100px] text-center break-words"
-                          >
-                            <FileText className="w-4 h-4 opacity-80" />
-                            <span className="leading-tight">{step.cta}</span>
-                          </button>
-                        </div>
-                      </div>
-                  
-                      {/* CTA mobile (sotto la lista) */}
-                      <div className="px-5 pb-4 pt-0 md:hidden">
-                        <button
-                          type="button"
-                          aria-label={step.cta}
-                          className="w-full flex flex-col items-center justify-center gap-1 rounded-lg border border-border
-                                     px-3 py-2 text-xs font-medium bg-background shadow-sm
-                                     hover:bg-muted transition-colors
-                                     focus:outline-none focus:ring-2 focus:ring-ring/40 text-center break-words"
                         >
                           <FileText className="w-4 h-4 opacity-80" />
                           <span className="leading-tight">{step.cta}</span>
                         </button>
                       </div>
                     </div>
-                  }                                                                                            
+
+                    {/* CTA mobile (sotto la lista) */}
+                    <div className="px-5 pb-4 pt-0 md:hidden">
+                      <button
+                        type="button"
+                        aria-label={step.cta}
+                        className="w-full flex flex-col items-center justify-center gap-1 rounded-lg border border-border
+                                     px-3 py-2 text-xs font-medium bg-background shadow-sm
+                                     hover:bg-muted transition-colors
+                                     focus:outline-none focus:ring-2 focus:ring-ring/40 text-center break-words"
+                      >
+                        <FileText className="w-4 h-4 opacity-80" />
+                        <span className="leading-tight">{step.cta}</span>
+                      </button>
+                    </div>
+                  </div>
+                }
               />
             ))}
           </div>
@@ -1362,67 +1363,67 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
           {/* ROW 2 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 md:mb-16 lg:mb-20">
             {[
-  {
-    title: "Percorsi Adattivi",
-    icon: Sparkles,
-    bgColor: "bg-indigo-50",
-    iconColor: "text-indigo-600",
-    desc: "Si adatta al tuo ritmo di apprendimento.",
-    bullets: [
-      "Definisce obiettivi dinamici e sempre aggiornati",
-      "Regola la difficoltà in base ai tuoi progressi",
-      "Mantiene il focus sui punti che richiedono più lavoro",
-    ],
-    cta: "Vedi il tuo adattamento",
-    variant: "adaptive" as const,
-    tint: "text-indigo-300",
-  },
-  {
-    title: "Promemoria Review",
-    icon: Bell,
-    bgColor: "bg-orange-50",
-    iconColor: "text-orange-600",
-    desc: "Ripassa sempre al momento più efficace.",
-    bullets: [
-      "Invia notifiche smart per non dimenticare nulla",
-      "Crea un calendario automatico di ripassi mirati",
-      "Aiuta a consolidare e salvare i concetti chiave",
-    ],
-    cta: "Pianifica il tuo review",
-    variant: "review" as const,
-    tint: "text-orange-300",
-  },
-  {
-    title: "Gruppi Collaborativi",
-    icon: Users,
-    bgColor: "bg-indigo-50",
-    iconColor: "text-indigo-600",
-    desc: "Impara e migliora insieme agli altri.",
-    bullets: [
-      "Partecipa a sessioni condivise in tempo reale",
-      "Scambia idee e ricevi peer feedback costruttivo",
-      "Affronta sfide e obiettivi insieme al tuo team",
-    ],
-    cta: "Trova il tuo gruppo",
-    variant: "collab" as const,
-    tint: "text-indigo-300",
-  },
-  {
-    title: "Gamification Professionale",
-    icon: ShieldCheck,
-    bgColor: "bg-teal-50",
-    iconColor: "text-teal-600",
-    desc: "Mantieni alta la motivazione con ricompense mirate.",
-    bullets: [
-      "Ottieni ricompense sobrie e di valore",
-      "Monitora progressi chiari e misurabili",
-      "Definisci e raggiungi obiettivi smart e realistici",
-    ],
-    cta: "Scopri i tuoi badge",
-    variant: "game" as const,
-    tint: "text-teal-300",
-  },
-].map((f, index) => (
+              {
+                title: "Percorsi Adattivi",
+                icon: Sparkles,
+                bgColor: "bg-indigo-50",
+                iconColor: "text-indigo-600",
+                desc: "Si adatta al tuo ritmo di apprendimento.",
+                bullets: [
+                  "Definisce obiettivi dinamici e sempre aggiornati",
+                  "Regola la difficoltà in base ai tuoi progressi",
+                  "Mantiene il focus sui punti che richiedono più lavoro",
+                ],
+                cta: "Vedi il tuo adattamento",
+                variant: "adaptive" as const,
+                tint: "text-indigo-300",
+              },
+              {
+                title: "Promemoria Review",
+                icon: Bell,
+                bgColor: "bg-orange-50",
+                iconColor: "text-orange-600",
+                desc: "Ripassa sempre al momento più efficace.",
+                bullets: [
+                  "Invia notifiche smart per non dimenticare nulla",
+                  "Crea un calendario automatico di ripassi mirati",
+                  "Aiuta a consolidare e salvare i concetti chiave",
+                ],
+                cta: "Pianifica il tuo review",
+                variant: "review" as const,
+                tint: "text-orange-300",
+              },
+              {
+                title: "Gruppi Collaborativi",
+                icon: Users,
+                bgColor: "bg-indigo-50",
+                iconColor: "text-indigo-600",
+                desc: "Impara e migliora insieme agli altri.",
+                bullets: [
+                  "Partecipa a sessioni condivise in tempo reale",
+                  "Scambia idee e ricevi peer feedback costruttivo",
+                  "Affronta sfide e obiettivi insieme al tuo team",
+                ],
+                cta: "Trova il tuo gruppo",
+                variant: "collab" as const,
+                tint: "text-indigo-300",
+              },
+              {
+                title: "Gamification Professionale",
+                icon: ShieldCheck,
+                bgColor: "bg-teal-50",
+                iconColor: "text-teal-600",
+                desc: "Mantieni alta la motivazione con ricompense mirate.",
+                bullets: [
+                  "Ottieni ricompense sobrie e di valore",
+                  "Monitora progressi chiari e misurabili",
+                  "Definisci e raggiungi obiettivi smart e realistici",
+                ],
+                cta: "Scopri i tuoi badge",
+                variant: "game" as const,
+                tint: "text-teal-300",
+              },
+            ].map((f, index) => (
               <FlashCard
                 key={index}
                 showHint
@@ -1445,66 +1446,67 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
                   </div>
                 }
                 back={
-                    <div className="h-full flex flex-col">
-                      {/* HEADER con icona e titolo */}
-                      <div className="px-5 pt-4 pb-2 flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-lg ${f.bgColor} flex items-center justify-center`}>
-                          <f.icon className={`w-5 h-5 ${f.iconColor}`} />
-                        </div>
-                        <h4 className="text-base font-semibold text-foreground">
-                          {f.title}
-                        </h4>
+                  <div className="h-full flex flex-col">
+                    {/* HEADER con icona e titolo */}
+                    <div className="px-5 pt-4 pb-2 flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-lg ${f.bgColor} flex items-center justify-center`}
+                      >
+                        <f.icon className={`w-5 h-5 ${f.iconColor}`} />
                       </div>
-                  
-                      {/* CONTENUTO in due colonne */}
-                      <div className="px-5 pb-4 flex-1 min-h-0 flex flex-row gap-4">
-                        {/* Colonna LISTA */}
-                        <div className="relative flex-1 min-h-0 overflow-y-auto">
-                          <ul className="text-sm text-muted-foreground space-y-1">
-                            {f.bullets.map((b, i) => (
-                              <li key={i} className="flex gap-2 items-start">
-                                <span className="mt-1 select-none">•</span>
-                                <span>{b}</span>
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent" />
-                        </div>
-                  
-                        {/* Colonna CTA (desktop) */}
-                        <div className="hidden md:flex items-center justify-center">
-                          <button
-                            type="button"
-                            aria-label={f.cta}
-                            className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border
+                      <h4 className="text-base font-semibold text-foreground">
+                        {f.title}
+                      </h4>
+                    </div>
+
+                    {/* CONTENUTO in due colonne */}
+                    <div className="px-5 pb-4 flex-1 min-h-0 flex flex-row gap-4">
+                      {/* Colonna LISTA */}
+                      <div className="relative flex-1 min-h-0 overflow-y-auto">
+                        <ul className="text-sm text-muted-foreground space-y-1">
+                          {f.bullets.map((b, i) => (
+                            <li key={i} className="flex gap-2 items-start">
+                              <span className="mt-1 select-none">•</span>
+                              <span>{b}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent" />
+                      </div>
+
+                      {/* Colonna CTA (desktop) */}
+                      <div className="hidden md:flex items-center justify-center">
+                        <button
+                          type="button"
+                          aria-label={f.cta}
+                          className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border
                                        px-3 py-2 text-xs font-medium bg-background shadow-sm
                                        hover:shadow transition-all hover:-translate-y-0.5 hover:bg-muted
                                        focus:outline-none focus:ring-2 focus:ring-ring/40 active:translate-y-0
                                        max-w-[100px] text-center break-words"
-                          >
-                            <FileText className="w-4 h-4 opacity-80" />
-                            <span className="leading-tight">{f.cta}</span>
-                          </button>
-                        </div>
-                      </div>
-                  
-                      {/* CTA mobile (sotto la lista) */}
-                      <div className="px-5 pb-4 pt-0 md:hidden">
-                        <button
-                          type="button"
-                          aria-label={f.cta}
-                          className="w-full flex flex-col items-center justify-center gap-1 rounded-lg border border-border
-                                     px-3 py-2 text-xs font-medium bg-background shadow-sm
-                                     hover:bg-muted transition-colors
-                                     focus:outline-none focus:ring-2 focus:ring-ring/40 text-center break-words"
                         >
                           <FileText className="w-4 h-4 opacity-80" />
                           <span className="leading-tight">{f.cta}</span>
                         </button>
                       </div>
                     </div>
-                  }
-                  
+
+                    {/* CTA mobile (sotto la lista) */}
+                    <div className="px-5 pb-4 pt-0 md:hidden">
+                      <button
+                        type="button"
+                        aria-label={f.cta}
+                        className="w-full flex flex-col items-center justify-center gap-1 rounded-lg border border-border
+                                     px-3 py-2 text-xs font-medium bg-background shadow-sm
+                                     hover:bg-muted transition-colors
+                                     focus:outline-none focus:ring-2 focus:ring-ring/40 text-center break-words"
+                      >
+                        <FileText className="w-4 h-4 opacity-80" />
+                        <span className="leading-tight">{f.cta}</span>
+                      </button>
+                    </div>
+                  </div>
+                }
               />
             ))}
           </div>
@@ -1959,7 +1961,7 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
         id="footer"
         className="snap-start snap-always min-h-screen flex flex-col justify-center bg-foreground text-background py-12 px-4 scroll-mt-16"
       >
-        <div className="container mx-auto max-w-6xl text-center">
+        <div className="container mx-auto max-w-5xl px-4">
           {/* Logo + Descrizione */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-6">
@@ -1975,31 +1977,51 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
             </p>
           </div>
 
-          {/* Newsletter */}
-          <div className="bg-background/10 rounded-lg p-6 mb-12 text-center max-w-xl mx-auto">
-            <h3 className="font-bold text-lg mb-2">
-              Iscriviti alla nostra Newsletter
-            </h3>
-            <p className="text-background/70 text-sm mb-4">
-              Aggiornamenti, risorse e consigli gratuiti ogni mese.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="La tua email"
-                className="bg-white text-foreground flex-1"
-              />
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white sm:px-6">
-                Iscriviti
-              </Button>
+          {/* Newsletter — perfectly symmetric spacing */}
+          <div
+            className="bg-background/10 rounded-lg mx-auto w-full max-w-[700px]"
+            style={{ marginBottom: "6rem" }}
+          >
+            <div
+              className="pt-8 pb-12 grid place-items-center gap-4 text-center"
+              style={{ paddingLeft: "2rem", paddingRight: "2rem" }}
+            >
+              <h3 className="font-bold text-lg max-w-[36ch] mx-auto">
+                Iscriviti alla nostra Newsletter
+              </h3>
+
+              <p className="text-background/70 text-sm max-w-[56ch] mx-auto">
+                Aggiornamenti, risorse e consigli gratuiti ogni mese.
+              </p>
+
+              {/* SOLO dimensioni: wrapper form più stretto */}
+              <div className="w-full max-w-[520px] flex flex-col sm:flex-row gap-3 justify-center mx-auto">
+                <Input
+                  type="email"
+                  placeholder="La tua email"
+                  className="bg-white text-foreground flex-1 h-11 px-4 text-base rounded-md
+                   border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                />
+                <Button
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700
+                   text-white h-11 px-6 text-base font-medium rounded-md transition-all
+                   focus:ring-2 focus:ring-blue-200 focus:ring-offset-2 active:scale-95"
+                >
+                  Iscriviti
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Link - Layout responsive migliorato */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-12 text-sm max-w-4xl mx-auto justify-items-center items-start">
-            <div className="text-center flex flex-col h-full min-h-[120px]">
+          {/* Link columns — centered layout */}
+          <div
+            className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 text-sm mx-auto max-w-4xl
+                 justify-items-center items-stretch text-center
+                 md:[&>div]:min-h-[140px] md:[&>div]:grid md:[&>div]:grid-rows-[auto,1fr]"
+          >
+            <div>
               <h3 className="font-bold text-base mb-3 text-background">Zuno</h3>
-              <ul className="space-y-2 flex-1">
+              <ul className="space-y-2">
                 <li>
                   <a
                     href="#"
@@ -2027,11 +2049,11 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
               </ul>
             </div>
 
-            <div className="text-center flex flex-col h-full min-h-[120px]">
+            <div>
               <h3 className="font-bold text-base mb-3 text-background">
                 Risorse
               </h3>
-              <ul className="space-y-2 flex-1">
+              <ul className="space-y-2">
                 <li>
                   <a
                     href="#"
@@ -2059,11 +2081,11 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
               </ul>
             </div>
 
-            <div className="text-center flex flex-col h-full min-h-[120px]">
+            <div>
               <h3 className="font-bold text-base mb-3 text-background">
                 Legale
               </h3>
-              <ul className="space-y-2 flex-1">
+              <ul className="space-y-2">
                 <li>
                   <a
                     href="#"
@@ -2091,18 +2113,20 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
               </ul>
             </div>
 
-            <div className="text-center flex flex-col h-full min-h-[120px]">
+            <div>
               <h3 className="font-bold text-base mb-3 text-background">
                 Connetti
               </h3>
-              <ul className="space-y-2 flex-1">
-                <a
-                  href="#"
-                  className="inline-flex items-center gap-2 text-background/80 hover:text-blue-400 transition-colors"
-                >
-                  <Twitter className="w-4 h-4" aria-hidden />
-                  <span>Twitter / X</span>
-                </a>
+              <ul className="space-y-2">
+                <li>
+                  <a
+                    href="#"
+                    className="inline-flex items-center gap-2 text-background/80 hover:text-blue-400 transition-colors"
+                  >
+                    <Twitter className="w-4 h-4" aria-hidden />
+                    <span>Twitter / X</span>
+                  </a>
+                </li>
                 <li>
                   <a
                     href="#"
