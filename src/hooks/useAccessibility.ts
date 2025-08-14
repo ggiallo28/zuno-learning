@@ -353,4 +353,286 @@ export function useSkipLinks(links: Array<{ href: string; text: string }>) {
   }, [links]);
 }
 
+/**
+ * Hook for accessible notifications and announcements
+ */
+export function useAccessibleNotifications() {
+  const { announce } = useScreenReader();
+  const [notifications, setNotifications] = useState<Array<{
+    id: string;
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+    timestamp: number;
+  }>>([]);
+
+  const addNotification = useCallback((
+    message: string, 
+    type: 'success' | 'error' | 'warning' | 'info' = 'info'
+  ) => {
+    const id = ARIAUtils.generateId('notification');
+    const notification = {
+      id,
+      message,
+      type,
+      timestamp: Date.now()
+    };
+    
+    setNotifications(prev => [...prev, notification]);
+    
+    // Announce to screen readers
+    const priority = type === 'error' ? 'assertive' : 'polite';
+    announce(`${type}: ${message}`, priority);
+    
+    // Auto-remove after 5 seconds for non-error notifications
+    if (type !== 'error') {
+      setTimeout(() => {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+      }, 5000);
+    }
+    
+    return id;
+  }, [announce]);
+
+  const removeNotification = useCallback((id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }, []);
+
+  const clearAllNotifications = useCallback(() => {
+    setNotifications([]);
+  }, []);
+
+  return {
+    notifications,
+    addNotification,
+    removeNotification,
+    clearAllNotifications
+  };
+}
+
+/**
+ * Hook for accessible data tables
+ */
+export function useAccessibleTable() {
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+
+  const handleSort = useCallback((columnId: string) => {
+    if (sortColumn === columnId) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(columnId);
+      setSortDirection('asc');
+    }
+  }, [sortColumn]);
+
+  const toggleRowSelection = useCallback((rowId: string) => {
+    setSelectedRows(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(rowId)) {
+        newSet.delete(rowId);
+      } else {
+        newSet.add(rowId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const selectAllRows = useCallback((rowIds: string[]) => {
+    setSelectedRows(new Set(rowIds));
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setSelectedRows(new Set());
+  }, []);
+
+  const getTableProps = useCallback(() => ({
+    role: 'table',
+    'aria-label': 'Data table',
+    'aria-rowcount': -1, // Will be set by implementation
+    'aria-colcount': -1  // Will be set by implementation
+  }), []);
+
+  const getColumnHeaderProps = useCallback((columnId: string, label: string) => ({
+    role: 'columnheader',
+    'aria-sort': sortColumn === columnId ? sortDirection : 'none',
+    'aria-label': `${label}, sortable column`,
+    tabIndex: 0,
+    onClick: () => handleSort(columnId),
+    onKeyDown: (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleSort(columnId);
+      }
+    }
+  }), [sortColumn, sortDirection, handleSort]);
+
+  const getRowProps = useCallback((rowId: string, rowIndex: number) => ({
+    role: 'row',
+    'aria-rowindex': rowIndex + 1,
+    'aria-selected': selectedRows.has(rowId)
+  }), [selectedRows]);
+
+  const getCellProps = useCallback((columnIndex: number) => ({
+    role: 'cell',
+    'aria-colindex': columnIndex + 1
+  }), []);
+
+  return {
+    sortColumn,
+    sortDirection,
+    selectedRows,
+    handleSort,
+    toggleRowSelection,
+    selectAllRows,
+    clearSelection,
+    getTableProps,
+    getColumnHeaderProps,
+    getRowProps,
+    getCellProps
+  };
+}
+
+/**
+ * Hook for accessible carousel/slider
+ */
+export function useAccessibleCarousel(totalItems: number) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { announce } = useScreenReader();
+
+  const goToSlide = useCallback((index: number) => {
+    const newIndex = Math.max(0, Math.min(index, totalItems - 1));
+    setCurrentIndex(newIndex);
+    announce(`Slide ${newIndex + 1} of ${totalItems}`, 'polite');
+  }, [totalItems, announce]);
+
+  const nextSlide = useCallback(() => {
+    const newIndex = currentIndex === totalItems - 1 ? 0 : currentIndex + 1;
+    goToSlide(newIndex);
+  }, [currentIndex, totalItems, goToSlide]);
+
+  const previousSlide = useCallback(() => {
+    const newIndex = currentIndex === 0 ? totalItems - 1 : currentIndex - 1;
+    goToSlide(newIndex);
+  }, [currentIndex, totalItems, goToSlide]);
+
+  const play = useCallback(() => {
+    setIsPlaying(true);
+    intervalRef.current = setInterval(nextSlide, 5000);
+    announce('Carousel autoplay started', 'polite');
+  }, [nextSlide, announce]);
+
+  const pause = useCallback(() => {
+    setIsPlaying(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    announce('Carousel autoplay paused', 'polite');
+  }, [announce]);
+
+  const togglePlayPause = useCallback(() => {
+    if (isPlaying) {
+      pause();
+    } else {
+      play();
+    }
+  }, [isPlaying, play, pause]);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  const getCarouselProps = useCallback(() => ({
+    role: 'region',
+    'aria-label': 'Carousel',
+    'aria-live': isPlaying ? 'off' : 'polite',
+    'aria-atomic': 'false'
+  }), [isPlaying]);
+
+  const getSlideProps = useCallback((index: number) => ({
+    role: 'group',
+    'aria-roledescription': 'slide',
+    'aria-label': `${index + 1} of ${totalItems}`,
+    'aria-hidden': index !== currentIndex
+  }), [currentIndex, totalItems]);
+
+  const getControlsProps = useCallback(() => ({
+    'aria-label': 'Carousel controls'
+  }), []);
+
+  return {
+    currentIndex,
+    isPlaying,
+    goToSlide,
+    nextSlide,
+    previousSlide,
+    play,
+    pause,
+    togglePlayPause,
+    getCarouselProps,
+    getSlideProps,
+    getControlsProps
+  };
+}
+
+/**
+ * Hook for accessible progress indicators
+ */
+export function useAccessibleProgress() {
+  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const { announce } = useScreenReader();
+
+  const updateProgress = useCallback((newProgress: number, statusMessage?: string) => {
+    const clampedProgress = Math.max(0, Math.min(100, newProgress));
+    setProgress(clampedProgress);
+    
+    if (statusMessage) {
+      announce(statusMessage, 'polite');
+    } else if (clampedProgress === 100) {
+      announce('Progress complete', 'polite');
+    }
+  }, [announce]);
+
+  const setProgressStatus = useCallback((newStatus: 'idle' | 'loading' | 'success' | 'error', message?: string) => {
+    setStatus(newStatus);
+    
+    if (message) {
+      const priority = newStatus === 'error' ? 'assertive' : 'polite';
+      announce(message, priority);
+    }
+  }, [announce]);
+
+  const getProgressProps = useCallback(() => ({
+    role: 'progressbar',
+    'aria-valuenow': progress,
+    'aria-valuemin': 0,
+    'aria-valuemax': 100,
+    'aria-valuetext': `${progress}% complete`,
+    'aria-label': 'Progress indicator'
+  }), [progress]);
+
+  const getStatusProps = useCallback(() => ({
+    role: 'status',
+    'aria-live': 'polite',
+    'aria-atomic': 'true'
+  }), []);
+
+  return {
+    progress,
+    status,
+    updateProgress,
+    setProgressStatus,
+    getProgressProps,
+    getStatusProps
+  };
+}
+
 // All hooks are exported individually above

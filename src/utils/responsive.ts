@@ -448,4 +448,253 @@ export class ContainerQueryUtils {
   }
 }
 
+// Enhanced mobile navigation utilities
+export class MobileNavigationUtils {
+  /**
+   * Create accessible mobile menu with proper ARIA states
+   */
+  static createMobileMenu(
+    menuElement: HTMLElement,
+    toggleButton: HTMLElement,
+    options: {
+      closeOnEscape?: boolean;
+      closeOnOutsideClick?: boolean;
+      trapFocus?: boolean;
+    } = {}
+  ): {
+    open: () => void;
+    close: () => void;
+    toggle: () => void;
+    cleanup: () => void;
+  } {
+    const { closeOnEscape = true, closeOnOutsideClick = true, trapFocus = true } = options;
+    let isOpen = false;
+    let focusTrapCleanup: (() => void) | null = null;
+
+    const updateARIA = () => {
+      toggleButton.setAttribute('aria-expanded', isOpen.toString());
+      menuElement.setAttribute('aria-hidden', (!isOpen).toString());
+    };
+
+    const open = () => {
+      isOpen = true;
+      menuElement.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      
+      if (trapFocus) {
+        // Import FocusManager from accessibility utils
+        import('@/utils/accessibility').then(({ FocusManager }) => {
+          focusTrapCleanup = FocusManager.trapFocus(menuElement);
+        });
+      }
+      
+      updateARIA();
+    };
+
+    const close = () => {
+      isOpen = false;
+      menuElement.classList.remove('open');
+      document.body.style.overflow = '';
+      
+      if (focusTrapCleanup) {
+        focusTrapCleanup();
+        focusTrapCleanup = null;
+      }
+      
+      updateARIA();
+      toggleButton.focus();
+    };
+
+    const toggle = () => {
+      if (isOpen) {
+        close();
+      } else {
+        open();
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen && closeOnEscape) {
+        close();
+      }
+    };
+
+    const handleOutsideClick = (event: Event) => {
+      if (closeOnOutsideClick && isOpen && 
+          !menuElement.contains(event.target as Node) && 
+          !toggleButton.contains(event.target as Node)) {
+        close();
+      }
+    };
+
+    // Set up initial ARIA attributes
+    const menuId = menuElement.id || `mobile-menu-${Math.random().toString(36).substring(2, 11)}`;
+    menuElement.id = menuId;
+    toggleButton.setAttribute('aria-controls', menuId);
+    toggleButton.setAttribute('aria-haspopup', 'true');
+    updateARIA();
+
+    // Add event listeners
+    toggleButton.addEventListener('click', toggle);
+    if (closeOnEscape) {
+      document.addEventListener('keydown', handleEscape);
+    }
+    if (closeOnOutsideClick) {
+      document.addEventListener('click', handleOutsideClick);
+    }
+
+    const cleanup = () => {
+      close();
+      toggleButton.removeEventListener('click', toggle);
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('click', handleOutsideClick);
+    };
+
+    return { open, close, toggle, cleanup };
+  }
+}
+
+// Enhanced responsive component utilities
+export class ResponsiveComponentUtils {
+  /**
+   * Create responsive component that adapts based on container size
+   */
+  static createResponsiveComponent(
+    element: HTMLElement,
+    breakpoints: Array<{
+      minWidth: number;
+      className: string;
+      callback?: () => void;
+    }>
+  ): () => void {
+    const observer = new ResizeObserver(entries => {
+      entries.forEach(entry => {
+        const width = entry.contentRect.width;
+        
+        // Remove all responsive classes
+        breakpoints.forEach(({ className }) => {
+          element.classList.remove(className);
+        });
+        
+        // Find the appropriate breakpoint
+        const activeBreakpoint = breakpoints
+          .filter(bp => width >= bp.minWidth)
+          .sort((a, b) => b.minWidth - a.minWidth)[0];
+        
+        if (activeBreakpoint) {
+          element.classList.add(activeBreakpoint.className);
+          activeBreakpoint.callback?.();
+        }
+      });
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }
+
+  /**
+   * Create responsive text that scales with container
+   */
+  static createResponsiveText(
+    element: HTMLElement,
+    config: {
+      minSize: number;
+      maxSize: number;
+      minWidth: number;
+      maxWidth: number;
+    }
+  ): () => void {
+    const { minSize, maxSize, minWidth, maxWidth } = config;
+    
+    const updateFontSize = () => {
+      const containerWidth = element.offsetWidth;
+      const ratio = Math.min(Math.max((containerWidth - minWidth) / (maxWidth - minWidth), 0), 1);
+      const fontSize = minSize + (maxSize - minSize) * ratio;
+      element.style.fontSize = `${fontSize}px`;
+    };
+
+    const observer = new ResizeObserver(updateFontSize);
+    observer.observe(element);
+    
+    // Initial update
+    updateFontSize();
+    
+    return () => observer.disconnect();
+  }
+}
+
+// Enhanced performance utilities for mobile
+export class MobilePerformanceUtils {
+  /**
+   * Optimize images for mobile devices
+   */
+  static optimizeImagesForMobile() {
+    const images = document.querySelectorAll('img[data-src]');
+    
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target as HTMLImageElement;
+          const src = img.dataset.src;
+          
+          if (src) {
+            // Load appropriate size based on device
+            const devicePixelRatio = window.devicePixelRatio || 1;
+            const isMobile = ResponsiveUtils.isMobile();
+            const isRetina = devicePixelRatio > 1;
+            
+            let optimizedSrc = src;
+            if (isMobile) {
+              optimizedSrc = src.replace(/\.(jpg|jpeg|png|webp)$/i, 
+                isRetina ? '@2x.$1' : '@1x.$1');
+            }
+            
+            img.src = optimizedSrc;
+            img.removeAttribute('data-src');
+            imageObserver.unobserve(img);
+          }
+        }
+      });
+    });
+
+    images.forEach(img => imageObserver.observe(img));
+    
+    return () => imageObserver.disconnect();
+  }
+
+  /**
+   * Implement touch-friendly scrolling
+   */
+  static enableTouchScrolling(element: HTMLElement) {
+    // @ts-ignore - webkit specific property
+    element.style.webkitOverflowScrolling = 'touch';
+    // @ts-ignore - webkit specific property  
+    element.style.overflowScrolling = 'touch';
+    
+    // Add momentum scrolling for iOS
+    if (TouchUtils.isTouchDevice()) {
+      element.style.scrollBehavior = 'smooth';
+    }
+  }
+
+  /**
+   * Optimize animations for mobile
+   */
+  static optimizeAnimationsForMobile() {
+    // Reduce animations on low-end devices
+    const isLowEndDevice = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2;
+    
+    if (isLowEndDevice || ResponsiveUtils.isMobile()) {
+      document.documentElement.style.setProperty('--animation-duration', '0.2s');
+      document.documentElement.style.setProperty('--transition-duration', '0.15s');
+    }
+    
+    // Respect reduced motion preference
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.style.setProperty('--animation-duration', '0.01ms');
+      document.documentElement.style.setProperty('--transition-duration', '0.01ms');
+    }
+  }
+}
+
 // All utilities are exported individually above

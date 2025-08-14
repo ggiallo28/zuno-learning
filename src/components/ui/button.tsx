@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation select-none",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation select-none active:scale-95",
   {
     variants: {
       variant: {
@@ -19,11 +19,17 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 active:bg-secondary/90",
         ghost: "hover:bg-accent hover:text-accent-foreground active:bg-accent/90",
         link: "text-primary underline-offset-4 hover:underline focus-visible:underline",
+        success:
+          "bg-green-500 text-white shadow hover:bg-green-600 active:bg-green-700",
+        experience:
+          "bg-blue-500 text-white shadow hover:bg-blue-600 active:bg-blue-700",
+        hero:
+          "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:from-blue-700 hover:to-purple-700 active:from-blue-800 active:to-purple-800",
       },
       size: {
         default: "h-10 px-4 py-2 min-h-[44px]",
-        sm: "h-9 rounded-md px-3 text-xs min-h-[36px]",
-        lg: "h-11 rounded-md px-8 min-h-[44px]",
+        sm: "h-9 rounded-md px-3 text-xs min-h-[40px]",
+        lg: "h-11 rounded-md px-8 min-h-[48px]",
         icon: "h-10 w-10 min-h-[44px] min-w-[44px]",
       },
     },
@@ -41,6 +47,9 @@ export interface ButtonProps
   loading?: boolean
   loadingText?: string
   'aria-describedby'?: string
+  'aria-label'?: string
+  'aria-expanded'?: boolean
+  'aria-controls'?: string
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -54,6 +63,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     children,
     disabled,
     'aria-describedby': ariaDescribedBy,
+    'aria-label': ariaLabel,
+    'aria-expanded': ariaExpanded,
+    'aria-controls': ariaControls,
     ...props 
   }, ref) => {
     const Comp = asChild ? Slot : "button"
@@ -63,6 +75,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       'aria-disabled': disabled || loading,
       'aria-busy': loading,
       'aria-describedby': ariaDescribedBy,
+      'aria-label': ariaLabel,
+      'aria-expanded': ariaExpanded,
+      'aria-controls': ariaControls,
       ...(loading && { 'aria-live': 'polite' as const }),
     }
     
@@ -76,7 +91,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           // Touch-friendly improvements
           "select-none touch-manipulation",
           // High contrast mode support
-          "@media (prefers-contrast: high) { border: 2px solid currentColor }"
+          "border-2 border-transparent",
+          // Improved hover and active states
+          "hover:scale-[1.02] active:scale-95 transition-transform duration-150"
         )}
         ref={ref}
         disabled={disabled || loading}

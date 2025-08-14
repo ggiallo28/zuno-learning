@@ -171,7 +171,7 @@ export class ARIAUtils {
    * Generate unique ID for ARIA relationships
    */
   static generateId(prefix: string = 'aria'): string {
-    return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+    return `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
   }
 
   /**
@@ -334,6 +334,213 @@ export class AccessibilityTesting {
     });
 
     return issues;
+  }
+}
+
+// Enhanced accessibility form utilities
+export class AccessibleFormUtils {
+  /**
+   * Create accessible form validation with live regions
+   */
+  static createFormValidation(form: HTMLFormElement): {
+    validateField: (field: HTMLElement, isValid: boolean, message?: string) => void;
+    clearValidation: (field: HTMLElement) => void;
+    announceErrors: (errors: string[]) => void;
+  } {
+    // Create or get error summary region
+    let errorSummary = form.querySelector('[role="alert"]') as HTMLElement;
+    if (!errorSummary) {
+      errorSummary = document.createElement('div');
+      errorSummary.setAttribute('role', 'alert');
+      errorSummary.setAttribute('aria-live', 'assertive');
+      errorSummary.className = 'sr-only';
+      form.insertBefore(errorSummary, form.firstChild);
+    }
+
+    return {
+      validateField: (field: HTMLElement, isValid: boolean, message?: string) => {
+        field.setAttribute('aria-invalid', isValid ? 'false' : 'true');
+        
+        if (!isValid && message) {
+          const errorId = `${field.id || ARIAUtils.generateId('field')}-error`;
+          let errorElement = document.getElementById(errorId);
+          
+          if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.id = errorId;
+            errorElement.className = 'text-sm text-destructive mt-1';
+            errorElement.setAttribute('role', 'alert');
+            field.parentNode?.insertBefore(errorElement, field.nextSibling);
+          }
+          
+          errorElement.textContent = message;
+          field.setAttribute('aria-describedby', errorId);
+        } else {
+          const errorId = field.getAttribute('aria-describedby');
+          if (errorId) {
+            const errorElement = document.getElementById(errorId);
+            errorElement?.remove();
+            field.removeAttribute('aria-describedby');
+          }
+        }
+      },
+      
+      clearValidation: (field: HTMLElement) => {
+        field.setAttribute('aria-invalid', 'false');
+        const errorId = field.getAttribute('aria-describedby');
+        if (errorId) {
+          const errorElement = document.getElementById(errorId);
+          errorElement?.remove();
+          field.removeAttribute('aria-describedby');
+        }
+      },
+      
+      announceErrors: (errors: string[]) => {
+        if (errors.length > 0) {
+          errorSummary.textContent = `Form has ${errors.length} error${errors.length > 1 ? 's' : ''}: ${errors.join(', ')}`;
+        } else {
+          errorSummary.textContent = '';
+        }
+      }
+    };
+  }
+
+  /**
+   * Create accessible required field indicators
+   */
+  static markRequiredField(field: HTMLElement, label?: HTMLElement) {
+    field.setAttribute('required', '');
+    field.setAttribute('aria-required', 'true');
+    
+    if (label) {
+      const requiredIndicator = document.createElement('span');
+      requiredIndicator.textContent = ' *';
+      requiredIndicator.className = 'text-destructive';
+      requiredIndicator.setAttribute('aria-label', 'required');
+      label.appendChild(requiredIndicator);
+    }
+  }
+}
+
+// Enhanced loading state utilities
+export class AccessibleLoadingUtils {
+  /**
+   * Create accessible loading indicator
+   */
+  static createLoadingIndicator(container: HTMLElement, message: string = 'Loading...'): {
+    show: () => void;
+    hide: () => void;
+    updateMessage: (newMessage: string) => void;
+  } {
+    const loadingId = ARIAUtils.generateId('loading');
+    let loadingElement = document.getElementById(loadingId);
+    
+    if (!loadingElement) {
+      loadingElement = document.createElement('div');
+      loadingElement.id = loadingId;
+      loadingElement.setAttribute('role', 'status');
+      loadingElement.setAttribute('aria-live', 'polite');
+      loadingElement.className = 'sr-only';
+      container.appendChild(loadingElement);
+    }
+
+    return {
+      show: () => {
+        container.setAttribute('aria-busy', 'true');
+        loadingElement!.textContent = message;
+      },
+      hide: () => {
+        container.setAttribute('aria-busy', 'false');
+        loadingElement!.textContent = '';
+      },
+      updateMessage: (newMessage: string) => {
+        loadingElement!.textContent = newMessage;
+      }
+    };
+  }
+}
+
+// Enhanced modal/dialog utilities
+export class AccessibleModalUtils {
+  /**
+   * Create accessible modal with proper focus management
+   */
+  static createModal(modalElement: HTMLElement, triggerElement?: HTMLElement): {
+    open: () => void;
+    close: () => void;
+    cleanup: () => void;
+  } {
+    let previousFocus: HTMLElement | null = null;
+    let focusTrapCleanup: (() => void) | null = null;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        close();
+      }
+    };
+
+    const open = () => {
+      previousFocus = document.activeElement as HTMLElement;
+      modalElement.setAttribute('aria-hidden', 'false');
+      modalElement.style.display = 'block';
+      
+      // Set up focus trap
+      focusTrapCleanup = FocusManager.trapFocus(modalElement);
+      
+      // Add escape key listener
+      document.addEventListener('keydown', handleEscape);
+      
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden';
+      
+      // Announce modal opening
+      ScreenReaderUtils.announce('Dialog opened', 'assertive');
+    };
+
+    const close = () => {
+      modalElement.setAttribute('aria-hidden', 'true');
+      modalElement.style.display = 'none';
+      
+      // Clean up focus trap
+      if (focusTrapCleanup) {
+        focusTrapCleanup();
+        focusTrapCleanup = null;
+      }
+      
+      // Remove escape key listener
+      document.removeEventListener('keydown', handleEscape);
+      
+      // Restore body scroll
+      document.body.style.overflow = '';
+      
+      // Restore focus
+      if (previousFocus) {
+        FocusManager.restoreFocus(previousFocus);
+      }
+      
+      // Announce modal closing
+      ScreenReaderUtils.announce('Dialog closed', 'assertive');
+    };
+
+    const cleanup = () => {
+      close();
+      document.removeEventListener('keydown', handleEscape);
+    };
+
+    // Set up modal attributes
+    modalElement.setAttribute('role', 'dialog');
+    modalElement.setAttribute('aria-modal', 'true');
+    modalElement.setAttribute('aria-hidden', 'true');
+    
+    // Set up trigger if provided
+    if (triggerElement) {
+      const modalId = modalElement.id || ARIAUtils.generateId('modal');
+      modalElement.id = modalId;
+      triggerElement.setAttribute('aria-controls', modalId);
+      triggerElement.addEventListener('click', open);
+    }
+
+    return { open, close, cleanup };
   }
 }
 

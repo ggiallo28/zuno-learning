@@ -6,18 +6,26 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   interactive?: boolean
   'aria-labelledby'?: string
   'aria-describedby'?: string
+  'aria-label'?: string
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, interactive = false, 'aria-labelledby': ariaLabelledBy, 'aria-describedby': ariaDescribedBy, ...props }, ref) => (
+  ({ 
+    className, 
+    interactive = false, 
+    'aria-labelledby': ariaLabelledBy, 
+    'aria-describedby': ariaDescribedBy,
+    'aria-label': ariaLabel,
+    ...props 
+  }, ref) => (
     <div
       ref={ref}
       className={cn(
-        "rounded-lg border bg-card text-card-foreground shadow-sm",
+        "rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-200",
         // No padding on the card itself - let children handle their own padding
         // Interactive card styles
         interactive && [
-          "cursor-pointer hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          "cursor-pointer hover:shadow-md hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98]",
           // Touch-friendly for mobile
           "touch-manipulation select-none",
           // Minimum touch target size
@@ -29,6 +37,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       )}
       aria-labelledby={ariaLabelledBy}
       aria-describedby={ariaDescribedBy}
+      aria-label={ariaLabel}
       {...(interactive && { tabIndex: 0, role: 'button' })}
       {...props}
     />
@@ -58,6 +67,8 @@ const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
       ref,
       className: cn(
         "text-lg font-semibold leading-tight tracking-tight",
+        // Responsive text sizing
+        "text-responsive-lg",
         className,
       ),
       ...props

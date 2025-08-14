@@ -382,4 +382,265 @@ export function useResponsiveComponent<T extends Record<string, any>>(
   return currentConfig;
 }
 
+/**
+ * Hook for responsive modal/dialog behavior
+ */
+export function useResponsiveModal() {
+  const { isMobile } = useBreakpoint();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const openModal = useCallback(() => {
+    setIsOpen(true);
+    
+    // On mobile, prevent body scroll
+    if (isMobile) {
+      document.body.style.overflow = 'hidden';
+    }
+  }, [isMobile]);
+
+  const closeModal = useCallback(() => {
+    setIsOpen(false);
+    
+    // Restore body scroll
+    document.body.style.overflow = '';
+  }, []);
+
+  const getModalProps = useCallback(() => ({
+    className: isMobile 
+      ? 'fixed inset-0 z-50 bg-background p-4 overflow-y-auto'
+      : 'fixed inset-0 z-50 flex items-center justify-center p-4',
+    'aria-modal': 'true',
+    role: 'dialog'
+  }), [isMobile]);
+
+  const getContentProps = useCallback(() => ({
+    className: isMobile
+      ? 'w-full max-w-none'
+      : 'w-full max-w-lg bg-background rounded-lg shadow-lg'
+  }), [isMobile]);
+
+  return {
+    isOpen,
+    isMobile,
+    openModal,
+    closeModal,
+    getModalProps,
+    getContentProps
+  };
+}
+
+/**
+ * Hook for responsive form layout
+ */
+export function useResponsiveForm() {
+  const { deviceType, isMobile } = useBreakpoint();
+
+  const getFormProps = useCallback(() => ({
+    className: isMobile 
+      ? 'space-y-4 p-4'
+      : 'space-y-6 p-6'
+  }), [isMobile]);
+
+  const getFieldGroupProps = useCallback(() => ({
+    className: isMobile
+      ? 'space-y-3'
+      : 'grid grid-cols-2 gap-4'
+  }), [isMobile]);
+
+  const getInputProps = useCallback(() => ({
+    className: isMobile
+      ? 'min-h-[44px] text-base' // Prevent zoom on iOS
+      : 'min-h-[40px] text-sm'
+  }), [isMobile]);
+
+  const getButtonProps = useCallback(() => ({
+    className: isMobile
+      ? 'w-full min-h-[44px] text-base'
+      : 'min-h-[40px] px-6'
+  }), [isMobile]);
+
+  return {
+    deviceType,
+    isMobile,
+    getFormProps,
+    getFieldGroupProps,
+    getInputProps,
+    getButtonProps
+  };
+}
+
+/**
+ * Hook for responsive table behavior
+ */
+export function useResponsiveTable() {
+  const { isMobile, isTablet } = useBreakpoint();
+  const [viewMode, setViewMode] = useState<'table' | 'cards' | 'list'>('table');
+
+  useEffect(() => {
+    if (isMobile) {
+      setViewMode('cards');
+    } else if (isTablet) {
+      setViewMode('list');
+    } else {
+      setViewMode('table');
+    }
+  }, [isMobile, isTablet]);
+
+  const getTableProps = useCallback(() => ({
+    className: viewMode === 'table' 
+      ? 'w-full table-auto'
+      : 'hidden'
+  }), [viewMode]);
+
+  const getCardViewProps = useCallback(() => ({
+    className: viewMode === 'cards'
+      ? 'grid gap-4 grid-cols-1'
+      : 'hidden'
+  }), [viewMode]);
+
+  const getListViewProps = useCallback(() => ({
+    className: viewMode === 'list'
+      ? 'space-y-2'
+      : 'hidden'
+  }), [viewMode]);
+
+  return {
+    viewMode,
+    isMobile,
+    isTablet,
+    setViewMode,
+    getTableProps,
+    getCardViewProps,
+    getListViewProps
+  };
+}
+
+/**
+ * Hook for responsive carousel/slider
+ */
+export function useResponsiveCarousel(totalItems: number) {
+  const { isMobile, isTablet } = useBreakpoint();
+  const [itemsPerView, setItemsPerView] = useState(1);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (isMobile) {
+      setItemsPerView(1);
+    } else if (isTablet) {
+      setItemsPerView(2);
+    } else {
+      setItemsPerView(3);
+    }
+  }, [isMobile, isTablet]);
+
+  const maxIndex = Math.max(0, totalItems - itemsPerView);
+
+  const goToSlide = useCallback((index: number) => {
+    const newIndex = Math.max(0, Math.min(index, maxIndex));
+    setCurrentIndex(newIndex);
+  }, [maxIndex]);
+
+  const nextSlide = useCallback(() => {
+    goToSlide(currentIndex + 1);
+  }, [currentIndex, goToSlide]);
+
+  const previousSlide = useCallback(() => {
+    goToSlide(currentIndex - 1);
+  }, [currentIndex, goToSlide]);
+
+  const canGoNext = currentIndex < maxIndex;
+  const canGoPrevious = currentIndex > 0;
+
+  const getCarouselProps = useCallback(() => ({
+    className: 'relative overflow-hidden',
+    style: {
+      touchAction: isMobile ? 'pan-y pinch-zoom' : 'auto'
+    }
+  }), [isMobile]);
+
+  const getSlideContainerProps = useCallback(() => ({
+    className: 'flex transition-transform duration-300 ease-in-out',
+    style: {
+      transform: `translateX(-${(currentIndex * 100) / itemsPerView}%)`
+    }
+  }), [currentIndex, itemsPerView]);
+
+  const getSlideProps = useCallback((index: number) => ({
+    className: `flex-shrink-0`,
+    style: {
+      width: `${100 / itemsPerView}%`
+    },
+    'aria-hidden': index < currentIndex || index >= currentIndex + itemsPerView
+  }), [currentIndex, itemsPerView]);
+
+  return {
+    currentIndex,
+    itemsPerView,
+    canGoNext,
+    canGoPrevious,
+    goToSlide,
+    nextSlide,
+    previousSlide,
+    getCarouselProps,
+    getSlideContainerProps,
+    getSlideProps
+  };
+}
+
+/**
+ * Hook for responsive spacing and layout
+ */
+export function useResponsiveLayout() {
+  const { deviceType, isMobile, isTablet } = useBreakpoint();
+
+  const getContainerProps = useCallback(() => ({
+    className: isMobile 
+      ? 'px-4 py-6'
+      : isTablet 
+        ? 'px-6 py-8'
+        : 'px-8 py-12'
+  }), [isMobile, isTablet]);
+
+  const getSectionProps = useCallback(() => ({
+    className: isMobile
+      ? 'space-y-6'
+      : isTablet
+        ? 'space-y-8'
+        : 'space-y-12'
+  }), [isMobile, isTablet]);
+
+  const getGridProps = useCallback((columns: { mobile: number; tablet: number; desktop: number }) => ({
+    className: `grid gap-4 grid-cols-${columns.mobile} md:grid-cols-${columns.tablet} lg:grid-cols-${columns.desktop}`
+  }), []);
+
+  const getTextProps = useCallback(() => ({
+    className: isMobile
+      ? 'text-sm leading-relaxed'
+      : isTablet
+        ? 'text-base leading-relaxed'
+        : 'text-lg leading-relaxed'
+  }), [isMobile, isTablet]);
+
+  const getHeadingProps = useCallback((level: 1 | 2 | 3 | 4 | 5 | 6) => {
+    const mobileSize = level <= 2 ? 'text-xl' : level <= 4 ? 'text-lg' : 'text-base';
+    const tabletSize = level <= 2 ? 'text-2xl' : level <= 4 ? 'text-xl' : 'text-lg';
+    const desktopSize = level <= 2 ? 'text-3xl' : level <= 4 ? 'text-2xl' : 'text-xl';
+    
+    return {
+      className: `${mobileSize} md:${tabletSize} lg:${desktopSize} font-bold leading-tight`
+    };
+  }, []);
+
+  return {
+    deviceType,
+    isMobile,
+    isTablet,
+    getContainerProps,
+    getSectionProps,
+    getGridProps,
+    getTextProps,
+    getHeadingProps
+  };
+}
+
 // All hooks are exported individually above

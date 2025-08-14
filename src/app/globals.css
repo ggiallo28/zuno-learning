@@ -118,6 +118,26 @@
     outline-offset: 2px;
   }
   
+  /* Focus indicators for interactive elements */
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [role="menuitem"]:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  /* Focus indicators for links */
+  a:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    text-decoration: underline;
+  }
+  
   /* High contrast mode support */
   @media (prefers-contrast: high) {
     .button, .card, .input {
@@ -145,6 +165,26 @@
     touch-action: manipulation;
   }
   
+  /* WCAG 2.5.5 Target Size compliance */
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"] {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Exception for inline elements */
+  button.inline,
+  [role="button"].inline {
+    min-height: auto;
+    min-width: auto;
+  }
+  
   /* Keyboard navigation helpers */
   .keyboard-focusable {
     position: relative;
@@ -156,6 +196,50 @@
     inset: -2px;
     border: 2px solid hsl(var(--ring));
     border-radius: inherit;
+    pointer-events: none;
+  }
+  
+  /* ARIA live regions */
+  [aria-live] {
+    position: absolute !important;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  
+  [aria-live]:not(:empty) {
+    position: static !important;
+    left: auto;
+    width: auto;
+    height: auto;
+    overflow: visible;
+  }
+  
+  /* Error states */
+  [aria-invalid="true"] {
+    border-color: hsl(var(--destructive));
+    box-shadow: 0 0 0 1px hsl(var(--destructive));
+  }
+  
+  /* Required field indicators */
+  [aria-required="true"] + label::after,
+  label[for] [aria-required="true"]::after {
+    content: " *";
+    color: hsl(var(--destructive));
+    font-weight: bold;
+  }
+  
+  /* Loading states */
+  [aria-busy="true"] {
+    cursor: wait;
+    opacity: 0.7;
+  }
+  
+  /* Disabled states */
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.5;
     pointer-events: none;
   }
 }
@@ -302,6 +386,77 @@
     
     .landscape-compact .text-responsive-3xl {
       font-size: clamp(1.5rem, 4vw, 2rem);
+    }
+  }
+  
+  /* Mobile-specific improvements */
+  @media (max-width: 767px) {
+    /* Prevent zoom on input focus for iOS */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="search"],
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
+    
+    /* Improve tap targets on mobile */
+    button,
+    [role="button"],
+    a {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem;
+    }
+    
+    /* Mobile-friendly modals */
+    [role="dialog"] {
+      margin: 0;
+      max-height: 100vh;
+      border-radius: 0;
+    }
+  }
+  
+  /* Tablet-specific improvements */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    /* Optimize for tablet touch targets */
+    button,
+    [role="button"] {
+      min-height: 48px;
+      padding: 0.875rem 1rem;
+    }
+  }
+  
+  /* Print styles for accessibility */
+  @media print {
+    /* Ensure good contrast for printing */
+    * {
+      background: white !important;
+      color: black !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+    
+    /* Show URLs for links */
+    a[href]:after {
+      content: " (" attr(href) ")";
+      font-size: 0.8em;
+    }
+    
+    /* Hide non-essential elements */
+    .sr-only,
+    [aria-hidden="true"],
+    button,
+    input,
+    select,
+    textarea {
+      display: none !important;
     }
   }
 }

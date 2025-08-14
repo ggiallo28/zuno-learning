@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { CoachNameValues } from '@/types';
 import { Brain, Zap, Users, Shuffle, Crown } from 'lucide-react';
 import { useCoach } from '@/contexts/CoachContext';
 import { useZunoManager } from '@/contexts/ZunoManagerContext';
+// import { useKeyboardNavigation } from '@/hooks/useAccessibility';
 
 interface CoachSelectionProps {
   onCoachSelect: (coach: CoachType) => void;
@@ -101,6 +102,52 @@ const coachIcons: Record<CoachType, React.ComponentType<any>> = {
 export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = false }: CoachSelectionProps) {
   const { adaptiveState } = useCoach();
   const { getCoachIntroduction, managerPersonality } = useZunoManager();
+  const [focusedCoach, setFocusedCoach] = useState<CoachType | null>(selectedCoach || null);
+  
+  const coachTypes = Object.keys(coachConfigs) as CoachType[];
+  
+  // Handle keyboard navigation
+  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+    const currentIndex = focusedCoach ? coachTypes.indexOf(focusedCoach) : 0;
+    let newIndex = currentIndex;
+    
+    switch (event.key) {
+      case 'ArrowDown':
+      case 'ArrowRight':
+        event.preventDefault();
+        newIndex = (currentIndex + 1) % coachTypes.length;
+        break;
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        event.preventDefault();
+        newIndex = currentIndex === 0 ? coachTypes.length - 1 : currentIndex - 1;
+        break;
+      case 'Home':
+        event.preventDefault();
+        newIndex = 0;
+        break;
+      case 'End':
+        event.preventDefault();
+        newIndex = coachTypes.length - 1;
+        break;
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        if (focusedCoach) {
+          onCoachSelect(focusedCoach);
+        }
+        return;
+      default:
+        return;
+    }
+    
+    const newCoach = coachTypes[newIndex];
+    setFocusedCoach(newCoach);
+    
+    // Focus the corresponding card
+    const cardElement = document.getElementById(`coach-card-${newCoach}`);
+    cardElement?.focus();
+  }, [focusedCoach, coachTypes, onCoachSelect]);
 
   return (
     <div className="space-y-6">
@@ -126,12 +173,17 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
         role="radiogroup"
         aria-labelledby="coach-selection-heading"
+        aria-describedby="coach-selection-description"
+        onKeyDown={handleKeyDown}
       >
         <h2 id="coach-selection-heading" className="sr-only">
           Choose your learning coach
         </h2>
+        <p id="coach-selection-description" className="sr-only">
+          Select one of four specialized learning coaches. Use arrow keys to navigate between options and Enter or Space to select.
+        </p>
         
-        {(Object.keys(coachConfigs) as CoachType[]).map((coachType) => {
+        {coachTypes.map((coachType) => {
         const config = coachConfigs[coachType];
         const Icon = coachIcons[coachType];
         const isSelected = selectedCoach === coachType;
@@ -140,16 +192,18 @@ export function CoachSelection({ onCoachSelect, selectedCoach, isSubmitting = fa
         return (
           <Card 
             key={coachType}
+            id={`coach-card-${coachType}`}
             interactive
             className={`transition-all duration-200 hover:shadow-lg focus-within:shadow-lg ${
               isSelected ? 'ring-2 ring-blue-500 shadow-lg' : ''
-            }`}
+            } ${focusedCoach === coachType ? 'ring-2 ring-blue-300' : ''}`}
             role="radio"
             aria-checked={isSelected}
             aria-labelledby={`coach-${coachType}-title`}
             aria-describedby={`coach-${coachType}-description`}
-            tabIndex={0}
+            tabIndex={focusedCoach === coachType || (!focusedCoach && coachType === coachTypes[0]) ? 0 : -1}
             onClick={() => onCoachSelect(coachType)}
+            onFocus={() => setFocusedCoach(coachType)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
