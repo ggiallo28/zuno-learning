@@ -405,6 +405,75 @@ interface CoachVisualConfig {
 - Language and visual metaphors that translate globally
 - Respectful integration of animal mascots without appropriation concerns
 
+### 8. Home Page Layout Components
+
+Responsive layout system for the Zuno home page with professional visual consistency:
+
+```typescript
+interface HomePageLayoutSystem {
+  pricingSection: PricingSectionLayout;
+  footerSection: FooterSectionLayout;
+  newsletterForm: NewsletterFormLayout;
+  responsiveBreakpoints: ResponsiveBreakpoints;
+}
+
+interface PricingSectionLayout {
+  pricingCardStructure: {
+    headerText: 'Paghi solo per ciò che usi'; // Top position
+    calculatorSection: CalculatorLayout;
+    pricePerLesson: '€0.08/lezione'; // Bottom position
+  };
+  visualHierarchy: 'clear-separation-between-elements';
+  mobileResponsiveness: 'maintained-spacing-and-readability';
+}
+
+interface FooterSectionLayout {
+  desktopLayout: {
+    textAlignment: 'centered'; // Zuno, Risorse, Legale, Contatti sections
+    separatorBar: 'properly-contained-and-centered';
+    overallAlignment: 'professionally-centered';
+  };
+  mobileLayout: {
+    gridStructure: 'balanced-4-column-grid';
+    columnHeights: 'equal-distribution';
+    contentBalance: 'visually-balanced';
+  };
+}
+
+interface NewsletterFormLayout {
+  spacing: {
+    bottomMargins: 'adequate-breathing-room';
+    formElements: 'consistent-spacing';
+    touchTargets: 'mobile-optimized';
+  };
+  responsiveAdaptation: 'proper-scaling-across-devices';
+}
+```
+
+**Layout Implementation Strategy:**
+
+- **CSS Flexbox/Grid**: Modern layout techniques for precise positioning
+- **Tailwind CSS Utilities**: Responsive design with mobile-first approach
+- **Cross-browser Compatibility**: Fallbacks for older browser support
+- **Accessibility Compliance**: WCAG 2.1 AA standards for layout and spacing
+
+**Component Structure:**
+```
+HomePage.tsx (Main Container)
+├── Hero Section
+├── Coach Showcase
+├── Features Grid
+├── Pricing Section (Layout Fixes Applied)
+│   ├── Header Text (Top Position)
+│   ├── Calculator Section
+│   └── Price Per Lesson (Bottom Position)
+├── Testimonials
+├── Newsletter Section (Spacing Fixes Applied)
+└── Footer (Alignment Fixes Applied)
+    ├── Desktop Layout (Centered)
+    └── Mobile Grid Layout (Balanced)
+```
+
 ## Data Models
 
 ### DynamoDB Table Design

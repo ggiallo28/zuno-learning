@@ -40,7 +40,14 @@ Zuno is an engaging course-based learning application designed to help users dev
    - Performance optimization and bundle splitting
    - Cross-browser compatibility testing
 
-5. **Testing and Quality Assurance**
+5. **CSS Layout and Responsive Design**
+   - Modern CSS layout techniques (Flexbox, Grid, positioning)
+   - Tailwind CSS utility classes for layout and spacing
+   - Cross-browser compatibility for CSS properties
+   - Responsive design patterns and breakpoint strategies
+   - CSS debugging techniques and browser developer tools
+
+6. **Testing and Quality Assurance**
    - Jest testing framework for unit and integration tests
    - React Testing Library for component testing
    - End-to-end testing with modern testing frameworks
@@ -282,3 +289,18 @@ Zuno is an engaging course-based learning application designed to help users dev
 6. IF a feature might be changed or removed THEN optimization efforts SHALL be deferred until the feature is stable
 7. WHEN building the system THEN the principle "don't optimize what doesn't need to exist" SHALL guide all development decisions
 8. WHEN performance issues are identified THEN optimization SHALL target actual bottlenecks rather than theoretical improvements
+
+### Requirement 18: Home Page Layout and Visual Consistency
+
+**User Story:** As a user viewing the Zuno home page, I want all layout elements to be properly aligned and visually consistent, so that the page looks professional and provides an excellent first impression.
+
+#### Acceptance Criteria
+
+1. WHEN viewing the pricing section THEN the text "Paghi solo per ciò che usi" SHALL remain at the top of the pricing card
+2. WHEN viewing the pricing calculator THEN the price per lesson "€0.08/lezione" SHALL be moved to the bottom of the calculator section
+3. WHEN viewing the footer on desktop THEN the text in the "Zuno", "Risorse", "Legale", and "Contatti" sections SHALL be properly centered
+4. WHEN viewing the footer separator bar THEN it SHALL NOT protrude from either side and SHALL be properly centered
+5. WHEN viewing the footer on mobile THEN the elements SHALL be organized in a balanced 4-column grid layout
+6. WHEN viewing the newsletter form THEN the bottom margins SHALL be adequate and form elements SHALL have consistent spacing
+7. WHEN viewing on mobile devices THEN all layout elements SHALL maintain proper spacing and readability
+8. WHEN viewing the entire home page THEN all elements SHALL be properly centered and aligned with professional visual hierarchy

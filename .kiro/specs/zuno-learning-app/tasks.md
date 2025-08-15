@@ -118,32 +118,51 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Screen Reader Support**: Add proper ARIA labels and semantic HTML structure
   - _Requirements: Accessibility compliance, mobile support, inclusive design_
 
-- [x] 10. Add comprehensive testing coverage
-  - **Unit Testing**: Add comprehensive unit tests for all existing components
-  - **Integration Testing**: Create integration tests for component interactions
-  - **Task Testing**: Add tests ensuring completed tasks stay completed across sessions and code updates.
+- [-] 10. Fix failing tests and ensure comprehensive testing coverage
+  - **Critical Issue Resolution**: Fix all currently failing tests that are preventing proper test coverage validation
+  - **Test Framework Debugging**: Investigate and resolve test setup issues, configuration problems, and dependency conflicts
+  - **Test Environment Setup**: Ensure proper test environment configuration with correct mocks, setup files, and test utilities
   - **E2E Testing**: Implement end-to-end testing for critical user flows
   - **Test Organization**: Place unit and integration tests alongside source files as *.test.ts[x], keep E2E tests in tests/e2e/, shared mocks in tests/mocks/, factories/fixtures in tests/factories/ and AI-generated "Kiro’s task tests" in tests/tasks/. 
   - **Reuse code**: Move existin tests into proper folder
   - **Build Instructions**: Ignore the tests during the  build phase.
   - **Test Coverage**: Achieve high test coverage across all components and actions
-  - **Check documentation**: Review MCP-collected resources on Next.js App Router testing, Vite/Vitest setup and coverage config, Jest vs Vitest, React Testing Library with user-event and jest-dom, MSW for API mocks, Playwright/Cypress E2E setup, test data generation (fishery, faker), tsconfig/build exclusions, recommended folder structure, and coverage thresholds.
-  - **Test Scope Requirement**: Write unit tests for pure functions, utilities, reducers, and custom hooks; integration tests for component interactions, context, and API-bound behavior; and E2E tests for the top-priority user flows (auth, critical task lifecycle, persistence). Focus tests on user-visible behavior and data contracts, not internal implementation details.
-  - _Requirements: Testing coverage, quality assurance, automated testing_
+  - **Test Data**: Ensure test factories and fixtures are working correctly and providing valid test data
+  - **Coverage Validation**: Verify test coverage is being calculated correctly and meets quality thresholds
+  - **Build Integration**: Ensure tests are properly excluded from production builds and don't interfere with deployment
+  - **Documentation Review**: Use Context7 to research current best practices for React testing, Vitest configuration, and test debugging
+  - _Requirements: Working test suite, quality assurance, reliable automated testing, debugging test failures_
 
 #  bunx playwright install
 
-- [x] 11. Deploy and monitor Amplify application
-  - **Amplify Hosting**: Deploy React web app using Amplify Hosting with CI/CD pipeline
-  - **Domain Configuration**: Set up custom domain with SSL certificate via Amplify Console
-  - **Environment Management**: Configure staging and production environments with proper resource isolation
-  - **Monitoring Setup**: Configure CloudWatch monitoring for AppSync API, Lambda resolvers, and DynamoDB
-  - **Analytics Integration**: Set up Amplify Analytics for user behavior tracking and learning analytics
-  - **Error Handling**: Set up CloudWatch alarms, error notifications, and automated recovery
-  - **Testing**: Verify all functionality works across different browsers, devices, and network conditions
-  - _Requirements: Production deployment, monitoring, scalability, reliability_
+- [-] 11. Fix CloudFront deployment issues and ensure proper application deployment
+  - **Critical Deployment Issues**: Fix CloudFront distribution showing errors instead of the Zuno app
+  - **JavaScript Error Resolution**: Resolve "useMergeRef.js:4 Uncaught TypeError: Cannot read properties of undefined (reading 'useLayoutEffect')" error
+  - **Editor.js Error Fix**: Fix "editor.js:1 Uncaught ReferenceError: Communicator is not defined" error
+  - **Build Configuration**: Review and fix build configuration to ensure all dependencies are properly bundled
+  - **Dependency Analysis**: Investigate and resolve missing or incorrectly loaded dependencies in production build
+  - **CloudFront Configuration**: Verify CloudFront distribution settings, cache behaviors, and error page configurations
+  - **Asset Loading**: Ensure all JavaScript assets are properly loaded and accessible via CloudFront
+  - **Production Testing**: Test the deployed application thoroughly to ensure all functionality works in production
+  - **Error Monitoring**: Set up proper error monitoring to catch and resolve deployment issues quickly
+  - **Rollback Strategy**: Implement rollback procedures for failed deployments
+  - **Documentation Review**: Use Context7 to research CloudFront deployment best practices and common issues
+  - _Requirements: Working production deployment, error-free application, proper asset loading, monitoring_
 
-- [ ] 12. Clean up task
+- [ ] 11.1 Debug and fix specific JavaScript runtime errors in production
+  - **useMergeRef Error Investigation**: Debug the "Cannot read properties of undefined (reading 'useLayoutEffect')" error in useMergeRef.js
+  - **React Hook Dependencies**: Ensure all React hooks and dependencies are properly imported and available at runtime
+  - **Editor.js Communicator Error**: Investigate and fix the "Communicator is not defined" error in editor.js
+  - **Third-party Library Issues**: Check for missing or incorrectly loaded third-party libraries causing runtime errors
+  - **Bundle Analysis**: Analyze the production bundle to identify missing dependencies or circular imports
+  - **Source Map Debugging**: Use source maps to trace the exact location and cause of runtime errors
+  - **Environment Differences**: Compare development vs production environments to identify configuration differences
+  - **Polyfill Requirements**: Add necessary polyfills for browser compatibility if needed
+  - **Error Boundary Implementation**: Add error boundaries to gracefully handle and report JavaScript errors
+  - **Runtime Error Logging**: Implement comprehensive error logging to capture and analyze production errors
+  - _Requirements: Error-free JavaScript execution, proper dependency loading, robust error handling_
+
+- [x] 12. Clean up task
   - **Merge Specs**: Merge home-page-layout-fixes specs into zuno-learning-app (excluding tasks)
   - **Consolidate**: Consolidate all the TASK_(1 to 11)_COMPLETION_SUMMARY.md into the steering doc, delete the summaries
 
