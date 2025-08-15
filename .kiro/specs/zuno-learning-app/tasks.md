@@ -118,7 +118,7 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Screen Reader Support**: Add proper ARIA labels and semantic HTML structure
   - _Requirements: Accessibility compliance, mobile support, inclusive design_
 
-- [ ] 10. Add comprehensive testing coverage
+- [x] 10. Add comprehensive testing coverage
   - **Unit Testing**: Add comprehensive unit tests for all existing components
   - **Integration Testing**: Create integration tests for component interactions
   - **Task Testing**: Add tests ensuring completed tasks stay completed across sessions and code updates.
@@ -131,7 +131,9 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Test Scope Requirement**: Write unit tests for pure functions, utilities, reducers, and custom hooks; integration tests for component interactions, context, and API-bound behavior; and E2E tests for the top-priority user flows (auth, critical task lifecycle, persistence). Focus tests on user-visible behavior and data contracts, not internal implementation details.
   - _Requirements: Testing coverage, quality assurance, automated testing_
 
-- [ ] 11. Deploy and monitor Amplify application
+#  bunx playwright install
+
+- [-] 11. Deploy and monitor Amplify application
   - **Amplify Hosting**: Deploy React web app using Amplify Hosting with CI/CD pipeline
   - **Domain Configuration**: Set up custom domain with SSL certificate via Amplify Console
   - **Environment Management**: Configure staging and production environments with proper resource isolation

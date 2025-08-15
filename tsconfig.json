@@ -52,9 +52,11 @@
     "temp-components", 
     "src/api/database.ts", 
     "src/api/server.ts", 
-    "src/scripts/testPolpoAdaptive.ts",
-    "src/scripts/testCrossBrowserLayout.ts",
-    "src/scripts/testResponsiveLayout.ts", 
-    "src/scripts/testVisualRegressionAccessibility.ts"
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "tests/**/*",
+    "src/test/**/*"
   ]
 }
