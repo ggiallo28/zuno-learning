@@ -133,7 +133,7 @@ Each task will begin with relevant documentation research to ensure high-quality
 
 #  bunx playwright install
 
-- [-] 11. Deploy and monitor Amplify application
+- [x] 11. Deploy and monitor Amplify application
   - **Amplify Hosting**: Deploy React web app using Amplify Hosting with CI/CD pipeline
   - **Domain Configuration**: Set up custom domain with SSL certificate via Amplify Console
   - **Environment Management**: Configure staging and production environments with proper resource isolation
@@ -146,7 +146,6 @@ Each task will begin with relevant documentation research to ensure high-quality
 - [ ] 12. Clean up task
   - **Merge Specs**: Merge home-page-layout-fixes specs into zuno-learning-app (excluding tasks)
   - **Consolidate**: Consolidate all the TASK_(1 to 11)_COMPLETION_SUMMARY.md into the steering doc, delete the summaries
-  - 
 
 ## Phase 2: Enhanced Learning Features
 

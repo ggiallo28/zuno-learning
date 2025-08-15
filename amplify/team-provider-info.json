@@ -25,6 +25,9 @@
       },
       "api": {
         "zuno": {}
+      },
+      "hosting": {
+        "S3AndCloudFront": {}
       }
     }
   }

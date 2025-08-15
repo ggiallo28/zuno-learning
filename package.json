@@ -14,6 +14,7 @@
     "scripts": {
         "dev": "vite --port 8080 --host",
         "build": "tsc && vite build",
+        "build:clean": "pkill -f esbuild || true && rm -rf .vite dist node_modules/.vite && tsc && vite build",
         "build:analyze": "bun run build && bun run analyze",
         "analyze": "bun scripts/analyze-bundle.js",
         "preview": "vite preview",
@@ -40,7 +41,9 @@
         "amplify:status": "amplify status",
         "amplify:mock": "amplify mock",
         "amplify:publish": "amplify publish",
-        "amplify:configure": "amplify configure"
+        "amplify:configure": "amplify configure",
+        "deploy:cdn": "./scripts/deploy-cdn-aware.sh",
+        "deploy:test": "node scripts/test-deployment.js"
     },
     "dependencies": {
         "@aws-amplify/ui-react": "^6.11.2",

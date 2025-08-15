@@ -30,7 +30,10 @@ export default defineConfig({
     // Additional optimizations
     target: 'es2020', // Modern target for better optimization
     cssCodeSplit: true, // Split CSS into separate files
-    assetsInlineLimit: 4096, // Inline small assets
+    assetsInlineLimit: 0, // Disable inlining to prevent data URLs
+    // CDN-aware build configuration
+    assetsDir: 'assets', // Keep assets in assets directory
+    emptyOutDir: true, // Clean dist directory before build
     // Enable more aggressive minification
     minify: 'terser',
     terserOptions: {
@@ -55,7 +58,23 @@ export default defineConfig({
         propertyReadSideEffects: false,
         unknownGlobalSideEffects: false
       },
+      // Prevent data URLs in modulepreload
+      external: [],
       output: {
+        // CDN-friendly file naming with content hashes
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+            return `assets/images/[name]-[hash][extname]`;
+          }
+          if (/css/i.test(ext)) {
+            return `assets/css/[name]-[hash][extname]`;
+          }
+          return `assets/[name]-[hash][extname]`;
+        },
         // Manual chunks for better code splitting - optimized to avoid empty chunks
         manualChunks: (id) => {
           // Skip if not a real module
@@ -96,10 +115,10 @@ export default defineConfig({
             if (id.includes('aws-amplify/lib-esm/Storage')) {
               return 'vendor-aws-storage';
             }
-            if (id.includes('aws-amplify/lib-esm/Hub') || 
-                id.includes('aws-amplify/lib-esm/Logger') || 
-                id.includes('aws-amplify/lib-esm/Common') ||
-                id.includes('aws-amplify/lib-esm/Util')) {
+            if (id.includes('aws-amplify/lib-esm/Hub') ||
+              id.includes('aws-amplify/lib-esm/Logger') ||
+              id.includes('aws-amplify/lib-esm/Common') ||
+              id.includes('aws-amplify/lib-esm/Util')) {
               return 'vendor-aws-utils';
             }
             if (id.includes('aws-amplify') && !id.includes('@aws-amplify/ui-react')) {
