@@ -1,6 +1,6 @@
 /**
  * React hooks for accessibility features
- * Provides reusable accessibility functionality for React components
+ * Provides easy-to-use hooks for common accessibility patterns
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -13,9 +13,7 @@ import {
   HighContrast
 } from '@/utils/accessibility';
 
-/**
- * Hook for managing focus trapping in modals and dialogs
- */
+// Focus trap hook for modals and dialogs
 export function useFocusTrap(isActive: boolean = false) {
   const containerRef = useRef<HTMLElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -23,7 +21,7 @@ export function useFocusTrap(isActive: boolean = false) {
   useEffect(() => {
     if (!isActive || !containerRef.current) return;
 
-    // Store previously focused element
+    // Store the previously focused element
     previousFocusRef.current = document.activeElement as HTMLElement;
 
     // Set up focus trap
@@ -31,7 +29,7 @@ export function useFocusTrap(isActive: boolean = false) {
 
     return () => {
       cleanup();
-      // Restore focus when trap is deactivated
+      // Restore focus when trap is removed
       if (previousFocusRef.current) {
         FocusManager.restoreFocus(previousFocusRef.current);
       }
@@ -41,12 +39,10 @@ export function useFocusTrap(isActive: boolean = false) {
   return containerRef;
 }
 
-/**
- * Hook for keyboard navigation in lists and grids
- */
+// Keyboard navigation hook for lists and grids
 export function useKeyboardNavigation<T extends HTMLElement>(
   items: T[],
-  orientation: 'vertical' | 'horizontal' = 'vertical'
+  orientation: 'horizontal' | 'vertical' | 'grid' = 'vertical'
 ) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -57,16 +53,22 @@ export function useKeyboardNavigation<T extends HTMLElement>(
       currentIndex,
       orientation
     );
-    setCurrentIndex(newIndex);
+    
+    if (newIndex !== currentIndex) {
+      setCurrentIndex(newIndex);
+    }
+
+    // Handle Home/End keys
+    const homeEndIndex = KeyboardNavigation.handleHomeEnd(event, items, currentIndex);
+    if (homeEndIndex !== currentIndex) {
+      setCurrentIndex(homeEndIndex);
+    }
   }, [items, currentIndex, orientation]);
 
   useEffect(() => {
-    const currentItem = items[currentIndex];
-    if (currentItem) {
-      currentItem.addEventListener('keydown', handleKeyDown);
-      return () => currentItem.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [currentIndex, items, handleKeyDown]);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   return {
     currentIndex,
@@ -80,111 +82,89 @@ export function useKeyboardNavigation<T extends HTMLElement>(
   };
 }
 
-/**
- * Hook for screen reader announcements
- */
+// Screen reader announcements hook
 export function useScreenReader() {
   const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
     ScreenReaderUtils.announce(message, priority);
   }, []);
 
-  const createScreenReaderText = useCallback((text: string) => {
-    return ScreenReaderUtils.createScreenReaderText(text);
-  }, []);
-
-  return {
-    announce,
-    createScreenReaderText
-  };
+  return { announce };
 }
 
-/**
- * Hook for managing ARIA relationships
- */
+// ARIA utilities hook
 export function useARIA() {
-  const [ids] = useState(() => ({
-    describedBy: ARIAUtils.generateId('described-by'),
-    labelledBy: ARIAUtils.generateId('labelled-by'),
-    controls: ARIAUtils.generateId('controls')
-  }));
+  const generateId = useCallback((prefix?: string) => {
+    return ARIAUtils.generateUniqueId(prefix);
+  }, []);
 
-  const setupRelationship = useCallback((
+  const associateElements = useCallback((
     trigger: HTMLElement,
     target: HTMLElement,
-    relationship: 'describedby' | 'labelledby' | 'controls'
+    relationship: 'describedby' | 'labelledby' | 'controls' | 'owns'
   ) => {
-    ARIAUtils.setupARIARelationship(trigger, target, relationship);
+    ARIAUtils.associateElements(trigger, target, relationship);
   }, []);
 
-  const updateLiveRegion = useCallback((regionId: string, message: string) => {
-    ARIAUtils.updateLiveRegion(regionId, message);
+  const updateLiveRegion = useCallback((
+    element: HTMLElement,
+    message: string,
+    priority: 'polite' | 'assertive' = 'polite'
+  ) => {
+    ARIAUtils.updateLiveRegion(element, message, priority);
   }, []);
 
   return {
-    ids,
-    setupRelationship,
-    updateLiveRegion
+    generateId,
+    associateElements,
+    updateLiveRegion,
+    setExpanded: ARIAUtils.setExpanded,
+    setSelected: ARIAUtils.setSelected,
+    setChecked: ARIAUtils.setChecked,
+    setDisabled: ARIAUtils.setDisabled
   };
 }
 
-/**
- * Hook for detecting reduced motion preference
- */
+// Reduced motion preference hook
 export function useReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    () => ReducedMotion.prefersReducedMotion()
+    ReducedMotion.prefersReducedMotion()
   );
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    const handleChange = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const applyReducedMotion = useCallback((
-    element: HTMLElement,
-    animations: Record<string, string>
-  ) => {
-    ReducedMotion.applyReducedMotion(element, animations);
-  }, []);
-
-  return {
-    prefersReducedMotion,
-    applyReducedMotion
-  };
+  return prefersReducedMotion;
 }
 
-/**
- * Hook for detecting high contrast mode
- */
+// High contrast preference hook
 export function useHighContrast() {
-  const [isHighContrast, setIsHighContrast] = useState(
-    () => HighContrast.isHighContrastMode()
+  const [prefersHighContrast, setPrefersHighContrast] = useState(
+    HighContrast.prefersHighContrast()
   );
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-contrast: high)');
-    const handler = (e: MediaQueryListEvent) => setIsHighContrast(e.matches);
     
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    const handleChange = (e: MediaQueryListEvent) => {
+      setPrefersHighContrast(e.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const applyHighContrastStyles = useCallback((element: HTMLElement) => {
-    HighContrast.applyHighContrastStyles(element);
-  }, []);
-
-  return {
-    isHighContrast,
-    applyHighContrastStyles
-  };
+  return prefersHighContrast;
 }
 
-/**
- * Hook for accessible form handling
- */
+// Accessible form hook with validation and error handling
 export function useAccessibleForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -208,11 +188,12 @@ export function useAccessibleForm() {
   const getFieldProps = useCallback((fieldName: string) => {
     const hasError = errors[fieldName] && touched[fieldName];
     const errorId = hasError ? `${fieldName}-error` : undefined;
-    
+
     return {
-      'aria-invalid': hasError ? 'true' : 'false',
+      'aria-invalid': hasError,
       'aria-describedby': errorId,
-      onBlur: () => setFieldTouched(fieldName, true)
+      onBlur: () => setFieldTouched(fieldName, true),
+      error: hasError
     };
   }, [errors, touched, setFieldTouched]);
 
@@ -223,7 +204,7 @@ export function useAccessibleForm() {
       id: `${fieldName}-error`,
       role: 'alert',
       'aria-live': 'polite' as const,
-      style: { display: hasError ? 'block' : 'none' }
+      children: hasError ? errors[fieldName] : null
     };
   }, [errors, touched]);
 
@@ -234,13 +215,12 @@ export function useAccessibleForm() {
     clearFieldError,
     setFieldTouched,
     getFieldProps,
-    getErrorProps
+    getErrorProps,
+    hasErrors: Object.keys(errors).length > 0
   };
 }
 
-/**
- * Hook for accessible loading states
- */
+// Loading state hook with accessibility
 export function useAccessibleLoading(isLoading: boolean, loadingText: string = 'Loading...') {
   const { announce } = useScreenReader();
 
@@ -251,40 +231,49 @@ export function useAccessibleLoading(isLoading: boolean, loadingText: string = '
   }, [isLoading, loadingText, announce]);
 
   const getLoadingProps = useCallback(() => ({
-    'aria-busy': isLoading ? 'true' : 'false',
+    'aria-busy': isLoading,
     'aria-live': 'polite' as const,
     'aria-label': isLoading ? loadingText : undefined
   }), [isLoading, loadingText]);
 
   return {
+    isLoading,
+    loadingText,
     getLoadingProps
   };
 }
 
-/**
- * Hook for accessible tooltips
- */
+// Accessible tooltip hook
 export function useAccessibleTooltip() {
   const [isVisible, setIsVisible] = useState(false);
-  const [tooltipId] = useState(() => ARIAUtils.generateId('tooltip'));
+  const [tooltipId] = useState(() => ARIAUtils.generateUniqueId('tooltip'));
   const triggerRef = useRef<HTMLElement>(null);
   const tooltipRef = useRef<HTMLElement>(null);
 
-  const show = useCallback(() => setIsVisible(true), []);
-  const hide = useCallback(() => setIsVisible(false), []);
+  const show = useCallback(() => {
+    setIsVisible(true);
+  }, []);
+
+  const hide = useCallback(() => {
+    setIsVisible(false);
+  }, []);
+
+  const toggle = useCallback(() => {
+    setIsVisible(prev => !prev);
+  }, []);
 
   useEffect(() => {
     const trigger = triggerRef.current;
     if (!trigger) return;
-
-    trigger.setAttribute('aria-describedby', tooltipId);
 
     const handleMouseEnter = () => show();
     const handleMouseLeave = () => hide();
     const handleFocus = () => show();
     const handleBlur = () => hide();
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') hide();
+      if (e.key === 'Escape') {
+        hide();
+      }
     };
 
     trigger.addEventListener('mouseenter', handleMouseEnter);
@@ -300,12 +289,13 @@ export function useAccessibleTooltip() {
       trigger.removeEventListener('blur', handleBlur);
       trigger.removeEventListener('keydown', handleKeyDown);
     };
-  }, [tooltipId, show, hide]);
+  }, [show, hide]);
 
   const getTriggerProps = useCallback(() => ({
     ref: triggerRef,
-    'aria-describedby': tooltipId
-  }), [tooltipId]);
+    'aria-describedby': isVisible ? tooltipId : undefined,
+    'aria-expanded': isVisible
+  }), [isVisible, tooltipId]);
 
   const getTooltipProps = useCallback(() => ({
     ref: tooltipRef,
@@ -313,326 +303,95 @@ export function useAccessibleTooltip() {
     role: 'tooltip',
     'aria-hidden': !isVisible,
     style: { display: isVisible ? 'block' : 'none' }
-  }), [tooltipId, isVisible]);
+  }), [isVisible, tooltipId]);
 
   return {
     isVisible,
     show,
     hide,
+    toggle,
     getTriggerProps,
     getTooltipProps
   };
 }
 
-/**
- * Hook for managing skip links
- */
-export function useSkipLinks(links: Array<{ href: string; text: string }>) {
-  useEffect(() => {
-    // Create skip links container
-    const skipLinksContainer = document.createElement('div');
-    skipLinksContainer.className = 'skip-links';
-    skipLinksContainer.setAttribute('aria-label', 'Skip navigation links');
-
-    links.forEach(({ href, text }) => {
-      const link = document.createElement('a');
-      link.href = href;
-      link.textContent = text;
-      link.className = 'skip-link';
-      skipLinksContainer.appendChild(link);
-    });
-
-    // Insert at the beginning of body
-    document.body.insertBefore(skipLinksContainer, document.body.firstChild);
-
-    return () => {
-      if (skipLinksContainer.parentNode) {
-        skipLinksContainer.parentNode.removeChild(skipLinksContainer);
-      }
-    };
-  }, [links]);
-}
-
-/**
- * Hook for accessible notifications and announcements
- */
-export function useAccessibleNotifications() {
-  const { announce } = useScreenReader();
-  const [notifications, setNotifications] = useState<Array<{
-    id: string;
-    message: string;
-    type: 'success' | 'error' | 'warning' | 'info';
-    timestamp: number;
-  }>>([]);
-
-  const addNotification = useCallback((
-    message: string, 
-    type: 'success' | 'error' | 'warning' | 'info' = 'info'
-  ) => {
-    const id = ARIAUtils.generateId('notification');
-    const notification = {
-      id,
-      message,
-      type,
-      timestamp: Date.now()
-    };
-    
-    setNotifications(prev => [...prev, notification]);
-    
-    // Announce to screen readers
-    const priority = type === 'error' ? 'assertive' : 'polite';
-    announce(`${type}: ${message}`, priority);
-    
-    // Auto-remove after 5 seconds for non-error notifications
-    if (type !== 'error') {
-      setTimeout(() => {
-        setNotifications(prev => prev.filter(n => n.id !== id));
-      }, 5000);
+// Skip link hook
+export function useSkipLink(targetId: string) {
+  const skipToContent = useCallback(() => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.focus();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    
-    return id;
-  }, [announce]);
+  }, [targetId]);
 
-  const removeNotification = useCallback((id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  }, []);
-
-  const clearAllNotifications = useCallback(() => {
-    setNotifications([]);
-  }, []);
+  const getSkipLinkProps = useCallback(() => ({
+    href: `#${targetId}`,
+    className: 'skip-link',
+    onClick: (e: React.MouseEvent) => {
+      e.preventDefault();
+      skipToContent();
+    },
+    onKeyDown: (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        skipToContent();
+      }
+    }
+  }), [targetId, skipToContent]);
 
   return {
-    notifications,
-    addNotification,
-    removeNotification,
-    clearAllNotifications
+    skipToContent,
+    getSkipLinkProps
   };
 }
 
-/**
- * Hook for accessible data tables
- */
-export function useAccessibleTable() {
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+// Accessible disclosure (collapsible content) hook
+export function useAccessibleDisclosure(initialOpen: boolean = false) {
+  const [isOpen, setIsOpen] = useState(initialOpen);
+  const [buttonId] = useState(() => ARIAUtils.generateUniqueId('disclosure-button'));
+  const [contentId] = useState(() => ARIAUtils.generateUniqueId('disclosure-content'));
 
-  const handleSort = useCallback((columnId: string) => {
-    if (sortColumn === columnId) {
-      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(columnId);
-      setSortDirection('asc');
-    }
-  }, [sortColumn]);
-
-  const toggleRowSelection = useCallback((rowId: string) => {
-    setSelectedRows(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(rowId)) {
-        newSet.delete(rowId);
-      } else {
-        newSet.add(rowId);
-      }
-      return newSet;
-    });
+  const toggle = useCallback(() => {
+    setIsOpen(prev => !prev);
   }, []);
 
-  const selectAllRows = useCallback((rowIds: string[]) => {
-    setSelectedRows(new Set(rowIds));
+  const open = useCallback(() => {
+    setIsOpen(true);
   }, []);
 
-  const clearSelection = useCallback(() => {
-    setSelectedRows(new Set());
+  const close = useCallback(() => {
+    setIsOpen(false);
   }, []);
 
-  const getTableProps = useCallback(() => ({
-    role: 'table',
-    'aria-label': 'Data table',
-    'aria-rowcount': -1, // Will be set by implementation
-    'aria-colcount': -1  // Will be set by implementation
-  }), []);
-
-  const getColumnHeaderProps = useCallback((columnId: string, label: string) => ({
-    role: 'columnheader',
-    'aria-sort': sortColumn === columnId ? sortDirection : 'none',
-    'aria-label': `${label}, sortable column`,
-    tabIndex: 0,
-    onClick: () => handleSort(columnId),
-    onKeyDown: (e: KeyboardEvent) => {
+  const getButtonProps = useCallback(() => ({
+    id: buttonId,
+    'aria-expanded': isOpen,
+    'aria-controls': contentId,
+    onClick: toggle,
+    onKeyDown: (e: React.KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        handleSort(columnId);
+        toggle();
       }
     }
-  }), [sortColumn, sortDirection, handleSort]);
+  }), [isOpen, buttonId, contentId, toggle]);
 
-  const getRowProps = useCallback((rowId: string, rowIndex: number) => ({
-    role: 'row',
-    'aria-rowindex': rowIndex + 1,
-    'aria-selected': selectedRows.has(rowId)
-  }), [selectedRows]);
-
-  const getCellProps = useCallback((columnIndex: number) => ({
-    role: 'cell',
-    'aria-colindex': columnIndex + 1
-  }), []);
+  const getContentProps = useCallback(() => ({
+    id: contentId,
+    'aria-labelledby': buttonId,
+    'aria-hidden': !isOpen,
+    style: { display: isOpen ? 'block' : 'none' }
+  }), [isOpen, buttonId, contentId]);
 
   return {
-    sortColumn,
-    sortDirection,
-    selectedRows,
-    handleSort,
-    toggleRowSelection,
-    selectAllRows,
-    clearSelection,
-    getTableProps,
-    getColumnHeaderProps,
-    getRowProps,
-    getCellProps
+    isOpen,
+    toggle,
+    open,
+    close,
+    getButtonProps,
+    getContentProps
   };
 }
 
-/**
- * Hook for accessible carousel/slider
- */
-export function useAccessibleCarousel(totalItems: number) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const { announce } = useScreenReader();
-
-  const goToSlide = useCallback((index: number) => {
-    const newIndex = Math.max(0, Math.min(index, totalItems - 1));
-    setCurrentIndex(newIndex);
-    announce(`Slide ${newIndex + 1} of ${totalItems}`, 'polite');
-  }, [totalItems, announce]);
-
-  const nextSlide = useCallback(() => {
-    const newIndex = currentIndex === totalItems - 1 ? 0 : currentIndex + 1;
-    goToSlide(newIndex);
-  }, [currentIndex, totalItems, goToSlide]);
-
-  const previousSlide = useCallback(() => {
-    const newIndex = currentIndex === 0 ? totalItems - 1 : currentIndex - 1;
-    goToSlide(newIndex);
-  }, [currentIndex, totalItems, goToSlide]);
-
-  const play = useCallback(() => {
-    setIsPlaying(true);
-    intervalRef.current = setInterval(nextSlide, 5000);
-    announce('Carousel autoplay started', 'polite');
-  }, [nextSlide, announce]);
-
-  const pause = useCallback(() => {
-    setIsPlaying(false);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    announce('Carousel autoplay paused', 'polite');
-  }, [announce]);
-
-  const togglePlayPause = useCallback(() => {
-    if (isPlaying) {
-      pause();
-    } else {
-      play();
-    }
-  }, [isPlaying, play, pause]);
-
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-
-  const getCarouselProps = useCallback(() => ({
-    role: 'region',
-    'aria-label': 'Carousel',
-    'aria-live': isPlaying ? 'off' : 'polite',
-    'aria-atomic': 'false'
-  }), [isPlaying]);
-
-  const getSlideProps = useCallback((index: number) => ({
-    role: 'group',
-    'aria-roledescription': 'slide',
-    'aria-label': `${index + 1} of ${totalItems}`,
-    'aria-hidden': index !== currentIndex
-  }), [currentIndex, totalItems]);
-
-  const getControlsProps = useCallback(() => ({
-    'aria-label': 'Carousel controls'
-  }), []);
-
-  return {
-    currentIndex,
-    isPlaying,
-    goToSlide,
-    nextSlide,
-    previousSlide,
-    play,
-    pause,
-    togglePlayPause,
-    getCarouselProps,
-    getSlideProps,
-    getControlsProps
-  };
-}
-
-/**
- * Hook for accessible progress indicators
- */
-export function useAccessibleProgress() {
-  const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const { announce } = useScreenReader();
-
-  const updateProgress = useCallback((newProgress: number, statusMessage?: string) => {
-    const clampedProgress = Math.max(0, Math.min(100, newProgress));
-    setProgress(clampedProgress);
-    
-    if (statusMessage) {
-      announce(statusMessage, 'polite');
-    } else if (clampedProgress === 100) {
-      announce('Progress complete', 'polite');
-    }
-  }, [announce]);
-
-  const setProgressStatus = useCallback((newStatus: 'idle' | 'loading' | 'success' | 'error', message?: string) => {
-    setStatus(newStatus);
-    
-    if (message) {
-      const priority = newStatus === 'error' ? 'assertive' : 'polite';
-      announce(message, priority);
-    }
-  }, [announce]);
-
-  const getProgressProps = useCallback(() => ({
-    role: 'progressbar',
-    'aria-valuenow': progress,
-    'aria-valuemin': 0,
-    'aria-valuemax': 100,
-    'aria-valuetext': `${progress}% complete`,
-    'aria-label': 'Progress indicator'
-  }), [progress]);
-
-  const getStatusProps = useCallback(() => ({
-    role: 'status',
-    'aria-live': 'polite',
-    'aria-atomic': 'true'
-  }), []);
-
-  return {
-    progress,
-    status,
-    updateProgress,
-    setProgressStatus,
-    getProgressProps,
-    getStatusProps
-  };
-}
-
-// All hooks are exported individually above
+// All hooks are already exported individually above

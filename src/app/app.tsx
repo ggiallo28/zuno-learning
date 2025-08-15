@@ -6,6 +6,8 @@ import { ZunoManagerProvider } from '@/contexts/ZunoManagerContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { preloadCriticalRoutes, preloadWhenIdle } from '@/utils/preloader';
 import { initPerformanceMonitoring } from '@/utils/performance';
+import { AccessibilityManager } from '@/utils/accessibility';
+import { ResponsiveManager } from '@/utils/responsive';
 
 // Lazy load main components for code splitting
 const HomePage = lazy(() => import('@/components/HomePage').then(module => ({ default: module.HomePage })));
@@ -26,6 +28,18 @@ function LoadingSpinner() {
 
 function AppRoutes() {
   const { isAuthenticated, isLoading } = useAuth();
+
+  // Initialize accessibility and responsive systems
+  useEffect(() => {
+    AccessibilityManager.initialize();
+    ResponsiveManager.initialize();
+    
+    // Cleanup on unmount
+    return () => {
+      AccessibilityManager.cleanup();
+      ResponsiveManager.cleanup();
+    };
+  }, []);
 
   // Preload critical routes based on authentication state
   useEffect(() => {

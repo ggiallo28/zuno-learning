@@ -1,25 +1,24 @@
 /**
- * Responsive design utilities for mobile and tablet optimization
- * Provides comprehensive responsive features for the Zuno learning platform
+ * Responsive design utilities for mobile-first development
+ * Provides comprehensive responsive design features including breakpoint detection,
+ * touch support, viewport management, and responsive utilities
  */
 
-// Breakpoint definitions (matching Tailwind CSS defaults)
+// Breakpoint definitions following Tailwind CSS conventions
 export const BREAKPOINTS = {
+  xs: 0,
   sm: 640,
   md: 768,
   lg: 1024,
   xl: 1280,
-  '2xl': 1536
+  '2xl': 1536,
 } as const;
 
 export type Breakpoint = keyof typeof BREAKPOINTS;
 
-// Device type detection
+// Responsive Utilities
 export class ResponsiveUtils {
-  /**
-   * Get current breakpoint based on window width
-   */
-  static getCurrentBreakpoint(): Breakpoint | 'xs' {
+  static getCurrentBreakpoint(): Breakpoint {
     const width = window.innerWidth;
     
     if (width >= BREAKPOINTS['2xl']) return '2xl';
@@ -30,86 +29,100 @@ export class ResponsiveUtils {
     return 'xs';
   }
 
-  /**
-   * Check if current viewport matches breakpoint
-   */
-  static isBreakpoint(breakpoint: Breakpoint | 'xs'): boolean {
-    if (breakpoint === 'xs') {
-      return window.innerWidth < BREAKPOINTS.sm;
-    }
+  static isBreakpoint(breakpoint: Breakpoint): boolean {
     return window.innerWidth >= BREAKPOINTS[breakpoint];
   }
 
-  /**
-   * Check if device is mobile (xs or sm)
-   */
   static isMobile(): boolean {
     return window.innerWidth < BREAKPOINTS.md;
   }
 
-  /**
-   * Check if device is tablet (md)
-   */
   static isTablet(): boolean {
     return window.innerWidth >= BREAKPOINTS.md && window.innerWidth < BREAKPOINTS.lg;
   }
 
-  /**
-   * Check if device is desktop (lg and above)
-   */
   static isDesktop(): boolean {
     return window.innerWidth >= BREAKPOINTS.lg;
   }
 
-  /**
-   * Get device type
-   */
   static getDeviceType(): 'mobile' | 'tablet' | 'desktop' {
     if (this.isMobile()) return 'mobile';
     if (this.isTablet()) return 'tablet';
     return 'desktop';
   }
+
+  static watchBreakpoint(callback: (breakpoint: Breakpoint) => void): () => void {
+    let currentBreakpoint = this.getCurrentBreakpoint();
+    
+    const handleResize = () => {
+      const newBreakpoint = this.getCurrentBreakpoint();
+      if (newBreakpoint !== currentBreakpoint) {
+        currentBreakpoint = newBreakpoint;
+        callback(newBreakpoint);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }
+
+  static createMediaQuery(breakpoint: Breakpoint): MediaQueryList {
+    return window.matchMedia(`(min-width: ${BREAKPOINTS[breakpoint]}px)`);
+  }
 }
 
-// Touch device detection
+// Touch Utilities
 export class TouchUtils {
-  /**
-   * Check if device supports touch
-   */
   static isTouchDevice(): boolean {
     return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   }
 
-  /**
-   * Check if device is primarily touch-based
-   */
-  static isPrimaryTouchDevice(): boolean {
-    return this.isTouchDevice() && ResponsiveUtils.isMobile();
+  static supportsHover(): boolean {
+    return window.matchMedia('(hover: hover)').matches;
   }
 
-  /**
-   * Add touch-friendly styles to element
-   */
-  static makeTouchFriendly(element: HTMLElement) {
-    if (this.isTouchDevice()) {
-      element.style.minHeight = '44px';
-      element.style.minWidth = '44px';
-      element.style.touchAction = 'manipulation';
-      element.style.userSelect = 'none';
-    }
+  static supportsFinePointer(): boolean {
+    return window.matchMedia('(pointer: fine)').matches;
   }
 
-  /**
-   * Handle touch gestures
-   */
-  static addSwipeGesture(
+  static getPointerType(): 'coarse' | 'fine' | 'none' {
+    if (window.matchMedia('(pointer: coarse)').matches) return 'coarse';
+    if (window.matchMedia('(pointer: fine)').matches) return 'fine';
+    return 'none';
+  }
+
+  static addTouchFriendlyStyles(element: HTMLElement): void {
+    element.style.minHeight = '44px';
+    element.style.minWidth = '44px';
+    element.style.touchAction = 'manipulation';
+    element.style.userSelect = 'none';
+    
+    // Add touch feedback
+    element.addEventListener('touchstart', () => {
+      element.style.opacity = '0.7';
+    });
+    
+    element.addEventListener('touchend', () => {
+      element.style.opacity = '1';
+    });
+    
+    element.addEventListener('touchcancel', () => {
+      element.style.opacity = '1';
+    });
+  }
+
+  static handleSwipeGesture(
     element: HTMLElement,
-    onSwipeLeft?: () => void,
-    onSwipeRight?: () => void,
+    onSwipe: (direction: 'left' | 'right' | 'up' | 'down') => void,
     threshold: number = 50
-  ) {
+  ): () => void {
     let startX = 0;
     let startY = 0;
+    let endX = 0;
+    let endY = 0;
 
     const handleTouchStart = (e: TouchEvent) => {
       startX = e.touches[0].clientX;
@@ -117,17 +130,21 @@ export class TouchUtils {
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
-      const endX = e.changedTouches[0].clientX;
-      const endY = e.changedTouches[0].clientY;
+      endX = e.changedTouches[0].clientX;
+      endY = e.changedTouches[0].clientY;
+      
       const deltaX = endX - startX;
       const deltaY = endY - startY;
-
-      // Check if horizontal swipe is more significant than vertical
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > threshold) {
-        if (deltaX > 0 && onSwipeRight) {
-          onSwipeRight();
-        } else if (deltaX < 0 && onSwipeLeft) {
-          onSwipeLeft();
+      
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Horizontal swipe
+        if (Math.abs(deltaX) > threshold) {
+          onSwipe(deltaX > 0 ? 'right' : 'left');
+        }
+      } else {
+        // Vertical swipe
+        if (Math.abs(deltaY) > threshold) {
+          onSwipe(deltaY > 0 ? 'down' : 'up');
         }
       }
     };
@@ -135,7 +152,6 @@ export class TouchUtils {
     element.addEventListener('touchstart', handleTouchStart, { passive: true });
     element.addEventListener('touchend', handleTouchEnd, { passive: true });
 
-    // Return cleanup function
     return () => {
       element.removeEventListener('touchstart', handleTouchStart);
       element.removeEventListener('touchend', handleTouchEnd);
@@ -143,11 +159,8 @@ export class TouchUtils {
   }
 }
 
-// Viewport utilities
+// Viewport Utilities
 export class ViewportUtils {
-  /**
-   * Get viewport dimensions
-   */
   static getViewportSize(): { width: number; height: number } {
     return {
       width: window.innerWidth,
@@ -155,46 +168,6 @@ export class ViewportUtils {
     };
   }
 
-  /**
-   * Get safe area insets (for devices with notches)
-   */
-  static getSafeAreaInsets(): { top: number; right: number; bottom: number; left: number } {
-    const style = getComputedStyle(document.documentElement);
-    return {
-      top: parseInt(style.getPropertyValue('env(safe-area-inset-top)') || '0'),
-      right: parseInt(style.getPropertyValue('env(safe-area-inset-right)') || '0'),
-      bottom: parseInt(style.getPropertyValue('env(safe-area-inset-bottom)') || '0'),
-      left: parseInt(style.getPropertyValue('env(safe-area-inset-left)') || '0')
-    };
-  }
-
-  /**
-   * Apply safe area padding to element
-   */
-  static applySafeAreaPadding(element: HTMLElement) {
-    element.style.paddingTop = 'max(1rem, env(safe-area-inset-top))';
-    element.style.paddingRight = 'max(1rem, env(safe-area-inset-right))';
-    element.style.paddingBottom = 'max(1rem, env(safe-area-inset-bottom))';
-    element.style.paddingLeft = 'max(1rem, env(safe-area-inset-left))';
-  }
-
-  /**
-   * Check if viewport is in landscape mode
-   */
-  static isLandscape(): boolean {
-    return window.innerWidth > window.innerHeight;
-  }
-
-  /**
-   * Check if viewport is in portrait mode
-   */
-  static isPortrait(): boolean {
-    return window.innerHeight > window.innerWidth;
-  }
-
-  /**
-   * Get scroll position
-   */
   static getScrollPosition(): { x: number; y: number } {
     return {
       x: window.pageXOffset || document.documentElement.scrollLeft,
@@ -202,499 +175,330 @@ export class ViewportUtils {
     };
   }
 
-  /**
-   * Smooth scroll to element
-   */
-  static scrollToElement(element: HTMLElement, offset: number = 0) {
-    const elementTop = element.offsetTop - offset;
-    window.scrollTo({
-      top: elementTop,
-      behavior: 'smooth'
-    });
+  static isElementInViewport(element: HTMLElement, threshold: number = 0): boolean {
+    const rect = element.getBoundingClientRect();
+    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+    const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+
+    return (
+      rect.top >= -threshold &&
+      rect.left >= -threshold &&
+      rect.bottom <= windowHeight + threshold &&
+      rect.right <= windowWidth + threshold
+    );
+  }
+
+  static scrollToElement(element: HTMLElement, behavior: ScrollBehavior = 'smooth'): void {
+    element.scrollIntoView({ behavior, block: 'start' });
+  }
+
+  static getSafeAreaInsets(): {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  } {
+    const style = getComputedStyle(document.documentElement);
+    
+    return {
+      top: parseInt(style.getPropertyValue('env(safe-area-inset-top)')) || 0,
+      right: parseInt(style.getPropertyValue('env(safe-area-inset-right)')) || 0,
+      bottom: parseInt(style.getPropertyValue('env(safe-area-inset-bottom)')) || 0,
+      left: parseInt(style.getPropertyValue('env(safe-area-inset-left)')) || 0,
+    };
+  }
+
+  static watchViewportChanges(callback: (size: { width: number; height: number }) => void): () => void {
+    const handleResize = () => {
+      callback(this.getViewportSize());
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }
 }
 
-// Responsive image utilities
+// Responsive Image Utilities
 export class ResponsiveImageUtils {
-  /**
-   * Generate responsive image srcset
-   */
   static generateSrcSet(basePath: string, sizes: number[]): string {
     return sizes.map(size => `${basePath}?w=${size} ${size}w`).join(', ');
   }
 
-  /**
-   * Generate responsive image sizes attribute
-   */
-  static generateSizes(breakpoints: Array<{ breakpoint: Breakpoint | 'xs'; size: string }>): string {
+  static generateSizes(breakpoints: { breakpoint: Breakpoint; size: string }[]): string {
     return breakpoints
-      .map(({ breakpoint, size }) => {
-        if (breakpoint === 'xs') {
-          return size;
-        }
-        return `(min-width: ${BREAKPOINTS[breakpoint]}px) ${size}`;
-      })
+      .map(({ breakpoint, size }) => 
+        breakpoint === 'xs' 
+          ? size 
+          : `(min-width: ${BREAKPOINTS[breakpoint]}px) ${size}`
+      )
       .join(', ');
   }
 
-  /**
-   * Lazy load image with intersection observer
-   */
-  static lazyLoadImage(img: HTMLImageElement, src: string, srcset?: string) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          img.src = src;
-          if (srcset) img.srcset = srcset;
-          img.classList.remove('opacity-0');
-          img.classList.add('opacity-100');
-          observer.unobserve(img);
-        }
+  static createResponsiveImage(
+    src: string,
+    alt: string,
+    sizes: { breakpoint: Breakpoint; width: number }[]
+  ): HTMLImageElement {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = alt;
+    img.loading = 'lazy';
+    
+    const widths = sizes.map(s => s.width);
+    img.srcset = this.generateSrcSet(src, widths);
+    
+    const sizeStrings = sizes.map(({ breakpoint, width }) => ({
+      breakpoint,
+      size: `${width}px`
+    }));
+    img.sizes = this.generateSizes(sizeStrings);
+    
+    return img;
+  }
+}
+
+// Container Query Utilities (for modern browsers)
+export class ContainerQueryUtils {
+  static supportsContainerQueries(): boolean {
+    return 'container' in document.documentElement.style;
+  }
+
+  static createContainerQuery(
+    element: HTMLElement,
+    containerName: string,
+    queries: { minWidth?: number; maxWidth?: number; styles: Record<string, string> }[]
+  ): void {
+    if (!this.supportsContainerQueries()) {
+      console.warn('Container queries not supported in this browser');
+      return;
+    }
+
+    element.style.containerName = containerName;
+    element.style.containerType = 'inline-size';
+
+    const styleSheet = document.createElement('style');
+    let css = '';
+
+    queries.forEach(({ minWidth, maxWidth, styles }) => {
+      let query = `@container ${containerName} (`;
+      const conditions = [];
+      
+      if (minWidth) conditions.push(`min-width: ${minWidth}px`);
+      if (maxWidth) conditions.push(`max-width: ${maxWidth}px`);
+      
+      query += conditions.join(' and ') + ') {\n';
+      
+      const selector = `[style*="container-name: ${containerName}"]`;
+      query += `  ${selector} {\n`;
+      
+      Object.entries(styles).forEach(([property, value]) => {
+        query += `    ${property}: ${value};\n`;
       });
+      
+      query += '  }\n}\n';
+      css += query;
     });
 
-    img.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-    observer.observe(img);
+    styleSheet.textContent = css;
+    document.head.appendChild(styleSheet);
   }
 }
 
-// Responsive grid utilities
+// Responsive Grid Utilities
 export class ResponsiveGridUtils {
-  /**
-   * Calculate optimal grid columns based on container width
-   */
-  static calculateGridColumns(
-    containerWidth: number,
-    minItemWidth: number,
+  static calculateColumns(containerWidth: number, minColumnWidth: number, gap: number = 16): number {
+    return Math.floor((containerWidth + gap) / (minColumnWidth + gap));
+  }
+
+  static createAutoFitGrid(
+    element: HTMLElement,
+    minColumnWidth: number,
     gap: number = 16
-  ): number {
-    return Math.floor((containerWidth + gap) / (minItemWidth + gap));
+  ): void {
+    element.style.display = 'grid';
+    element.style.gridTemplateColumns = `repeat(auto-fit, minmax(${minColumnWidth}px, 1fr))`;
+    element.style.gap = `${gap}px`;
   }
 
-  /**
-   * Generate responsive grid classes
-   */
-  static getResponsiveGridClasses(
-    columns: { xs?: number; sm?: number; md?: number; lg?: number; xl?: number }
-  ): string {
-    const classes: string[] = [];
-    
-    if (columns.xs) classes.push(`grid-cols-${columns.xs}`);
-    if (columns.sm) classes.push(`sm:grid-cols-${columns.sm}`);
-    if (columns.md) classes.push(`md:grid-cols-${columns.md}`);
-    if (columns.lg) classes.push(`lg:grid-cols-${columns.lg}`);
-    if (columns.xl) classes.push(`xl:grid-cols-${columns.xl}`);
-    
-    return classes.join(' ');
-  }
+  static createResponsiveGrid(
+    element: HTMLElement,
+    breakpointColumns: { breakpoint: Breakpoint; columns: number }[],
+    gap: number = 16
+  ): void {
+    element.style.display = 'grid';
+    element.style.gap = `${gap}px`;
 
-  /**
-   * Auto-fit grid with minimum item width
-   */
-  static createAutoFitGrid(container: HTMLElement, minItemWidth: number) {
-    container.style.display = 'grid';
-    container.style.gridTemplateColumns = `repeat(auto-fit, minmax(${minItemWidth}px, 1fr))`;
-    container.style.gap = '1rem';
-  }
+    // Sort by breakpoint size (smallest first)
+    const sorted = breakpointColumns.sort((a, b) => BREAKPOINTS[a.breakpoint] - BREAKPOINTS[b.breakpoint]);
 
-  /**
-   * Auto-fill grid with fixed item width
-   */
-  static createAutoFillGrid(container: HTMLElement, itemWidth: number) {
-    container.style.display = 'grid';
-    container.style.gridTemplateColumns = `repeat(auto-fill, ${itemWidth}px)`;
-    container.style.gap = '1rem';
-    container.style.justifyContent = 'center';
+    // Apply base styles (mobile-first)
+    element.style.gridTemplateColumns = `repeat(${sorted[0].columns}, 1fr)`;
+
+    // Create media queries for larger breakpoints
+    const styleSheet = document.createElement('style');
+    let css = '';
+
+    sorted.slice(1).forEach(({ breakpoint, columns }) => {
+      css += `@media (min-width: ${BREAKPOINTS[breakpoint]}px) {\n`;
+      css += `  .responsive-grid-${Date.now()} {\n`;
+      css += `    grid-template-columns: repeat(${columns}, 1fr);\n`;
+      css += `  }\n`;
+      css += `}\n`;
+    });
+
+    if (css) {
+      styleSheet.textContent = css;
+      document.head.appendChild(styleSheet);
+      element.classList.add(`responsive-grid-${Date.now()}`);
+    }
   }
 }
 
-// Responsive typography utilities
-export class ResponsiveTypography {
-  /**
-   * Generate fluid typography using clamp()
-   */
-  static generateFluidSize(
+// Responsive Typography Utilities
+export class ResponsiveTypographyUtils {
+  static createFluidTypography(
     minSize: number,
     maxSize: number,
     minViewport: number = BREAKPOINTS.sm,
     maxViewport: number = BREAKPOINTS.xl
   ): string {
-    const slope = (maxSize - minSize) / (maxViewport - minViewport);
-    const yAxisIntersection = -minViewport * slope + minSize;
-    
-    return `clamp(${minSize}px, ${yAxisIntersection}px + ${slope * 100}vw, ${maxSize}px)`;
+    return `clamp(${minSize}rem, ${minSize}rem + ${maxSize - minSize} * ((100vw - ${minViewport}px) / ${maxViewport - minViewport}), ${maxSize}rem)`;
   }
 
-  /**
-   * Apply responsive text scaling
-   */
-  static applyResponsiveText(element: HTMLElement, config: {
-    mobile: number;
-    tablet: number;
-    desktop: number;
-  }) {
-    const deviceType = ResponsiveUtils.getDeviceType();
-    const fontSize = config[deviceType];
-    element.style.fontSize = `${fontSize}px`;
-  }
-
-  /**
-   * Generate responsive line height
-   */
-  static getResponsiveLineHeight(fontSize: number): number {
-    // Smaller line heights for larger text, larger for smaller text
-    if (fontSize >= 24) return 1.2;
-    if (fontSize >= 18) return 1.4;
-    if (fontSize >= 16) return 1.5;
-    return 1.6;
-  }
-}
-
-// Media query utilities
-export class MediaQueryUtils {
-  /**
-   * Create media query listener
-   */
-  static createMediaQueryListener(
-    query: string,
-    callback: (matches: boolean) => void
-  ): () => void {
-    const mediaQuery = window.matchMedia(query);
-    const handler = (e: MediaQueryListEvent) => callback(e.matches);
-    
-    mediaQuery.addEventListener('change', handler);
-    callback(mediaQuery.matches); // Call immediately with current state
-    
-    // Return cleanup function
-    return () => mediaQuery.removeEventListener('change', handler);
-  }
-
-  /**
-   * Create breakpoint listener
-   */
-  static createBreakpointListener(
-    breakpoint: Breakpoint,
-    callback: (matches: boolean) => void
-  ): () => void {
-    return this.createMediaQueryListener(
-      `(min-width: ${BREAKPOINTS[breakpoint]}px)`,
-      callback
-    );
-  }
-
-  /**
-   * Create orientation listener
-   */
-  static createOrientationListener(
-    callback: (orientation: 'portrait' | 'landscape') => void
-  ): () => void {
-    return this.createMediaQueryListener(
-      '(orientation: landscape)',
-      (matches) => callback(matches ? 'landscape' : 'portrait')
-    );
-  }
-
-  /**
-   * Create reduced motion listener
-   */
-  static createReducedMotionListener(
-    callback: (prefersReducedMotion: boolean) => void
-  ): () => void {
-    return this.createMediaQueryListener(
-      '(prefers-reduced-motion: reduce)',
-      callback
-    );
-  }
-}
-
-// Container query utilities (for modern browsers)
-export class ContainerQueryUtils {
-  /**
-   * Check if container queries are supported
-   */
-  static isSupported(): boolean {
-    return 'container' in document.documentElement.style;
-  }
-
-  /**
-   * Apply container query styles
-   */
-  static applyContainerQuery(
-    container: HTMLElement,
-    queries: Array<{ minWidth: number; styles: Record<string, string> }>
-  ) {
-    if (!this.isSupported()) return;
-
-    container.style.containerType = 'inline-size';
-    
-    // Use ResizeObserver as fallback for container queries
-    const observer = new ResizeObserver(entries => {
-      entries.forEach(entry => {
-        const width = entry.contentRect.width;
-        
-        queries.forEach(({ minWidth, styles }) => {
-          if (width >= minWidth) {
-            Object.entries(styles).forEach(([property, value]) => {
-              container.style.setProperty(property, value);
-            });
-          }
-        });
-      });
-    });
-
-    observer.observe(container);
-    
-    return () => observer.disconnect();
-  }
-}
-
-// Enhanced mobile navigation utilities
-export class MobileNavigationUtils {
-  /**
-   * Create accessible mobile menu with proper ARIA states
-   */
-  static createMobileMenu(
-    menuElement: HTMLElement,
-    toggleButton: HTMLElement,
-    options: {
-      closeOnEscape?: boolean;
-      closeOnOutsideClick?: boolean;
-      trapFocus?: boolean;
-    } = {}
-  ): {
-    open: () => void;
-    close: () => void;
-    toggle: () => void;
-    cleanup: () => void;
-  } {
-    const { closeOnEscape = true, closeOnOutsideClick = true, trapFocus = true } = options;
-    let isOpen = false;
-    let focusTrapCleanup: (() => void) | null = null;
-
-    const updateARIA = () => {
-      toggleButton.setAttribute('aria-expanded', isOpen.toString());
-      menuElement.setAttribute('aria-hidden', (!isOpen).toString());
-    };
-
-    const open = () => {
-      isOpen = true;
-      menuElement.classList.add('open');
-      document.body.style.overflow = 'hidden';
-      
-      if (trapFocus) {
-        // Import FocusManager from accessibility utils
-        import('@/utils/accessibility').then(({ FocusManager }) => {
-          focusTrapCleanup = FocusManager.trapFocus(menuElement);
-        });
-      }
-      
-      updateARIA();
-    };
-
-    const close = () => {
-      isOpen = false;
-      menuElement.classList.remove('open');
-      document.body.style.overflow = '';
-      
-      if (focusTrapCleanup) {
-        focusTrapCleanup();
-        focusTrapCleanup = null;
-      }
-      
-      updateARIA();
-      toggleButton.focus();
-    };
-
-    const toggle = () => {
-      if (isOpen) {
-        close();
-      } else {
-        open();
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen && closeOnEscape) {
-        close();
-      }
-    };
-
-    const handleOutsideClick = (event: Event) => {
-      if (closeOnOutsideClick && isOpen && 
-          !menuElement.contains(event.target as Node) && 
-          !toggleButton.contains(event.target as Node)) {
-        close();
-      }
-    };
-
-    // Set up initial ARIA attributes
-    const menuId = menuElement.id || `mobile-menu-${Math.random().toString(36).substring(2, 11)}`;
-    menuElement.id = menuId;
-    toggleButton.setAttribute('aria-controls', menuId);
-    toggleButton.setAttribute('aria-haspopup', 'true');
-    updateARIA();
-
-    // Add event listeners
-    toggleButton.addEventListener('click', toggle);
-    if (closeOnEscape) {
-      document.addEventListener('keydown', handleEscape);
-    }
-    if (closeOnOutsideClick) {
-      document.addEventListener('click', handleOutsideClick);
-    }
-
-    const cleanup = () => {
-      close();
-      toggleButton.removeEventListener('click', toggle);
-      document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('click', handleOutsideClick);
-    };
-
-    return { open, close, toggle, cleanup };
-  }
-}
-
-// Enhanced responsive component utilities
-export class ResponsiveComponentUtils {
-  /**
-   * Create responsive component that adapts based on container size
-   */
-  static createResponsiveComponent(
+  static applyFluidTypography(
     element: HTMLElement,
-    breakpoints: Array<{
-      minWidth: number;
-      className: string;
-      callback?: () => void;
-    }>
-  ): () => void {
-    const observer = new ResizeObserver(entries => {
-      entries.forEach(entry => {
-        const width = entry.contentRect.width;
-        
-        // Remove all responsive classes
-        breakpoints.forEach(({ className }) => {
-          element.classList.remove(className);
-        });
-        
-        // Find the appropriate breakpoint
-        const activeBreakpoint = breakpoints
-          .filter(bp => width >= bp.minWidth)
-          .sort((a, b) => b.minWidth - a.minWidth)[0];
-        
-        if (activeBreakpoint) {
-          element.classList.add(activeBreakpoint.className);
-          activeBreakpoint.callback?.();
-        }
-      });
-    });
-
-    observer.observe(element);
-    return () => observer.disconnect();
+    minSize: number,
+    maxSize: number,
+    minViewport?: number,
+    maxViewport?: number
+  ): void {
+    element.style.fontSize = this.createFluidTypography(minSize, maxSize, minViewport, maxViewport);
   }
 
-  /**
-   * Create responsive text that scales with container
-   */
-  static createResponsiveText(
-    element: HTMLElement,
-    config: {
-      minSize: number;
-      maxSize: number;
-      minWidth: number;
-      maxWidth: number;
-    }
-  ): () => void {
-    const { minSize, maxSize, minWidth, maxWidth } = config;
-    
-    const updateFontSize = () => {
-      const containerWidth = element.offsetWidth;
-      const ratio = Math.min(Math.max((containerWidth - minWidth) / (maxWidth - minWidth), 0), 1);
-      const fontSize = minSize + (maxSize - minSize) * ratio;
-      element.style.fontSize = `${fontSize}px`;
+  static createResponsiveLineHeight(fontSize: string): string {
+    // Automatically calculate line height based on font size
+    const sizeValue = parseFloat(fontSize);
+    if (sizeValue <= 1) return '1.6';
+    if (sizeValue <= 1.25) return '1.5';
+    if (sizeValue <= 1.5) return '1.4';
+    return '1.3';
+  }
+}
+
+// Orientation Utilities
+export class OrientationUtils {
+  static getOrientation(): 'portrait' | 'landscape' {
+    return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+  }
+
+  static isPortrait(): boolean {
+    return this.getOrientation() === 'portrait';
+  }
+
+  static isLandscape(): boolean {
+    return this.getOrientation() === 'landscape';
+  }
+
+  static watchOrientationChange(callback: (orientation: 'portrait' | 'landscape') => void): () => void {
+    let currentOrientation = this.getOrientation();
+
+    const handleOrientationChange = () => {
+      const newOrientation = this.getOrientation();
+      if (newOrientation !== currentOrientation) {
+        currentOrientation = newOrientation;
+        callback(newOrientation);
+      }
     };
 
-    const observer = new ResizeObserver(updateFontSize);
-    observer.observe(element);
-    
-    // Initial update
-    updateFontSize();
-    
-    return () => observer.disconnect();
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
+
+    return () => {
+      window.removeEventListener('orientationchange', handleOrientationChange);
+      window.removeEventListener('resize', handleOrientationChange);
+    };
+  }
+
+  static addOrientationClasses(): void {
+    const updateClasses = () => {
+      document.documentElement.classList.remove('portrait', 'landscape');
+      document.documentElement.classList.add(this.getOrientation());
+    };
+
+    updateClasses();
+    this.watchOrientationChange(updateClasses);
   }
 }
 
-// Enhanced performance utilities for mobile
-export class MobilePerformanceUtils {
-  /**
-   * Optimize images for mobile devices
-   */
-  static optimizeImagesForMobile() {
-    const images = document.querySelectorAll('img[data-src]');
-    
-    const imageObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const img = entry.target as HTMLImageElement;
-          const src = img.dataset.src;
-          
-          if (src) {
-            // Load appropriate size based on device
-            const devicePixelRatio = window.devicePixelRatio || 1;
-            const isMobile = ResponsiveUtils.isMobile();
-            const isRetina = devicePixelRatio > 1;
-            
-            let optimizedSrc = src;
-            if (isMobile) {
-              optimizedSrc = src.replace(/\.(jpg|jpeg|png|webp)$/i, 
-                isRetina ? '@2x.$1' : '@1x.$1');
-            }
-            
-            img.src = optimizedSrc;
-            img.removeAttribute('data-src');
-            imageObserver.unobserve(img);
-          }
-        }
-      });
+// Comprehensive Responsive Manager
+export class ResponsiveManager {
+  private static initialized = false;
+
+  static initialize(): void {
+    if (this.initialized) return;
+
+    // Add orientation classes
+    OrientationUtils.addOrientationClasses();
+
+    // Add device type classes
+    this.addDeviceTypeClasses();
+
+    // Add touch/hover classes
+    this.addInteractionClasses();
+
+    // Watch for changes
+    this.watchForChanges();
+
+    this.initialized = true;
+  }
+
+  private static addDeviceTypeClasses(): void {
+    const updateDeviceClasses = () => {
+      const deviceType = ResponsiveUtils.getDeviceType();
+      document.documentElement.classList.remove('mobile', 'tablet', 'desktop');
+      document.documentElement.classList.add(deviceType);
+    };
+
+    updateDeviceClasses();
+    ResponsiveUtils.watchBreakpoint(updateDeviceClasses);
+  }
+
+  private static addInteractionClasses(): void {
+    document.documentElement.classList.toggle('touch', TouchUtils.isTouchDevice());
+    document.documentElement.classList.toggle('hover', TouchUtils.supportsHover());
+    document.documentElement.classList.toggle('fine-pointer', TouchUtils.supportsFinePointer());
+  }
+
+  private static watchForChanges(): void {
+    // Watch for viewport changes
+    ViewportUtils.watchViewportChanges((size) => {
+      document.documentElement.style.setProperty('--viewport-width', `${size.width}px`);
+      document.documentElement.style.setProperty('--viewport-height', `${size.height}px`);
     });
 
-    images.forEach(img => imageObserver.observe(img));
-    
-    return () => imageObserver.disconnect();
+    // Update safe area insets
+    const updateSafeArea = () => {
+      const insets = ViewportUtils.getSafeAreaInsets();
+      document.documentElement.style.setProperty('--safe-area-top', `${insets.top}px`);
+      document.documentElement.style.setProperty('--safe-area-right', `${insets.right}px`);
+      document.documentElement.style.setProperty('--safe-area-bottom', `${insets.bottom}px`);
+      document.documentElement.style.setProperty('--safe-area-left', `${insets.left}px`);
+    };
+
+    updateSafeArea();
+    window.addEventListener('resize', updateSafeArea);
+    window.addEventListener('orientationchange', updateSafeArea);
   }
 
-  /**
-   * Implement touch-friendly scrolling
-   */
-  static enableTouchScrolling(element: HTMLElement) {
-    // @ts-ignore - webkit specific property
-    element.style.webkitOverflowScrolling = 'touch';
-    // @ts-ignore - webkit specific property  
-    element.style.overflowScrolling = 'touch';
-    
-    // Add momentum scrolling for iOS
-    if (TouchUtils.isTouchDevice()) {
-      element.style.scrollBehavior = 'smooth';
-    }
-  }
-
-  /**
-   * Optimize animations for mobile
-   */
-  static optimizeAnimationsForMobile() {
-    // Reduce animations on low-end devices
-    const isLowEndDevice = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2;
-    
-    if (isLowEndDevice || ResponsiveUtils.isMobile()) {
-      document.documentElement.style.setProperty('--animation-duration', '0.2s');
-      document.documentElement.style.setProperty('--transition-duration', '0.15s');
-    }
-    
-    // Respect reduced motion preference
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.documentElement.style.setProperty('--animation-duration', '0.01ms');
-      document.documentElement.style.setProperty('--transition-duration', '0.01ms');
-    }
+  static cleanup(): void {
+    // Cleanup function for when needed
+    this.initialized = false;
   }
 }
 
-// All utilities are exported individually above
+// All utilities are already exported individually above

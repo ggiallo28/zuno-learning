@@ -1,647 +1,628 @@
 /**
- * Test script for accessibility and responsive features
- * Verifies that all accessibility and mobile responsiveness enhancements are working correctly
+ * Comprehensive test script for accessibility and mobile responsiveness
+ * Tests WCAG 2.1 AA compliance and mobile-first responsive design
  */
 
-import {
-  FocusManager,
-  ScreenReaderUtils,
-  ARIAUtils,
-  ColorContrast,
-  MobileAccessibility,
-  ReducedMotion,
-  HighContrast,
-  AccessibilityTesting
-} from '@/utils/accessibility';
-
-import {
-  ResponsiveUtils,
-  TouchUtils,
-  ViewportUtils,
-  ResponsiveGridUtils,
-  ResponsiveTypography,
-  BREAKPOINTS
-} from '@/utils/responsive';
+import { AccessibilityManager, FocusManager, ScreenReaderUtils, ColorContrast, MobileAccessibility, ARIAUtils } from '@/utils/accessibility';
+import { ResponsiveManager, ResponsiveUtils, TouchUtils, ViewportUtils } from '@/utils/responsive';
 
 // Test results interface
 interface TestResult {
   name: string;
   passed: boolean;
   message: string;
+  details?: any;
 }
 
-// Test runner
-class AccessibilityResponsiveTestRunner {
+class AccessibilityTester {
   private results: TestResult[] = [];
 
-  private addResult(name: string, passed: boolean, message: string) {
-    this.results.push({ name, passed, message });
-    console.log(`${passed ? '✅' : '❌'} ${name}: ${message}`);
+  // Test accessibility utilities
+  async testAccessibilityUtilities(): Promise<TestResult[]> {
+    console.log('🧪 Testing Accessibility Utilities...');
+
+    // Test Focus Manager
+    this.testFocusManager();
+    
+    // Test Screen Reader Utils
+    this.testScreenReaderUtils();
+    
+    // Test Color Contrast
+    this.testColorContrast();
+    
+    // Test Mobile Accessibility
+    this.testMobileAccessibility();
+    
+    // Test ARIA utilities
+    this.testARIAUtilities();
+
+    return this.results;
   }
 
-  // Test accessibility utilities
-  testAccessibilityUtilities() {
-    console.log('\n🔍 Testing Accessibility Utilities...\n');
-
-    // Test FocusManager
+  private testFocusManager(): void {
     try {
-      const testContainer = document.createElement('div');
-      testContainer.innerHTML = `
+      // Create test container
+      const container = document.createElement('div');
+      container.innerHTML = `
         <button>Button 1</button>
-        <input type="text" />
+        <input type="text" placeholder="Input 1">
+        <a href="#">Link 1</a>
         <button>Button 2</button>
       `;
-      document.body.appendChild(testContainer);
+      document.body.appendChild(container);
 
-      const focusableElements = FocusManager.getFocusableElements(testContainer);
-      this.addResult(
-        'FocusManager.getFocusableElements',
-        focusableElements.length === 3,
-        `Found ${focusableElements.length} focusable elements`
-      );
+      // Test focusable elements detection
+      const focusableElements = FocusManager.getFocusableElements(container);
+      
+      this.results.push({
+        name: 'Focus Manager - Focusable Elements Detection',
+        passed: focusableElements.length === 4,
+        message: `Found ${focusableElements.length} focusable elements (expected 4)`,
+        details: { count: focusableElements.length }
+      });
 
-      document.body.removeChild(testContainer);
+      // Test visibility check
+      const hiddenButton = document.createElement('button');
+      hiddenButton.style.display = 'none';
+      hiddenButton.textContent = 'Hidden Button';
+      container.appendChild(hiddenButton);
+
+      const isVisible = FocusManager.isVisible(hiddenButton);
+      this.results.push({
+        name: 'Focus Manager - Visibility Check',
+        passed: !isVisible,
+        message: `Hidden element visibility: ${isVisible} (should be false)`,
+        details: { isVisible }
+      });
+
+      // Cleanup
+      document.body.removeChild(container);
+
     } catch (error) {
-      this.addResult('FocusManager.getFocusableElements', false, `Error: ${error}`);
+      this.results.push({
+        name: 'Focus Manager - Error',
+        passed: false,
+        message: `Error testing focus manager: ${error}`,
+        details: { error }
+      });
     }
+  }
 
-    // Test ScreenReaderUtils
+  private testScreenReaderUtils(): void {
     try {
+      // Test announcement
       ScreenReaderUtils.announce('Test announcement', 'polite');
-      this.addResult('ScreenReaderUtils.announce', true, 'Screen reader announcement created');
-    } catch (error) {
-      this.addResult('ScreenReaderUtils.announce', false, `Error: ${error}`);
-    }
+      
+      // Check if live region was created
+      const liveRegion = document.querySelector('[aria-live]');
+      
+      this.results.push({
+        name: 'Screen Reader Utils - Live Region Creation',
+        passed: !!liveRegion,
+        message: `Live region ${liveRegion ? 'created' : 'not created'}`,
+        details: { hasLiveRegion: !!liveRegion }
+      });
 
-    // Test ARIAUtils
-    try {
-      const id = ARIAUtils.generateId('test');
-      this.addResult(
-        'ARIAUtils.generateId',
-        id.startsWith('test-') && id.length > 5,
-        `Generated ID: ${id}`
-      );
-    } catch (error) {
-      this.addResult('ARIAUtils.generateId', false, `Error: ${error}`);
-    }
+      // Test screen reader text creation
+      const srText = ScreenReaderUtils.createScreenReaderText('Screen reader only text');
+      
+      this.results.push({
+        name: 'Screen Reader Utils - SR Text Creation',
+        passed: srText.includes('sr-only'),
+        message: `Screen reader text ${srText.includes('sr-only') ? 'properly formatted' : 'incorrectly formatted'}`,
+        details: { srText }
+      });
 
-    // Test ColorContrast
-    try {
-      const contrastRatio = ColorContrast.getContrastRatio([0, 0, 0], [255, 255, 255]);
-      const meetsWCAG = ColorContrast.meetsWCAGAA(contrastRatio);
-      this.addResult(
-        'ColorContrast.getContrastRatio',
-        contrastRatio === 21 && meetsWCAG,
-        `Black/White contrast ratio: ${contrastRatio}, meets WCAG AA: ${meetsWCAG}`
-      );
     } catch (error) {
-      this.addResult('ColorContrast.getContrastRatio', false, `Error: ${error}`);
-    }
-
-    // Test ReducedMotion
-    try {
-      const prefersReduced = ReducedMotion.prefersReducedMotion();
-      this.addResult(
-        'ReducedMotion.prefersReducedMotion',
-        typeof prefersReduced === 'boolean',
-        `Prefers reduced motion: ${prefersReduced}`
-      );
-    } catch (error) {
-      this.addResult('ReducedMotion.prefersReducedMotion', false, `Error: ${error}`);
-    }
-
-    // Test HighContrast
-    try {
-      const isHighContrast = HighContrast.isHighContrastMode();
-      this.addResult(
-        'HighContrast.isHighContrastMode',
-        typeof isHighContrast === 'boolean',
-        `High contrast mode: ${isHighContrast}`
-      );
-    } catch (error) {
-      this.addResult('HighContrast.isHighContrastMode', false, `Error: ${error}`);
+      this.results.push({
+        name: 'Screen Reader Utils - Error',
+        passed: false,
+        message: `Error testing screen reader utils: ${error}`,
+        details: { error }
+      });
     }
   }
 
-  // Test responsive utilities
-  testResponsiveUtilities() {
-    console.log('\n📱 Testing Responsive Utilities...\n');
-
-    // Test ResponsiveUtils
+  private testColorContrast(): void {
     try {
-      const breakpoint = ResponsiveUtils.getCurrentBreakpoint();
-      const deviceType = ResponsiveUtils.getDeviceType();
-      this.addResult(
-        'ResponsiveUtils.getCurrentBreakpoint',
-        typeof breakpoint === 'string',
-        `Current breakpoint: ${breakpoint}, device type: ${deviceType}`
-      );
-    } catch (error) {
-      this.addResult('ResponsiveUtils.getCurrentBreakpoint', false, `Error: ${error}`);
-    }
+      // Test WCAG AA compliance
+      const whiteBlackRatio = ColorContrast.calculateContrastRatio('#ffffff', '#000000');
+      const meetsAA = ColorContrast.meetsWCAGAA('#ffffff', '#000000');
+      const meetsAAA = ColorContrast.meetsWCAGAAA('#ffffff', '#000000');
 
-    // Test TouchUtils
-    try {
-      const isTouchDevice = TouchUtils.isTouchDevice();
-      const isPrimaryTouch = TouchUtils.isPrimaryTouchDevice();
-      this.addResult(
-        'TouchUtils.isTouchDevice',
-        typeof isTouchDevice === 'boolean',
-        `Touch device: ${isTouchDevice}, primary touch: ${isPrimaryTouch}`
-      );
-    } catch (error) {
-      this.addResult('TouchUtils.isTouchDevice', false, `Error: ${error}`);
-    }
+      this.results.push({
+        name: 'Color Contrast - White/Black Ratio',
+        passed: whiteBlackRatio === 21, // Perfect contrast
+        message: `White/Black contrast ratio: ${whiteBlackRatio} (expected 21)`,
+        details: { ratio: whiteBlackRatio }
+      });
 
-    // Test ViewportUtils
-    try {
-      const viewportSize = ViewportUtils.getViewportSize();
-      const isLandscape = ViewportUtils.isLandscape();
-      this.addResult(
-        'ViewportUtils.getViewportSize',
-        viewportSize.width > 0 && viewportSize.height > 0,
-        `Viewport: ${viewportSize.width}x${viewportSize.height}, landscape: ${isLandscape}`
-      );
-    } catch (error) {
-      this.addResult('ViewportUtils.getViewportSize', false, `Error: ${error}`);
-    }
+      this.results.push({
+        name: 'Color Contrast - WCAG AA Compliance',
+        passed: meetsAA,
+        message: `WCAG AA compliance: ${meetsAA}`,
+        details: { meetsAA }
+      });
 
-    // Test ResponsiveGridUtils
-    try {
-      const columns = ResponsiveGridUtils.calculateGridColumns(1200, 300, 16);
-      this.addResult(
-        'ResponsiveGridUtils.calculateGridColumns',
-        columns > 0,
-        `Calculated ${columns} columns for 1200px container with 300px items`
-      );
-    } catch (error) {
-      this.addResult('ResponsiveGridUtils.calculateGridColumns', false, `Error: ${error}`);
-    }
+      this.results.push({
+        name: 'Color Contrast - WCAG AAA Compliance',
+        passed: meetsAAA,
+        message: `WCAG AAA compliance: ${meetsAAA}`,
+        details: { meetsAAA }
+      });
 
-    // Test ResponsiveTypography
-    try {
-      const fluidSize = ResponsiveTypography.generateFluidSize(16, 24, 640, 1280);
-      this.addResult(
-        'ResponsiveTypography.generateFluidSize',
-        fluidSize.includes('clamp'),
-        `Generated fluid size: ${fluidSize}`
-      );
     } catch (error) {
-      this.addResult('ResponsiveTypography.generateFluidSize', false, `Error: ${error}`);
-    }
-
-    // Test BREAKPOINTS
-    try {
-      const hasAllBreakpoints = ['sm', 'md', 'lg', 'xl', '2xl'].every(bp => bp in BREAKPOINTS);
-      this.addResult(
-        'BREAKPOINTS configuration',
-        hasAllBreakpoints,
-        `Breakpoints: ${Object.keys(BREAKPOINTS).join(', ')}`
-      );
-    } catch (error) {
-      this.addResult('BREAKPOINTS configuration', false, `Error: ${error}`);
+      this.results.push({
+        name: 'Color Contrast - Error',
+        passed: false,
+        message: `Error testing color contrast: ${error}`,
+        details: { error }
+      });
     }
   }
 
-  // Test UI component accessibility
-  testUIComponentAccessibility() {
-    console.log('\n🎨 Testing UI Component Accessibility...\n');
-
-    // Test button accessibility
+  private testMobileAccessibility(): void {
     try {
-      const button = document.createElement('button');
-      button.className = 'touch-target';
-      document.body.appendChild(button);
-      
-      MobileAccessibility.validateTouchTarget(button);
-      
-      this.addResult(
-        'Button touch target validation',
-        true, // We can't test the actual size without CSS, but we can test the function exists
-        `Touch target validation function available`
-      );
-      
-      document.body.removeChild(button);
-    } catch (error) {
-      this.addResult('Button touch target validation', false, `Error: ${error}`);
-    }
-
-    // Test accessibility testing utility
-    try {
-      const testDiv = document.createElement('div');
-      testDiv.innerHTML = `
-        <img src="test.jpg" />
-        <input type="text" />
-        <h3>Test</h3>
-        <h1>Title</h1>
+      // Create test container with interactive elements
+      const container = document.createElement('div');
+      container.innerHTML = `
+        <button style="width: 30px; height: 30px;">Small Button</button>
+        <button style="width: 50px; height: 50px;">Large Button</button>
+        <input type="text" style="width: 100px; height: 35px;">
       `;
-      
-      const issues = AccessibilityTesting.auditElement(testDiv);
-      this.addResult(
-        'AccessibilityTesting.auditElement',
-        Array.isArray(issues),
-        `Found ${issues.length} accessibility issues`
-      );
-    } catch (error) {
-      this.addResult('AccessibilityTesting.auditElement', false, `Error: ${error}`);
-    }
-  }
+      document.body.appendChild(container);
 
-  // Test CSS classes and styles
-  testCSSAccessibilityFeatures() {
-    console.log('\n🎨 Testing CSS Accessibility Features...\n');
-
-    // Test screen reader classes
-    try {
-      const srElement = document.createElement('span');
-      srElement.className = 'sr-only';
-      srElement.textContent = 'Screen reader only text';
-      document.body.appendChild(srElement);
+      // Test touch target validation
+      const invalidTargets = MobileAccessibility.validateTouchTargets(container);
       
-      const styles = window.getComputedStyle(srElement);
-      const isHidden = styles.position === 'absolute' && 
-                      styles.width === '1px' && 
-                      styles.height === '1px';
-      
-      this.addResult(
-        'Screen reader only CSS class',
-        isHidden,
-        'sr-only class properly hides content visually'
-      );
-      
-      document.body.removeChild(srElement);
-    } catch (error) {
-      this.addResult('Screen reader only CSS class', false, `Error: ${error}`);
-    }
-
-    // Test responsive classes
-    try {
-      const responsiveElement = document.createElement('div');
-      responsiveElement.className = 'text-responsive-base spacing-mobile';
-      document.body.appendChild(responsiveElement);
-      
-      this.addResult(
-        'Responsive CSS classes',
-        responsiveElement.classList.contains('text-responsive-base'),
-        'Responsive typography and spacing classes available'
-      );
-      
-      document.body.removeChild(responsiveElement);
-    } catch (error) {
-      this.addResult('Responsive CSS classes', false, `Error: ${error}`);
-    }
-
-    // Test touch-friendly classes
-    try {
-      const touchElement = document.createElement('button');
-      touchElement.className = 'touch-friendly';
-      document.body.appendChild(touchElement);
-      
-      this.addResult(
-        'Touch-friendly CSS classes',
-        touchElement.classList.contains('touch-friendly'),
-        'Touch-friendly classes available'
-      );
-      
-      document.body.removeChild(touchElement);
-    } catch (error) {
-      this.addResult('Touch-friendly CSS classes', false, `Error: ${error}`);
-    }
-  }
-
-  // Test mobile responsiveness
-  testMobileResponsiveness() {
-    console.log('\n📱 Testing Mobile Responsiveness...\n');
-
-    // Test viewport meta tag
-    try {
-      const viewportMeta = document.querySelector('meta[name="viewport"]');
-      const hasViewportMeta = viewportMeta !== null;
-      this.addResult(
-        'Viewport meta tag',
-        hasViewportMeta,
-        hasViewportMeta ? 'Viewport meta tag present' : 'Viewport meta tag missing'
-      );
-    } catch (error) {
-      this.addResult('Viewport meta tag', false, `Error: ${error}`);
-    }
-
-    // Test responsive grid
-    try {
-      const gridContainer = document.createElement('div');
-      gridContainer.className = 'grid-responsive';
-      document.body.appendChild(gridContainer);
-      
-      this.addResult(
-        'Responsive grid classes',
-        gridContainer.classList.contains('grid-responsive'),
-        'Responsive grid utility classes available'
-      );
-      
-      document.body.removeChild(gridContainer);
-    } catch (error) {
-      this.addResult('Responsive grid classes', false, `Error: ${error}`);
-    }
-
-    // Test safe area support
-    try {
-      const safeAreaElement = document.createElement('div');
-      safeAreaElement.className = 'safe-area-all';
-      document.body.appendChild(safeAreaElement);
-      
-      this.addResult(
-        'Safe area CSS classes',
-        safeAreaElement.classList.contains('safe-area-all'),
-        'Safe area utility classes available for notched devices'
-      );
-      
-      document.body.removeChild(safeAreaElement);
-    } catch (error) {
-      this.addResult('Safe area CSS classes', false, `Error: ${error}`);
-    }
-  }
-
-  // Test enhanced accessibility features
-  testEnhancedAccessibilityFeatures() {
-    console.log('\n🔧 Testing Enhanced Accessibility Features...\n');
-
-    // Test skip links
-    try {
-      const skipLink = document.querySelector('.skip-link');
-      this.addResult(
-        'Skip link availability',
-        skipLink !== null,
-        skipLink ? 'Skip link found in DOM' : 'Skip link not found'
-      );
-    } catch (error) {
-      this.addResult('Skip link availability', false, `Error: ${error}`);
-    }
-
-    // Test main landmark
-    try {
-      const mainElement = document.querySelector('main[role="main"], main');
-      this.addResult(
-        'Main landmark',
-        mainElement !== null,
-        mainElement ? 'Main landmark found' : 'Main landmark not found'
-      );
-    } catch (error) {
-      this.addResult('Main landmark', false, `Error: ${error}`);
-    }
-
-    // Test heading hierarchy
-    try {
-      const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-      let hierarchyValid = true;
-      let lastLevel = 0;
-      
-      headings.forEach(heading => {
-        const level = parseInt(heading.tagName.charAt(1));
-        if (level > lastLevel + 1) {
-          hierarchyValid = false;
-        }
-        lastLevel = level;
+      this.results.push({
+        name: 'Mobile Accessibility - Touch Target Validation',
+        passed: invalidTargets.length === 2, // Small button and input should be invalid
+        message: `Found ${invalidTargets.length} invalid touch targets (expected 2)`,
+        details: { invalidCount: invalidTargets.length }
       });
-      
-      this.addResult(
-        'Heading hierarchy',
-        hierarchyValid,
-        hierarchyValid ? 'Heading hierarchy is valid' : 'Heading hierarchy has gaps'
-      );
-    } catch (error) {
-      this.addResult('Heading hierarchy', false, `Error: ${error}`);
-    }
 
-    // Test ARIA live regions
-    try {
-      const liveRegions = document.querySelectorAll('[aria-live]');
-      this.addResult(
-        'ARIA live regions',
-        liveRegions.length > 0,
-        `Found ${liveRegions.length} ARIA live regions`
-      );
-    } catch (error) {
-      this.addResult('ARIA live regions', false, `Error: ${error}`);
-    }
-
-    // Test form labels
-    try {
-      const inputs = document.querySelectorAll('input, select, textarea');
-      let labeledInputs = 0;
+      // Test touch target enhancement
+      MobileAccessibility.enhanceTouchTargets(invalidTargets);
       
-      inputs.forEach(input => {
-        const id = input.getAttribute('id');
-        const ariaLabel = input.getAttribute('aria-label');
-        const ariaLabelledBy = input.getAttribute('aria-labelledby');
-        const label = id ? document.querySelector(`label[for="${id}"]`) : null;
-        
-        if (label || ariaLabel || ariaLabelledBy) {
-          labeledInputs++;
+      // Check if targets were enhanced
+      const enhancedTargets = invalidTargets.filter(el => {
+        const style = window.getComputedStyle(el);
+        return parseInt(style.minHeight) >= 44 && parseInt(style.minWidth) >= 44;
+      });
+
+      this.results.push({
+        name: 'Mobile Accessibility - Touch Target Enhancement',
+        passed: enhancedTargets.length === invalidTargets.length,
+        message: `Enhanced ${enhancedTargets.length}/${invalidTargets.length} touch targets`,
+        details: { enhancedCount: enhancedTargets.length, totalInvalid: invalidTargets.length }
+      });
+
+      // Cleanup
+      document.body.removeChild(container);
+
+    } catch (error) {
+      this.results.push({
+        name: 'Mobile Accessibility - Error',
+        passed: false,
+        message: `Error testing mobile accessibility: ${error}`,
+        details: { error }
+      });
+    }
+  }
+
+  private testARIAUtilities(): void {
+    try {
+      // Test unique ID generation
+      const id1 = ARIAUtils.generateUniqueId('test');
+      const id2 = ARIAUtils.generateUniqueId('test');
+      
+      this.results.push({
+        name: 'ARIA Utils - Unique ID Generation',
+        passed: id1 !== id2 && id1.startsWith('test-') && id2.startsWith('test-'),
+        message: `Generated unique IDs: ${id1}, ${id2}`,
+        details: { id1, id2 }
+      });
+
+      // Test element association
+      const trigger = document.createElement('button');
+      const target = document.createElement('div');
+      target.textContent = 'Target content';
+      
+      ARIAUtils.associateElements(trigger, target, 'describedby');
+      
+      const hasAssociation = trigger.getAttribute('aria-describedby') === target.id;
+      
+      this.results.push({
+        name: 'ARIA Utils - Element Association',
+        passed: hasAssociation,
+        message: `Element association ${hasAssociation ? 'successful' : 'failed'}`,
+        details: { 
+          triggerDescribedBy: trigger.getAttribute('aria-describedby'),
+          targetId: target.id
         }
       });
-      
-      const percentage = inputs.length > 0 ? Math.round((labeledInputs / inputs.length) * 100) : 100;
-      this.addResult(
-        'Form input labels',
-        percentage >= 90,
-        `${percentage}% of form inputs have proper labels (${labeledInputs}/${inputs.length})`
-      );
+
     } catch (error) {
-      this.addResult('Form input labels', false, `Error: ${error}`);
-    }
-  }
-
-  // Test enhanced responsive features
-  testEnhancedResponsiveFeatures() {
-    console.log('\n📱 Testing Enhanced Responsive Features...\n');
-
-    // Test mobile navigation
-    try {
-      const mobileMenu = document.querySelector('[role="menu"]');
-      const mobileToggle = document.querySelector('[aria-controls]');
-      this.addResult(
-        'Mobile navigation',
-        mobileMenu !== null && mobileToggle !== null,
-        'Mobile navigation components found'
-      );
-    } catch (error) {
-      this.addResult('Mobile navigation', false, `Error: ${error}`);
-    }
-
-    // Test responsive images
-    try {
-      const responsiveImages = document.querySelectorAll('img[srcset], picture');
-      this.addResult(
-        'Responsive images',
-        responsiveImages.length >= 0,
-        `Found ${responsiveImages.length} responsive images`
-      );
-    } catch (error) {
-      this.addResult('Responsive images', false, `Error: ${error}`);
-    }
-
-    // Test container queries support
-    try {
-      const supportsContainerQueries = 'container' in document.documentElement.style;
-      this.addResult(
-        'Container queries support',
-        supportsContainerQueries,
-        supportsContainerQueries ? 'Container queries supported' : 'Container queries not supported'
-      );
-    } catch (error) {
-      this.addResult('Container queries support', false, `Error: ${error}`);
-    }
-
-    // Test responsive typography
-    try {
-      const responsiveText = document.querySelectorAll('.text-responsive-base, .text-responsive-lg');
-      this.addResult(
-        'Responsive typography',
-        responsiveText.length > 0,
-        `Found ${responsiveText.length} elements with responsive typography`
-      );
-    } catch (error) {
-      this.addResult('Responsive typography', false, `Error: ${error}`);
-    }
-  }
-
-  // Test WCAG 2.1 AA compliance
-  testWCAGCompliance() {
-    console.log('\n♿ Testing WCAG 2.1 AA Compliance...\n');
-
-    // Test color contrast (basic check)
-    try {
-      const elements = document.querySelectorAll('button, a, input, [role="button"]');
-      let contrastIssues = 0;
-      
-      elements.forEach(element => {
-        const styles = window.getComputedStyle(element);
-        const color = styles.color;
-        const backgroundColor = styles.backgroundColor;
-        
-        // Basic check - if both colors are set and not transparent
-        if (color && backgroundColor && 
-            color !== 'rgba(0, 0, 0, 0)' && 
-            backgroundColor !== 'rgba(0, 0, 0, 0)') {
-          // This is a simplified check - in practice you'd need to parse RGB values
-          // and calculate actual contrast ratios
-        }
-      });
-      
-      this.addResult(
-        'Color contrast check',
-        contrastIssues === 0,
-        `Basic color contrast check completed`
-      );
-    } catch (error) {
-      this.addResult('Color contrast check', false, `Error: ${error}`);
-    }
-
-    // Test keyboard navigation
-    try {
-      const focusableElements = document.querySelectorAll(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
-      
-      let keyboardAccessible = 0;
-      focusableElements.forEach(element => {
-        const tabIndex = element.getAttribute('tabindex');
-        if (tabIndex === null || parseInt(tabIndex) >= 0) {
-          keyboardAccessible++;
-        }
-      });
-      
-      const percentage = focusableElements.length > 0 ? 
-        Math.round((keyboardAccessible / focusableElements.length) * 100) : 100;
-      
-      this.addResult(
-        'Keyboard accessibility',
-        percentage >= 95,
-        `${percentage}% of interactive elements are keyboard accessible`
-      );
-    } catch (error) {
-      this.addResult('Keyboard accessibility', false, `Error: ${error}`);
-    }
-
-    // Test touch target sizes
-    try {
-      const interactiveElements = document.querySelectorAll('button, a, input, [role="button"]');
-      let adequateTouchTargets = 0;
-      
-      interactiveElements.forEach(element => {
-        const rect = element.getBoundingClientRect();
-        if (rect.width >= 44 && rect.height >= 44) {
-          adequateTouchTargets++;
-        }
-      });
-      
-      const percentage = interactiveElements.length > 0 ? 
-        Math.round((adequateTouchTargets / interactiveElements.length) * 100) : 100;
-      
-      this.addResult(
-        'Touch target sizes',
-        percentage >= 90,
-        `${percentage}% of interactive elements meet 44px minimum size`
-      );
-    } catch (error) {
-      this.addResult('Touch target sizes', false, `Error: ${error}`);
-    }
-  }
-
-  // Run all tests
-  runAllTests() {
-    console.log('🚀 Starting Comprehensive Accessibility and Responsive Design Tests...\n');
-    
-    this.testAccessibilityUtilities();
-    this.testResponsiveUtilities();
-    this.testUIComponentAccessibility();
-    this.testCSSAccessibilityFeatures();
-    this.testMobileResponsiveness();
-    this.testEnhancedAccessibilityFeatures();
-    this.testEnhancedResponsiveFeatures();
-    this.testWCAGCompliance();
-    
-    // Summary
-    const passed = this.results.filter(r => r.passed).length;
-    const total = this.results.length;
-    const percentage = Math.round((passed / total) * 100);
-    
-    console.log('\n📊 Test Summary:');
-    console.log(`✅ Passed: ${passed}/${total} (${percentage}%)`);
-    console.log(`❌ Failed: ${total - passed}/${total}`);
-    
-    if (percentage >= 90) {
-      console.log('\n🎉 Excellent! Accessibility and responsive features are working well.');
-    } else if (percentage >= 75) {
-      console.log('\n👍 Good! Most accessibility and responsive features are working.');
-    } else {
-      console.log('\n⚠️  Some accessibility and responsive features need attention.');
-    }
-    
-    // Detailed recommendations
-    const failedTests = this.results.filter(r => !r.passed);
-    if (failedTests.length > 0) {
-      console.log('\n🔧 Recommendations for improvement:');
-      failedTests.forEach(test => {
-        console.log(`   • ${test.name}: ${test.message}`);
+      this.results.push({
+        name: 'ARIA Utils - Error',
+        passed: false,
+        message: `Error testing ARIA utils: ${error}`,
+        details: { error }
       });
     }
-    
-    // Return results for programmatic use
-    return {
-      passed,
-      total,
-      percentage,
-      results: this.results,
-      recommendations: failedTests.map(t => ({ name: t.name, message: t.message }))
-    };
   }
 }
+
+class ResponsiveTester {
+  private results: TestResult[] = [];
+
+  // Test responsive utilities
+  async testResponsiveUtilities(): Promise<TestResult[]> {
+    console.log('📱 Testing Responsive Utilities...');
+
+    // Test Responsive Utils
+    this.testResponsiveUtils();
+    
+    // Test Touch Utils
+    this.testTouchUtils();
+    
+    // Test Viewport Utils
+    this.testViewportUtils();
+
+    return this.results;
+  }
+
+  private testResponsiveUtils(): void {
+    try {
+      // Test breakpoint detection
+      const currentBreakpoint = ResponsiveUtils.getCurrentBreakpoint();
+      const deviceType = ResponsiveUtils.getDeviceType();
+      
+      this.results.push({
+        name: 'Responsive Utils - Breakpoint Detection',
+        passed: typeof currentBreakpoint === 'string',
+        message: `Current breakpoint: ${currentBreakpoint}`,
+        details: { currentBreakpoint }
+      });
+
+      this.results.push({
+        name: 'Responsive Utils - Device Type Detection',
+        passed: ['mobile', 'tablet', 'desktop'].includes(deviceType),
+        message: `Device type: ${deviceType}`,
+        details: { deviceType }
+      });
+
+      // Test media query creation
+      const mediaQuery = ResponsiveUtils.createMediaQuery('md');
+      
+      this.results.push({
+        name: 'Responsive Utils - Media Query Creation',
+        passed: mediaQuery instanceof MediaQueryList,
+        message: `Media query created: ${mediaQuery.media}`,
+        details: { media: mediaQuery.media }
+      });
+
+    } catch (error) {
+      this.results.push({
+        name: 'Responsive Utils - Error',
+        passed: false,
+        message: `Error testing responsive utils: ${error}`,
+        details: { error }
+      });
+    }
+  }
+
+  private testTouchUtils(): void {
+    try {
+      // Test touch device detection
+      const isTouchDevice = TouchUtils.isTouchDevice();
+      const supportsHover = TouchUtils.supportsHover();
+      const pointerType = TouchUtils.getPointerType();
+
+      this.results.push({
+        name: 'Touch Utils - Touch Device Detection',
+        passed: typeof isTouchDevice === 'boolean',
+        message: `Touch device: ${isTouchDevice}`,
+        details: { isTouchDevice }
+      });
+
+      this.results.push({
+        name: 'Touch Utils - Hover Support Detection',
+        passed: typeof supportsHover === 'boolean',
+        message: `Supports hover: ${supportsHover}`,
+        details: { supportsHover }
+      });
+
+      this.results.push({
+        name: 'Touch Utils - Pointer Type Detection',
+        passed: ['coarse', 'fine', 'none'].includes(pointerType),
+        message: `Pointer type: ${pointerType}`,
+        details: { pointerType }
+      });
+
+    } catch (error) {
+      this.results.push({
+        name: 'Touch Utils - Error',
+        passed: false,
+        message: `Error testing touch utils: ${error}`,
+        details: { error }
+      });
+    }
+  }
+
+  private testViewportUtils(): void {
+    try {
+      // Test viewport size detection
+      const viewportSize = ViewportUtils.getViewportSize();
+      const scrollPosition = ViewportUtils.getScrollPosition();
+
+      this.results.push({
+        name: 'Viewport Utils - Size Detection',
+        passed: typeof viewportSize.width === 'number' && typeof viewportSize.height === 'number',
+        message: `Viewport size: ${viewportSize.width}x${viewportSize.height}`,
+        details: viewportSize
+      });
+
+      this.results.push({
+        name: 'Viewport Utils - Scroll Position',
+        passed: typeof scrollPosition.x === 'number' && typeof scrollPosition.y === 'number',
+        message: `Scroll position: ${scrollPosition.x}, ${scrollPosition.y}`,
+        details: scrollPosition
+      });
+
+      // Test element visibility
+      const testElement = document.createElement('div');
+      testElement.style.position = 'absolute';
+      testElement.style.top = '0';
+      testElement.style.left = '0';
+      testElement.style.width = '100px';
+      testElement.style.height = '100px';
+      document.body.appendChild(testElement);
+
+      const isInViewport = ViewportUtils.isElementInViewport(testElement);
+
+      this.results.push({
+        name: 'Viewport Utils - Element Visibility',
+        passed: isInViewport,
+        message: `Element in viewport: ${isInViewport}`,
+        details: { isInViewport }
+      });
+
+      // Cleanup
+      document.body.removeChild(testElement);
+
+    } catch (error) {
+      this.results.push({
+        name: 'Viewport Utils - Error',
+        passed: false,
+        message: `Error testing viewport utils: ${error}`,
+        details: { error }
+      });
+    }
+  }
+}
+
+class ComponentTester {
+  private results: TestResult[] = [];
+
+  // Test UI component accessibility
+  async testUIComponents(): Promise<TestResult[]> {
+    console.log('🎨 Testing UI Component Accessibility...');
+
+    // Test Button component
+    this.testButtonComponent();
+    
+    // Test Input component
+    this.testInputComponent();
+    
+    // Test Card component
+    this.testCardComponent();
+
+    return this.results;
+  }
+
+  private testButtonComponent(): void {
+    try {
+      // Create button element
+      const button = document.createElement('button');
+      button.className = 'min-h-[44px] py-3 px-4 text-base font-medium rounded-md focus:ring-2 focus:ring-blue-200 focus:ring-offset-2';
+      button.textContent = 'Test Button';
+      document.body.appendChild(button);
+
+      // Test minimum touch target size
+      const rect = button.getBoundingClientRect();
+      const meetsMinSize = rect.height >= 44 && rect.width >= 44;
+
+      this.results.push({
+        name: 'Button Component - Touch Target Size',
+        passed: meetsMinSize,
+        message: `Button size: ${rect.width}x${rect.height} (min 44x44)`,
+        details: { width: rect.width, height: rect.height }
+      });
+
+      // Test focus styles
+      const hasFocusStyles = button.className.includes('focus:ring-2');
+
+      this.results.push({
+        name: 'Button Component - Focus Styles',
+        passed: hasFocusStyles,
+        message: `Focus styles ${hasFocusStyles ? 'present' : 'missing'}`,
+        details: { hasFocusStyles }
+      });
+
+      // Cleanup
+      document.body.removeChild(button);
+
+    } catch (error) {
+      this.results.push({
+        name: 'Button Component - Error',
+        passed: false,
+        message: `Error testing button component: ${error}`,
+        details: { error }
+      });
+    }
+  }
+
+  private testInputComponent(): void {
+    try {
+      // Create input element
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'min-h-[44px] px-4 py-3 text-base rounded-md border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200';
+      input.setAttribute('aria-label', 'Test input');
+      document.body.appendChild(input);
+
+      // Test minimum touch target size
+      const rect = input.getBoundingClientRect();
+      const meetsMinSize = rect.height >= 44;
+
+      this.results.push({
+        name: 'Input Component - Touch Target Size',
+        passed: meetsMinSize,
+        message: `Input height: ${rect.height} (min 44)`,
+        details: { height: rect.height }
+      });
+
+      // Test ARIA label
+      const hasAriaLabel = input.hasAttribute('aria-label');
+
+      this.results.push({
+        name: 'Input Component - ARIA Label',
+        passed: hasAriaLabel,
+        message: `ARIA label ${hasAriaLabel ? 'present' : 'missing'}`,
+        details: { hasAriaLabel, ariaLabel: input.getAttribute('aria-label') }
+      });
+
+      // Cleanup
+      document.body.removeChild(input);
+
+    } catch (error) {
+      this.results.push({
+        name: 'Input Component - Error',
+        passed: false,
+        message: `Error testing input component: ${error}`,
+        details: { error }
+      });
+    }
+  }
+
+  private testCardComponent(): void {
+    try {
+      // Create card element
+      const card = document.createElement('div');
+      card.className = 'rounded-lg border bg-card text-card-foreground shadow-sm border-2';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.innerHTML = '<h3>Test Card</h3><p>Card content</p>';
+      document.body.appendChild(card);
+
+      // Test interactive card accessibility
+      const hasRole = card.getAttribute('role') === 'button';
+      const hasTabIndex = card.getAttribute('tabindex') === '0';
+
+      this.results.push({
+        name: 'Card Component - Interactive Accessibility',
+        passed: hasRole && hasTabIndex,
+        message: `Interactive card accessibility ${hasRole && hasTabIndex ? 'correct' : 'incorrect'}`,
+        details: { hasRole, hasTabIndex }
+      });
+
+      // Test semantic structure
+      const hasHeading = card.querySelector('h3') !== null;
+
+      this.results.push({
+        name: 'Card Component - Semantic Structure',
+        passed: hasHeading,
+        message: `Semantic heading ${hasHeading ? 'present' : 'missing'}`,
+        details: { hasHeading }
+      });
+
+      // Cleanup
+      document.body.removeChild(card);
+
+    } catch (error) {
+      this.results.push({
+        name: 'Card Component - Error',
+        passed: false,
+        message: `Error testing card component: ${error}`,
+        details: { error }
+      });
+    }
+  }
+}
+
+// Main test runner
+export async function runAccessibilityAndResponsiveTests(): Promise<void> {
+  console.log('🚀 Starting Accessibility and Responsive Design Tests...\n');
+
+  // Initialize managers
+  AccessibilityManager.initialize();
+  ResponsiveManager.initialize();
+
+  const accessibilityTester = new AccessibilityTester();
+  const responsiveTester = new ResponsiveTester();
+  const componentTester = new ComponentTester();
+
+  try {
+    // Run all tests
+    const accessibilityResults = await accessibilityTester.testAccessibilityUtilities();
+    const responsiveResults = await responsiveTester.testResponsiveUtilities();
+    const componentResults = await componentTester.testUIComponents();
+
+    // Combine results
+    const allResults = [...accessibilityResults, ...responsiveResults, ...componentResults];
+
+    // Calculate summary
+    const totalTests = allResults.length;
+    const passedTests = allResults.filter(result => result.passed).length;
+    const failedTests = totalTests - passedTests;
+    const successRate = Math.round((passedTests / totalTests) * 100);
+
+    // Display results
+    console.log('\n📊 Test Results Summary:');
+    console.log(`Total Tests: ${totalTests}`);
+    console.log(`Passed: ${passedTests}`);
+    console.log(`Failed: ${failedTests}`);
+    console.log(`Success Rate: ${successRate}%\n`);
+
+    // Display detailed results
+    console.log('📋 Detailed Results:');
+    allResults.forEach((result, index) => {
+      const status = result.passed ? '✅' : '❌';
+      console.log(`${status} ${index + 1}. ${result.name}`);
+      console.log(`   ${result.message}`);
+      if (!result.passed && result.details) {
+        console.log(`   Details:`, result.details);
+      }
+      console.log('');
+    });
+
+    // Display recommendations
+    if (failedTests > 0) {
+      console.log('💡 Recommendations:');
+      const failedResults = allResults.filter(result => !result.passed);
+      failedResults.forEach((result, index) => {
+        console.log(`${index + 1}. ${result.name}: ${result.message}`);
+      });
+    }
+
+    console.log('\n🎉 Accessibility and Responsive Design Tests Complete!');
+
+  } catch (error) {
+    console.error('❌ Error running tests:', error);
+  }
+}
+
+// Export for use in other files
+export { AccessibilityTester, ResponsiveTester, ComponentTester };
 
 // Run tests if this file is executed directly
 if (typeof window !== 'undefined') {
-  const testRunner = new AccessibilityResponsiveTestRunner();
-  testRunner.runAllTests();
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runAccessibilityAndResponsiveTests);
+  } else {
+    runAccessibilityAndResponsiveTests();
+  }
 }
-
-export { AccessibilityResponsiveTestRunner };

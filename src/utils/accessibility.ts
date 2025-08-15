@@ -1,9 +1,10 @@
 /**
  * Accessibility utilities for WCAG 2.1 AA compliance
- * Provides comprehensive accessibility features for the Zuno learning platform
+ * Provides comprehensive accessibility features including focus management,
+ * screen reader support, keyboard navigation, and ARIA utilities
  */
 
-// Focus management utilities
+// Focus Management
 export class FocusManager {
   private static focusableSelectors = [
     'a[href]',
@@ -12,19 +13,29 @@ export class FocusManager {
     'select:not([disabled])',
     'textarea:not([disabled])',
     '[tabindex]:not([tabindex="-1"])',
-    '[contenteditable="true"]'
+    '[contenteditable="true"]',
+    'audio[controls]',
+    'video[controls]',
+    'details > summary',
+    '[role="button"]:not([aria-disabled="true"])',
+    '[role="tab"]:not([aria-disabled="true"])',
+    '[role="menuitem"]:not([aria-disabled="true"])',
+    '[role="option"]:not([aria-disabled="true"])'
   ].join(', ');
 
-  /**
-   * Get all focusable elements within a container
-   */
   static getFocusableElements(container: HTMLElement): HTMLElement[] {
-    return Array.from(container.querySelectorAll(this.focusableSelectors));
+    return Array.from(container.querySelectorAll(this.focusableSelectors))
+      .filter(el => this.isVisible(el)) as HTMLElement[];
   }
 
-  /**
-   * Trap focus within a container (for modals, dialogs)
-   */
+  static isVisible(element: Element): boolean {
+    const style = window.getComputedStyle(element);
+    return style.display !== 'none' && 
+           style.visibility !== 'hidden' && 
+           style.opacity !== '0' &&
+           (element as HTMLElement).offsetParent !== null;
+  }
+
   static trapFocus(container: HTMLElement): () => void {
     const focusableElements = this.getFocusableElements(container);
     const firstElement = focusableElements[0];
@@ -49,499 +60,403 @@ export class FocusManager {
     container.addEventListener('keydown', handleTabKey);
     firstElement?.focus();
 
-    // Return cleanup function
     return () => {
       container.removeEventListener('keydown', handleTabKey);
     };
   }
 
-  /**
-   * Restore focus to previously focused element
-   */
-  static restoreFocus(element: HTMLElement | null) {
-    if (element && typeof element.focus === 'function') {
-      element.focus();
+  static restoreFocus(previousElement: HTMLElement | null): void {
+    if (previousElement && this.isVisible(previousElement)) {
+      previousElement.focus();
     }
   }
 }
 
-// Screen reader utilities
+// Screen Reader Utilities
 export class ScreenReaderUtils {
-  /**
-   * Announce text to screen readers
-   */
-  static announce(message: string, priority: 'polite' | 'assertive' = 'polite') {
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.textContent = message;
+  private static liveRegion: HTMLElement | null = null;
 
-    document.body.appendChild(announcer);
+  static announce(message: string, priority: 'polite' | 'assertive' = 'polite'): void {
+    if (!this.liveRegion) {
+      this.createLiveRegion();
+    }
 
-    // Remove after announcement
-    setTimeout(() => {
-      document.body.removeChild(announcer);
-    }, 1000);
+    if (this.liveRegion) {
+      this.liveRegion.setAttribute('aria-live', priority);
+      this.liveRegion.textContent = message;
+      
+      // Clear after announcement to allow repeated messages
+      setTimeout(() => {
+        if (this.liveRegion) {
+          this.liveRegion.textContent = '';
+        }
+      }, 1000);
+    }
   }
 
-  /**
-   * Create screen reader only text
-   */
-  static createScreenReaderText(text: string): HTMLSpanElement {
-    const span = document.createElement('span');
-    span.className = 'sr-only';
-    span.textContent = text;
-    return span;
+  private static createLiveRegion(): void {
+    this.liveRegion = document.createElement('div');
+    this.liveRegion.setAttribute('aria-live', 'polite');
+    this.liveRegion.setAttribute('aria-atomic', 'true');
+    this.liveRegion.className = 'sr-only';
+    document.body.appendChild(this.liveRegion);
+  }
+
+  static createScreenReaderText(text: string): string {
+    return `<span class="sr-only">${text}</span>`;
+  }
+
+  static removeScreenReaderText(element: HTMLElement): void {
+    const srElements = element.querySelectorAll('.sr-only');
+    srElements.forEach(el => el.remove());
   }
 }
 
-// Keyboard navigation utilities
+// Keyboard Navigation
 export class KeyboardNavigation {
-  /**
-   * Handle arrow key navigation for lists
-   */
   static handleArrowNavigation(
     event: KeyboardEvent,
-    items: HTMLElement[],
+    elements: HTMLElement[],
     currentIndex: number,
-    orientation: 'vertical' | 'horizontal' = 'vertical'
+    orientation: 'horizontal' | 'vertical' | 'grid' = 'vertical'
   ): number {
     const { key } = event;
     let newIndex = currentIndex;
 
-    if (orientation === 'vertical') {
-      if (key === 'ArrowDown') {
-        newIndex = (currentIndex + 1) % items.length;
-      } else if (key === 'ArrowUp') {
-        newIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1;
-      }
-    } else {
-      if (key === 'ArrowRight') {
-        newIndex = (currentIndex + 1) % items.length;
-      } else if (key === 'ArrowLeft') {
-        newIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1;
-      }
-    }
+    switch (orientation) {
+      case 'horizontal':
+        if (key === 'ArrowLeft') {
+          newIndex = currentIndex > 0 ? currentIndex - 1 : elements.length - 1;
+        } else if (key === 'ArrowRight') {
+          newIndex = currentIndex < elements.length - 1 ? currentIndex + 1 : 0;
+        }
+        break;
 
-    if (key === 'Home') {
-      newIndex = 0;
-    } else if (key === 'End') {
-      newIndex = items.length - 1;
+      case 'vertical':
+        if (key === 'ArrowUp') {
+          newIndex = currentIndex > 0 ? currentIndex - 1 : elements.length - 1;
+        } else if (key === 'ArrowDown') {
+          newIndex = currentIndex < elements.length - 1 ? currentIndex + 1 : 0;
+        }
+        break;
+
+      case 'grid':
+        // Grid navigation requires additional parameters (columns, rows)
+        // This is a simplified version
+        if (key === 'ArrowUp' && currentIndex > 0) {
+          newIndex = Math.max(0, currentIndex - 1);
+        } else if (key === 'ArrowDown' && currentIndex < elements.length - 1) {
+          newIndex = Math.min(elements.length - 1, currentIndex + 1);
+        } else if (key === 'ArrowLeft' && currentIndex > 0) {
+          newIndex = currentIndex - 1;
+        } else if (key === 'ArrowRight' && currentIndex < elements.length - 1) {
+          newIndex = currentIndex + 1;
+        }
+        break;
     }
 
     if (newIndex !== currentIndex) {
       event.preventDefault();
-      items[newIndex]?.focus();
+      elements[newIndex]?.focus();
     }
 
     return newIndex;
   }
 
-  /**
-   * Make an element keyboard accessible
-   */
-  static makeKeyboardAccessible(
-    element: HTMLElement,
-    onClick: () => void,
-    role: string = 'button'
-  ) {
-    element.setAttribute('role', role);
-    element.setAttribute('tabindex', '0');
+  static handleHomeEnd(
+    event: KeyboardEvent,
+    elements: HTMLElement[],
+    currentIndex: number
+  ): number {
+    const { key } = event;
+    let newIndex = currentIndex;
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+    if (key === 'Home') {
+      newIndex = 0;
+      event.preventDefault();
+    } else if (key === 'End') {
+      newIndex = elements.length - 1;
+      event.preventDefault();
+    }
+
+    if (newIndex !== currentIndex) {
+      elements[newIndex]?.focus();
+    }
+
+    return newIndex;
+  }
+
+  static makeKeyboardAccessible(element: HTMLElement, onClick: () => void): void {
+    element.setAttribute('tabindex', '0');
+    element.setAttribute('role', 'button');
+    
+    element.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         onClick();
       }
-    };
-
-    element.addEventListener('keydown', handleKeyDown);
-
-    // Return cleanup function
-    return () => {
-      element.removeEventListener('keydown', handleKeyDown);
-    };
+    });
   }
 }
 
-// ARIA utilities
+// ARIA Utilities
 export class ARIAUtils {
-  /**
-   * Generate unique ID for ARIA relationships
-   */
-  static generateId(prefix: string = 'aria'): string {
-    return `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
+  private static idCounter = 0;
+
+  static generateUniqueId(prefix: string = 'aria'): string {
+    return `${prefix}-${++this.idCounter}-${Date.now()}`;
   }
 
-  /**
-   * Set up ARIA relationships between elements
-   */
-  static setupARIARelationship(
+  static associateElements(
     trigger: HTMLElement,
     target: HTMLElement,
-    relationship: 'describedby' | 'labelledby' | 'controls'
-  ) {
-    const id = target.id || this.generateId();
-    target.id = id;
-    trigger.setAttribute(`aria-${relationship}`, id);
+    relationship: 'describedby' | 'labelledby' | 'controls' | 'owns'
+  ): void {
+    if (!target.id) {
+      target.id = this.generateUniqueId();
+    }
+
+    const existingIds = trigger.getAttribute(`aria-${relationship}`)?.split(' ') || [];
+    if (!existingIds.includes(target.id)) {
+      existingIds.push(target.id);
+      trigger.setAttribute(`aria-${relationship}`, existingIds.join(' '));
+    }
   }
 
-  /**
-   * Update ARIA live region
-   */
-  static updateLiveRegion(regionId: string, message: string) {
-    const region = document.getElementById(regionId);
-    if (region) {
-      region.textContent = message;
+  static updateLiveRegion(element: HTMLElement, message: string, priority: 'polite' | 'assertive' = 'polite'): void {
+    element.setAttribute('aria-live', priority);
+    element.setAttribute('aria-atomic', 'true');
+    element.textContent = message;
+  }
+
+  static setExpanded(element: HTMLElement, expanded: boolean): void {
+    element.setAttribute('aria-expanded', expanded.toString());
+  }
+
+  static setSelected(element: HTMLElement, selected: boolean): void {
+    element.setAttribute('aria-selected', selected.toString());
+  }
+
+  static setChecked(element: HTMLElement, checked: boolean | 'mixed'): void {
+    element.setAttribute('aria-checked', checked.toString());
+  }
+
+  static setDisabled(element: HTMLElement, disabled: boolean): void {
+    element.setAttribute('aria-disabled', disabled.toString());
+    if (disabled) {
+      element.setAttribute('tabindex', '-1');
+    } else {
+      element.removeAttribute('tabindex');
     }
   }
 }
 
-// Color contrast utilities
+// Color Contrast Utilities
 export class ColorContrast {
-  /**
-   * Calculate relative luminance of a color
-   */
-  static getRelativeLuminance(r: number, g: number, b: number): number {
-    const [rs, gs, bs] = [r, g, b].map(c => {
-      c = c / 255;
-      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-    });
-    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
-  }
-
-  /**
-   * Calculate contrast ratio between two colors
-   */
-  static getContrastRatio(color1: [number, number, number], color2: [number, number, number]): number {
-    const l1 = this.getRelativeLuminance(...color1);
-    const l2 = this.getRelativeLuminance(...color2);
-    const lighter = Math.max(l1, l2);
-    const darker = Math.min(l1, l2);
+  static calculateContrastRatio(color1: string, color2: string): number {
+    const luminance1 = this.getLuminance(color1);
+    const luminance2 = this.getLuminance(color2);
+    
+    const lighter = Math.max(luminance1, luminance2);
+    const darker = Math.min(luminance1, luminance2);
+    
     return (lighter + 0.05) / (darker + 0.05);
   }
 
-  /**
-   * Check if contrast ratio meets WCAG AA standards
-   */
-  static meetsWCAGAA(contrastRatio: number, isLargeText: boolean = false): boolean {
-    return contrastRatio >= (isLargeText ? 3 : 4.5);
+  private static getLuminance(color: string): number {
+    const rgb = this.hexToRgb(color);
+    if (!rgb) return 0;
+
+    const [r, g, b] = [rgb.r, rgb.g, rgb.b].map(c => {
+      c = c / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+
+  private static hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  }
+
+  static meetsWCAGAA(foreground: string, background: string): boolean {
+    return this.calculateContrastRatio(foreground, background) >= 4.5;
+  }
+
+  static meetsWCAGAAA(foreground: string, background: string): boolean {
+    return this.calculateContrastRatio(foreground, background) >= 7;
   }
 }
 
-// Mobile accessibility utilities
+// Mobile Accessibility
 export class MobileAccessibility {
-  /**
-   * Check if touch target meets minimum size requirements (44px)
-   */
-  static validateTouchTarget(element: HTMLElement): boolean {
-    const rect = element.getBoundingClientRect();
-    return rect.width >= 44 && rect.height >= 44;
+  static validateTouchTargets(container: HTMLElement): HTMLElement[] {
+    const interactiveElements = container.querySelectorAll(
+      'button, a, input, select, textarea, [role="button"], [role="tab"], [role="menuitem"]'
+    );
+
+    const invalidElements: HTMLElement[] = [];
+
+    interactiveElements.forEach(element => {
+      const rect = element.getBoundingClientRect();
+      const minSize = 44; // WCAG 2.5.5 minimum touch target size
+
+      if (rect.width < minSize || rect.height < minSize) {
+        invalidElements.push(element as HTMLElement);
+      }
+    });
+
+    return invalidElements;
   }
 
-  /**
-   * Add touch-friendly attributes to an element
-   */
-  static makeTouchFriendly(element: HTMLElement) {
-    element.style.minHeight = '44px';
-    element.style.minWidth = '44px';
-    element.style.touchAction = 'manipulation';
+  static enhanceTouchTargets(elements: HTMLElement[]): void {
+    elements.forEach(element => {
+      element.style.minHeight = '44px';
+      element.style.minWidth = '44px';
+      element.style.touchAction = 'manipulation';
+    });
+  }
+
+  static preventZoomOnFocus(): void {
+    // Prevent iOS zoom on input focus by ensuring font-size is at least 16px
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      const element = input as HTMLElement;
+      const computedStyle = window.getComputedStyle(element);
+      const fontSize = parseFloat(computedStyle.fontSize);
+      
+      if (fontSize < 16) {
+        element.style.fontSize = '16px';
+      }
+    });
   }
 }
 
-// Reduced motion utilities
+// Reduced Motion Support
 export class ReducedMotion {
-  /**
-   * Check if user prefers reduced motion
-   */
   static prefersReducedMotion(): boolean {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
-  /**
-   * Apply reduced motion styles conditionally
-   */
-  static applyReducedMotion(element: HTMLElement, animations: Record<string, string>) {
+  static respectMotionPreferences(): void {
     if (this.prefersReducedMotion()) {
-      Object.entries(animations).forEach(([property, value]) => {
-        element.style.setProperty(property, value);
-      });
+      document.documentElement.style.setProperty('--animation-duration', '0.01ms');
+      document.documentElement.style.setProperty('--transition-duration', '0.01ms');
     }
+  }
+
+  static addReducedMotionCSS(): void {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
   }
 }
 
-// High contrast mode detection
+// High Contrast Mode Detection
 export class HighContrast {
-  /**
-   * Check if high contrast mode is enabled
-   */
-  static isHighContrastMode(): boolean {
+  static prefersHighContrast(): boolean {
     return window.matchMedia('(prefers-contrast: high)').matches;
   }
 
-  /**
-   * Apply high contrast styles
-   */
-  static applyHighContrastStyles(element: HTMLElement) {
-    if (this.isHighContrastMode()) {
-      element.style.border = '2px solid';
-      element.style.outline = '1px solid';
+  static enhanceForHighContrast(): void {
+    if (this.prefersHighContrast()) {
+      document.documentElement.classList.add('high-contrast');
+      
+      // Add high contrast styles
+      const style = document.createElement('style');
+      style.textContent = `
+        .high-contrast button,
+        .high-contrast input,
+        .high-contrast select,
+        .high-contrast textarea,
+        .high-contrast .card {
+          border: 2px solid !important;
+          outline: 1px solid !important;
+        }
+      `;
+      document.head.appendChild(style);
     }
   }
 }
 
-// Accessibility testing utilities
-export class AccessibilityTesting {
-  /**
-   * Check for common accessibility issues
-   */
-  static auditElement(element: HTMLElement): string[] {
-    const issues: string[] = [];
+// Comprehensive Accessibility Manager
+export class AccessibilityManager {
+  static initialize(): void {
+    // Initialize all accessibility features
+    ReducedMotion.respectMotionPreferences();
+    ReducedMotion.addReducedMotionCSS();
+    HighContrast.enhanceForHighContrast();
+    MobileAccessibility.preventZoomOnFocus();
+    
+    // Add skip link if not present
+    this.addSkipLink();
+    
+    // Monitor for dynamic content changes
+    this.observeContentChanges();
+  }
 
-    // Check for missing alt text on images
-    const images = element.querySelectorAll('img');
-    images.forEach(img => {
-      if (!img.getAttribute('alt')) {
-        issues.push(`Image missing alt text: ${img.src}`);
-      }
+  private static addSkipLink(): void {
+    if (document.querySelector('.skip-link')) return;
+
+    const skipLink = document.createElement('a');
+    skipLink.href = '#main-content';
+    skipLink.className = 'skip-link';
+    skipLink.textContent = 'Skip to main content';
+    
+    document.body.insertBefore(skipLink, document.body.firstChild);
+  }
+
+  private static observeContentChanges(): void {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as HTMLElement;
+              
+              // Validate touch targets for new mobile elements
+              const invalidTargets = MobileAccessibility.validateTouchTargets(element);
+              if (invalidTargets.length > 0) {
+                MobileAccessibility.enhanceTouchTargets(invalidTargets);
+              }
+              
+              // Prevent zoom on new input elements
+              MobileAccessibility.preventZoomOnFocus();
+            }
+          });
+        }
+      });
     });
 
-    // Check for missing form labels
-    const inputs = element.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-      const id = input.getAttribute('id');
-      const ariaLabel = input.getAttribute('aria-label');
-      const ariaLabelledBy = input.getAttribute('aria-labelledby');
-      
-      if (id) {
-        const label = element.querySelector(`label[for="${id}"]`);
-        if (!label && !ariaLabel && !ariaLabelledBy) {
-          issues.push(`Form control missing label: ${input.tagName}`);
-        }
-      }
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
     });
-
-    // Check for proper heading hierarchy
-    const headings = Array.from(element.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-    let lastLevel = 0;
-    headings.forEach(heading => {
-      const level = parseInt(heading.tagName.charAt(1));
-      if (level > lastLevel + 1) {
-        issues.push(`Heading hierarchy skip: ${heading.tagName} after h${lastLevel}`);
-      }
-      lastLevel = level;
-    });
-
-    return issues;
-  }
-}
-
-// Enhanced accessibility form utilities
-export class AccessibleFormUtils {
-  /**
-   * Create accessible form validation with live regions
-   */
-  static createFormValidation(form: HTMLFormElement): {
-    validateField: (field: HTMLElement, isValid: boolean, message?: string) => void;
-    clearValidation: (field: HTMLElement) => void;
-    announceErrors: (errors: string[]) => void;
-  } {
-    // Create or get error summary region
-    let errorSummary = form.querySelector('[role="alert"]') as HTMLElement;
-    if (!errorSummary) {
-      errorSummary = document.createElement('div');
-      errorSummary.setAttribute('role', 'alert');
-      errorSummary.setAttribute('aria-live', 'assertive');
-      errorSummary.className = 'sr-only';
-      form.insertBefore(errorSummary, form.firstChild);
-    }
-
-    return {
-      validateField: (field: HTMLElement, isValid: boolean, message?: string) => {
-        field.setAttribute('aria-invalid', isValid ? 'false' : 'true');
-        
-        if (!isValid && message) {
-          const errorId = `${field.id || ARIAUtils.generateId('field')}-error`;
-          let errorElement = document.getElementById(errorId);
-          
-          if (!errorElement) {
-            errorElement = document.createElement('div');
-            errorElement.id = errorId;
-            errorElement.className = 'text-sm text-destructive mt-1';
-            errorElement.setAttribute('role', 'alert');
-            field.parentNode?.insertBefore(errorElement, field.nextSibling);
-          }
-          
-          errorElement.textContent = message;
-          field.setAttribute('aria-describedby', errorId);
-        } else {
-          const errorId = field.getAttribute('aria-describedby');
-          if (errorId) {
-            const errorElement = document.getElementById(errorId);
-            errorElement?.remove();
-            field.removeAttribute('aria-describedby');
-          }
-        }
-      },
-      
-      clearValidation: (field: HTMLElement) => {
-        field.setAttribute('aria-invalid', 'false');
-        const errorId = field.getAttribute('aria-describedby');
-        if (errorId) {
-          const errorElement = document.getElementById(errorId);
-          errorElement?.remove();
-          field.removeAttribute('aria-describedby');
-        }
-      },
-      
-      announceErrors: (errors: string[]) => {
-        if (errors.length > 0) {
-          errorSummary.textContent = `Form has ${errors.length} error${errors.length > 1 ? 's' : ''}: ${errors.join(', ')}`;
-        } else {
-          errorSummary.textContent = '';
-        }
-      }
-    };
   }
 
-  /**
-   * Create accessible required field indicators
-   */
-  static markRequiredField(field: HTMLElement, label?: HTMLElement) {
-    field.setAttribute('required', '');
-    field.setAttribute('aria-required', 'true');
-    
-    if (label) {
-      const requiredIndicator = document.createElement('span');
-      requiredIndicator.textContent = ' *';
-      requiredIndicator.className = 'text-destructive';
-      requiredIndicator.setAttribute('aria-label', 'required');
-      label.appendChild(requiredIndicator);
+  static cleanup(): void {
+    // Cleanup function for when component unmounts
+    const liveRegion = document.querySelector('[aria-live]');
+    if (liveRegion) {
+      liveRegion.remove();
     }
   }
 }
 
-// Enhanced loading state utilities
-export class AccessibleLoadingUtils {
-  /**
-   * Create accessible loading indicator
-   */
-  static createLoadingIndicator(container: HTMLElement, message: string = 'Loading...'): {
-    show: () => void;
-    hide: () => void;
-    updateMessage: (newMessage: string) => void;
-  } {
-    const loadingId = ARIAUtils.generateId('loading');
-    let loadingElement = document.getElementById(loadingId);
-    
-    if (!loadingElement) {
-      loadingElement = document.createElement('div');
-      loadingElement.id = loadingId;
-      loadingElement.setAttribute('role', 'status');
-      loadingElement.setAttribute('aria-live', 'polite');
-      loadingElement.className = 'sr-only';
-      container.appendChild(loadingElement);
-    }
-
-    return {
-      show: () => {
-        container.setAttribute('aria-busy', 'true');
-        loadingElement!.textContent = message;
-      },
-      hide: () => {
-        container.setAttribute('aria-busy', 'false');
-        loadingElement!.textContent = '';
-      },
-      updateMessage: (newMessage: string) => {
-        loadingElement!.textContent = newMessage;
-      }
-    };
-  }
-}
-
-// Enhanced modal/dialog utilities
-export class AccessibleModalUtils {
-  /**
-   * Create accessible modal with proper focus management
-   */
-  static createModal(modalElement: HTMLElement, triggerElement?: HTMLElement): {
-    open: () => void;
-    close: () => void;
-    cleanup: () => void;
-  } {
-    let previousFocus: HTMLElement | null = null;
-    let focusTrapCleanup: (() => void) | null = null;
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        close();
-      }
-    };
-
-    const open = () => {
-      previousFocus = document.activeElement as HTMLElement;
-      modalElement.setAttribute('aria-hidden', 'false');
-      modalElement.style.display = 'block';
-      
-      // Set up focus trap
-      focusTrapCleanup = FocusManager.trapFocus(modalElement);
-      
-      // Add escape key listener
-      document.addEventListener('keydown', handleEscape);
-      
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden';
-      
-      // Announce modal opening
-      ScreenReaderUtils.announce('Dialog opened', 'assertive');
-    };
-
-    const close = () => {
-      modalElement.setAttribute('aria-hidden', 'true');
-      modalElement.style.display = 'none';
-      
-      // Clean up focus trap
-      if (focusTrapCleanup) {
-        focusTrapCleanup();
-        focusTrapCleanup = null;
-      }
-      
-      // Remove escape key listener
-      document.removeEventListener('keydown', handleEscape);
-      
-      // Restore body scroll
-      document.body.style.overflow = '';
-      
-      // Restore focus
-      if (previousFocus) {
-        FocusManager.restoreFocus(previousFocus);
-      }
-      
-      // Announce modal closing
-      ScreenReaderUtils.announce('Dialog closed', 'assertive');
-    };
-
-    const cleanup = () => {
-      close();
-      document.removeEventListener('keydown', handleEscape);
-    };
-
-    // Set up modal attributes
-    modalElement.setAttribute('role', 'dialog');
-    modalElement.setAttribute('aria-modal', 'true');
-    modalElement.setAttribute('aria-hidden', 'true');
-    
-    // Set up trigger if provided
-    if (triggerElement) {
-      const modalId = modalElement.id || ARIAUtils.generateId('modal');
-      modalElement.id = modalId;
-      triggerElement.setAttribute('aria-controls', modalId);
-      triggerElement.addEventListener('click', open);
-    }
-
-    return { open, close, cleanup };
-  }
-}
-
-// All utilities are exported individually above
+// All utilities are already exported individually above

@@ -29,13 +29,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         className={cn(
           "flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           // Mobile-friendly sizing and touch support
-          "min-h-[44px] touch-manipulation",
+          "min-h-[44px] px-4 py-3 text-base rounded-md touch-manipulation",
           // Error state styling
           error && "border-destructive focus-visible:ring-destructive border-2",
           // High contrast mode support
           "border-2 border-gray-200 focus:border-blue-500",
           // Enhanced focus and hover states
-          "hover:border-gray-300 focus:ring-2 focus:ring-blue-200",
+          "hover:border-gray-300 focus:ring-2 focus:ring-blue-200 transition-all duration-200",
           className
         )}
         ref={ref}

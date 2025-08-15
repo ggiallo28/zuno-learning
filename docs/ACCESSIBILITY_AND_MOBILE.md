@@ -1,579 +1,440 @@
-# Accessibility and Mobile Responsiveness Guide
+# Accessibility and Mobile Responsiveness Implementation
 
 ## Overview
 
-This document provides comprehensive guidance on the accessibility and mobile responsiveness features implemented in the Zuno learning platform. The implementation follows WCAG 2.1 AA standards and mobile-first design principles to ensure an inclusive and optimal user experience across all devices and abilities.
+This document outlines the comprehensive accessibility and mobile responsiveness enhancements implemented for the Zuno learning platform. The implementation follows WCAG 2.1 AA guidelines and mobile-first responsive design principles.
 
 ## Table of Contents
 
 1. [Accessibility Features](#accessibility-features)
 2. [Mobile Responsiveness](#mobile-responsiveness)
-3. [Implementation Guide](#implementation-guide)
-4. [Testing and Validation](#testing-and-validation)
-5. [Best Practices](#best-practices)
-6. [Troubleshooting](#troubleshooting)
+3. [Implementation Details](#implementation-details)
+4. [Testing and Verification](#testing-and-verification)
+5. [Usage Guidelines](#usage-guidelines)
+6. [Browser Compatibility](#browser-compatibility)
 
 ## Accessibility Features
 
 ### WCAG 2.1 AA Compliance
 
-Our implementation meets WCAG 2.1 AA standards across four main principles:
+The implementation ensures compliance with Web Content Accessibility Guidelines (WCAG) 2.1 Level AA standards:
 
 #### 1. Perceivable
 - **Color Contrast**: Minimum 4.5:1 contrast ratio for normal text, 3:1 for large text
-- **Alternative Text**: All images have descriptive alt text
-- **Responsive Text**: Text scales up to 200% without loss of functionality
-- **Visual Focus Indicators**: Clear 2px outline with offset for all interactive elements
+- **Text Alternatives**: Comprehensive alt text for images and icons
+- **Adaptable Content**: Semantic HTML structure with proper heading hierarchy
+- **Distinguishable**: Content can be distinguished from background
 
 #### 2. Operable
-- **Keyboard Navigation**: All functionality available via keyboard
-- **Touch Targets**: Minimum 44px touch targets for mobile devices
-- **No Seizures**: No content flashes more than 3 times per second
-- **Skip Links**: "Skip to main content" link for screen reader users
+- **Keyboard Accessible**: Full keyboard navigation support
+- **No Seizures**: No content that causes seizures or physical reactions
+- **Navigable**: Multiple ways to locate content, clear navigation
+- **Input Modalities**: Support for various input methods
 
 #### 3. Understandable
-- **Semantic HTML**: Proper heading hierarchy (h1-h6)
-- **Form Labels**: All form controls have associated labels
-- **Error Messages**: Clear, specific error messages with suggestions
-- **Consistent Navigation**: Predictable navigation patterns
+- **Readable**: Content is readable and understandable
+- **Predictable**: Web pages appear and operate in predictable ways
+- **Input Assistance**: Help users avoid and correct mistakes
 
 #### 4. Robust
-- **Valid HTML**: Clean, semantic markup
-- **ARIA Support**: Comprehensive ARIA labels and roles
-- **Screen Reader Compatible**: Works with NVDA, JAWS, VoiceOver
-- **Progressive Enhancement**: Works without JavaScript
+- **Compatible**: Content works with assistive technologies
+- **Future-proof**: Uses standard, semantic markup
 
-### Key Accessibility Utilities
+### Key Accessibility Features Implemented
 
 #### Focus Management
 ```typescript
-import { FocusManager } from '@/utils/accessibility';
+// Focus trap for modals and dialogs
+const focusTrapRef = useFocusTrap(isModalOpen);
 
-// Trap focus in modals
-const cleanup = FocusManager.trapFocus(modalElement);
-
-// Get focusable elements
-const focusableElements = FocusManager.getFocusableElements(container);
-
-// Restore focus
-FocusManager.restoreFocus(previousElement);
+// Keyboard navigation for lists
+const { currentIndex, focusItem } = useKeyboardNavigation(items, 'vertical');
 ```
 
 #### Screen Reader Support
 ```typescript
-import { ScreenReaderUtils } from '@/utils/accessibility';
+// Live announcements
+const { announce } = useScreenReader();
+announce('Form submitted successfully', 'polite');
 
-// Announce to screen readers
-ScreenReaderUtils.announce('Form submitted successfully', 'polite');
-
-// Create screen reader only text
-const srText = ScreenReaderUtils.createScreenReaderText('Required field');
+// Screen reader only text
+<span className="sr-only">Additional context for screen readers</span>
 ```
 
-#### Keyboard Navigation
+#### ARIA Implementation
 ```typescript
-import { KeyboardNavigation } from '@/utils/accessibility';
+// Proper ARIA attributes
+const { generateId, associateElements } = useARIA();
+const errorId = generateId('error');
 
-// Handle arrow key navigation
-const newIndex = KeyboardNavigation.handleArrowNavigation(
-  event, items, currentIndex, 'vertical'
-);
-
-// Make element keyboard accessible
-const cleanup = KeyboardNavigation.makeKeyboardAccessible(
-  element, onClick, 'button'
-);
+<input aria-describedby={errorId} aria-invalid={hasError} />
+<div id={errorId} role="alert">{errorMessage}</div>
 ```
 
-### Accessibility Hooks
+#### Touch Target Compliance
+- Minimum 44px touch targets (WCAG 2.5.5)
+- Adequate spacing between interactive elements
+- Touch-friendly padding and margins
 
-#### Focus Trap Hook
+## Mobile Responsiveness
+
+### Mobile-First Approach
+
+The implementation follows a mobile-first responsive design strategy:
+
+1. **Base styles** designed for mobile devices (320px+)
+2. **Progressive enhancement** for larger screens
+3. **Breakpoint-based** adaptations using Tailwind CSS conventions
+
+### Responsive Breakpoints
+
 ```typescript
-import { useFocusTrap } from '@/hooks/useAccessibility';
+const BREAKPOINTS = {
+  xs: 0,      // Mobile portrait
+  sm: 640,    // Mobile landscape
+  md: 768,    // Tablet portrait
+  lg: 1024,   // Tablet landscape / Small desktop
+  xl: 1280,   // Desktop
+  '2xl': 1536 // Large desktop
+};
+```
 
-function Modal({ isOpen }) {
-  const containerRef = useFocusTrap(isOpen);
-  
+### Key Mobile Features
+
+#### Touch-Friendly Design
+- 44px minimum touch targets
+- Adequate spacing between interactive elements
+- Touch gesture support (swipe, tap, long press)
+- Prevent zoom on input focus (iOS)
+
+#### Responsive Typography
+```css
+.text-responsive-base {
+  font-size: clamp(1rem, 3vw, 1.125rem);
+}
+```
+
+#### Safe Area Support
+```css
+.safe-area-top {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+```
+
+#### Mobile Navigation
+- Collapsible mobile menu
+- Touch-friendly navigation elements
+- Swipe gesture support
+- Proper focus management
+
+## Implementation Details
+
+### File Structure
+
+```
+src/
+├── utils/
+│   ├── accessibility.ts      # Accessibility utilities
+│   └── responsive.ts         # Responsive design utilities
+├── hooks/
+│   ├── useAccessibility.ts   # Accessibility React hooks
+│   └── useResponsive.ts      # Responsive React hooks
+├── components/ui/
+│   ├── button.tsx           # Enhanced button component
+│   ├── input.tsx            # Enhanced input component
+│   └── card.tsx             # Enhanced card component
+├── app/
+│   ├── globals.css          # Global accessibility styles
+│   └── app.tsx              # Accessibility initialization
+└── scripts/
+    └── testAccessibilityAndResponsive.ts  # Test suite
+```
+
+### Core Utilities
+
+#### AccessibilityManager
+Centralized accessibility management:
+- Focus management
+- Screen reader support
+- ARIA utilities
+- Color contrast validation
+- Mobile accessibility features
+
+#### ResponsiveManager
+Comprehensive responsive design management:
+- Breakpoint detection
+- Device type identification
+- Touch support detection
+- Viewport management
+- Orientation handling
+
+### React Hooks
+
+#### Accessibility Hooks
+```typescript
+// Focus management
+const focusTrapRef = useFocusTrap(isActive);
+
+// Screen reader announcements
+const { announce } = useScreenReader();
+
+// Form accessibility
+const { getFieldProps, getErrorProps } = useAccessibleForm();
+
+// Loading states
+const { getLoadingProps } = useAccessibleLoading(isLoading);
+```
+
+#### Responsive Hooks
+```typescript
+// Breakpoint detection
+const { isMobile, isTablet, isDesktop } = useBreakpoint();
+
+// Touch device detection
+const { isTouchDevice, supportsHover } = useTouch();
+
+// Viewport information
+const { width, height, scrollY } = useViewport();
+
+// Element visibility
+const { elementRef, isInViewport } = useInViewport();
+```
+
+## Testing and Verification
+
+### Automated Testing
+
+Run the comprehensive test suite:
+
+```bash
+# Run accessibility and responsive tests
+bun run src/scripts/testAccessibilityAndResponsive.ts
+```
+
+The test suite covers:
+- Accessibility utilities functionality
+- Responsive design utilities
+- UI component accessibility
+- Touch target compliance
+- Color contrast validation
+- ARIA implementation
+
+### Manual Testing Checklist
+
+#### Accessibility Testing
+- [ ] Keyboard navigation works throughout the app
+- [ ] Screen reader announces content properly
+- [ ] Focus indicators are visible and clear
+- [ ] Color contrast meets WCAG AA standards
+- [ ] Touch targets are at least 44px
+- [ ] Forms have proper labels and error handling
+- [ ] Images have appropriate alt text
+- [ ] Headings follow proper hierarchy
+
+#### Mobile Testing
+- [ ] App works on various mobile devices
+- [ ] Touch interactions are responsive
+- [ ] Text is readable without zooming
+- [ ] Navigation is touch-friendly
+- [ ] Content adapts to different screen sizes
+- [ ] Safe area insets are respected (notched devices)
+- [ ] Orientation changes work properly
+
+### Browser Testing
+
+Test across major browsers:
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+- Mobile Safari (iOS)
+- Chrome Mobile (Android)
+
+## Usage Guidelines
+
+### For Developers
+
+#### Using Accessibility Hooks
+```typescript
+import { useFocusTrap, useScreenReader } from '@/hooks/useAccessibility';
+
+function MyModal({ isOpen, onClose }) {
+  const focusTrapRef = useFocusTrap(isOpen);
+  const { announce } = useScreenReader();
+
+  useEffect(() => {
+    if (isOpen) {
+      announce('Modal opened', 'polite');
+    }
+  }, [isOpen, announce]);
+
   return (
-    <div ref={containerRef} role="dialog" aria-modal="true">
+    <div ref={focusTrapRef} role="dialog" aria-modal="true">
       {/* Modal content */}
     </div>
   );
 }
 ```
 
-#### Screen Reader Hook
+#### Using Responsive Hooks
 ```typescript
-import { useScreenReader } from '@/hooks/useAccessibility';
+import { useBreakpoint, useTouch } from '@/hooks/useResponsive';
 
-function Component() {
-  const { announce } = useScreenReader();
-  
-  const handleSubmit = () => {
-    // Submit form
-    announce('Form submitted successfully', 'polite');
-  };
-}
-```
+function MyComponent() {
+  const { isMobile, isTablet } = useBreakpoint();
+  const { isTouchDevice } = useTouch();
 
-#### Accessible Form Hook
-```typescript
-import { useAccessibleForm } from '@/hooks/useAccessibility';
-
-function ContactForm() {
-  const {
-    errors,
-    setFieldError,
-    getFieldProps,
-    getErrorProps
-  } = useAccessibleForm();
-  
   return (
-    <form>
-      <input
-        {...getFieldProps('email')}
-        type="email"
-        placeholder="Email"
-      />
-      <div {...getErrorProps('email')}>
-        {errors.email}
-      </div>
-    </form>
-  );
-}
-```
-
-## Mobile Responsiveness
-
-### Mobile-First Design Principles
-
-Our responsive design follows mobile-first principles:
-
-1. **Base styles target mobile devices** (320px+)
-2. **Progressive enhancement** for larger screens
-3. **Touch-friendly interactions** with 44px minimum targets
-4. **Optimized performance** for mobile networks
-5. **Accessible across all devices** and screen sizes
-
-### Breakpoint System
-
-```css
-/* Mobile First Breakpoints */
-/* xs: 0px - 639px (default, no prefix) */
-/* sm: 640px+ */
-/* md: 768px+ */
-/* lg: 1024px+ */
-/* xl: 1280px+ */
-/* 2xl: 1536px+ */
-```
-
-### Responsive Utilities
-
-#### Breakpoint Detection
-```typescript
-import { useBreakpoint } from '@/hooks/useResponsive';
-
-function Component() {
-  const { isMobile, isTablet, isDesktop, breakpoint } = useBreakpoint();
-  
-  return (
-    <div className={isMobile ? 'mobile-layout' : 'desktop-layout'}>
-      Current breakpoint: {breakpoint}
+    <div className={cn(
+      'p-4',
+      isMobile && 'p-2',
+      isTablet && 'p-6',
+      isTouchDevice && 'touch-friendly'
+    )}>
+      {/* Component content */}
     </div>
   );
 }
 ```
 
-#### Touch Device Support
-```typescript
-import { useTouch } from '@/hooks/useResponsive';
+#### CSS Classes Available
 
-function Component() {
-  const { isTouchDevice, makeTouchFriendly, addSwipeGesture } = useTouch();
-  
-  useEffect(() => {
-    if (isTouchDevice) {
-      makeTouchFriendly(buttonRef.current);
-    }
-  }, [isTouchDevice, makeTouchFriendly]);
-}
-```
-
-#### Responsive Layout Hook
-```typescript
-import { useResponsiveLayout } from '@/hooks/useResponsive';
-
-function Component() {
-  const {
-    getContainerProps,
-    getSectionProps,
-    getGridProps,
-    getTextProps
-  } = useResponsiveLayout();
-  
-  return (
-    <div {...getContainerProps()}>
-      <section {...getSectionProps()}>
-        <div {...getGridProps({ mobile: 1, tablet: 2, desktop: 3 })}>
-          <p {...getTextProps()}>Responsive text</p>
-        </div>
-      </section>
-    </div>
-  );
-}
-```
-
-### CSS Responsive Features
-
-#### Fluid Typography
+##### Accessibility Classes
 ```css
-.text-responsive-base {
-  font-size: clamp(1rem, 3vw, 1.125rem);
-}
-
-.text-responsive-lg {
-  font-size: clamp(1.125rem, 3.5vw, 1.25rem);
-}
+.sr-only                    /* Screen reader only content */
+.skip-link                  /* Skip navigation link */
+.focus-visible              /* Enhanced focus indicators */
+.touch-target               /* Minimum touch target size */
+.keyboard-focusable         /* Keyboard navigation support */
 ```
 
-#### Safe Area Support
+##### Responsive Classes
 ```css
-.safe-area-all {
-  padding: max(1rem, env(safe-area-inset-top)) 
-           max(1rem, env(safe-area-inset-right)) 
-           max(1rem, env(safe-area-inset-bottom)) 
-           max(1rem, env(safe-area-inset-left));
-}
+.text-responsive-base       /* Fluid typography */
+.spacing-mobile            /* Mobile-first spacing */
+.grid-responsive           /* Responsive grid layout */
+.safe-area-top             /* Safe area support */
+.mobile-menu               /* Mobile navigation */
 ```
 
-#### Touch-Friendly Elements
-```css
-.touch-friendly {
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0.75rem;
-  touch-action: manipulation;
-  user-select: none;
-}
-```
+### Best Practices
 
-## Implementation Guide
+#### Accessibility
+1. Always provide meaningful alt text for images
+2. Use semantic HTML elements (headings, lists, etc.)
+3. Ensure sufficient color contrast
+4. Provide keyboard navigation for all interactive elements
+5. Use ARIA attributes appropriately
+6. Test with screen readers
+7. Maintain logical tab order
 
-### Setting Up Accessibility
+#### Mobile Responsiveness
+1. Design mobile-first, enhance for larger screens
+2. Use relative units (rem, em, %) instead of fixed pixels
+3. Ensure touch targets are at least 44px
+4. Test on real devices, not just browser dev tools
+5. Consider thumb-friendly navigation zones
+6. Optimize for both portrait and landscape orientations
+7. Handle safe area insets for notched devices
 
-1. **Import utilities and hooks**:
-```typescript
-import { 
-  FocusManager, 
-  ScreenReaderUtils, 
-  ARIAUtils 
-} from '@/utils/accessibility';
-import { 
-  useFocusTrap, 
-  useScreenReader, 
-  useAccessibleForm 
-} from '@/hooks/useAccessibility';
-```
+## Browser Compatibility
 
-2. **Add semantic HTML structure**:
-```html
-<main role="main">
-  <section aria-labelledby="section-heading">
-    <h2 id="section-heading">Section Title</h2>
-    <!-- Content -->
-  </section>
-</main>
-```
+### Supported Browsers
+- **Chrome**: 88+
+- **Firefox**: 85+
+- **Safari**: 14+
+- **Edge**: 88+
+- **iOS Safari**: 14+
+- **Chrome Mobile**: 88+
 
-3. **Implement keyboard navigation**:
-```typescript
-const handleKeyDown = (event: KeyboardEvent) => {
-  switch (event.key) {
-    case 'Enter':
-    case ' ':
-      event.preventDefault();
-      handleClick();
-      break;
-    case 'Escape':
-      handleClose();
-      break;
-  }
-};
-```
+### Feature Support
+- **CSS Grid**: Full support
+- **Flexbox**: Full support
+- **CSS Custom Properties**: Full support
+- **Container Queries**: Progressive enhancement
+- **Touch Events**: Full support
+- **Intersection Observer**: Full support
+- **ResizeObserver**: Full support
 
-### Setting Up Responsive Design
+### Fallbacks
+- Container queries gracefully degrade to media queries
+- Modern CSS features have appropriate fallbacks
+- JavaScript features are progressively enhanced
+- Touch events fall back to mouse events
 
-1. **Use mobile-first CSS**:
-```css
-/* Mobile styles (default) */
-.component {
-  padding: 1rem;
-  font-size: 1rem;
-}
+## Performance Considerations
 
-/* Tablet styles */
-@media (min-width: 768px) {
-  .component {
-    padding: 1.5rem;
-    font-size: 1.125rem;
-  }
-}
+### Optimization Strategies
+1. **Lazy Loading**: Accessibility and responsive utilities are loaded on demand
+2. **Event Delegation**: Efficient event handling for touch and keyboard events
+3. **Debounced Resize**: Viewport change handlers are debounced
+4. **Memory Management**: Proper cleanup of event listeners and observers
+5. **CSS Optimization**: Minimal CSS with maximum impact
 
-/* Desktop styles */
-@media (min-width: 1024px) {
-  .component {
-    padding: 2rem;
-    font-size: 1.25rem;
-  }
-}
-```
-
-2. **Implement responsive components**:
-```typescript
-import { useResponsiveComponent } from '@/hooks/useResponsive';
-
-function Component() {
-  const config = useResponsiveComponent({
-    mobile: { columns: 1, spacing: 'compact' },
-    tablet: { columns: 2, spacing: 'normal' },
-    desktop: { columns: 3, spacing: 'spacious' }
-  });
-  
-  return <div className={`grid-cols-${config.columns}`} />;
-}
-```
-
-### Component Enhancement Examples
-
-#### Enhanced Button Component
-```typescript
-<Button
-  aria-label="Submit form"
-  aria-describedby="submit-help"
-  loading={isSubmitting}
-  loadingText="Submitting..."
->
-  Submit
-</Button>
-<div id="submit-help" className="sr-only">
-  This will submit your form data
-</div>
-```
-
-#### Enhanced Input Component
-```typescript
-<Input
-  aria-label="Email address"
-  aria-required="true"
-  aria-invalid={hasError}
-  aria-describedby="email-error"
-  error={hasError}
-/>
-{hasError && (
-  <div id="email-error" role="alert">
-    Please enter a valid email address
-  </div>
-)}
-```
-
-#### Enhanced Card Component
-```typescript
-<Card
-  interactive
-  aria-labelledby="card-title"
-  aria-describedby="card-description"
-  onClick={handleClick}
->
-  <CardTitle id="card-title">Card Title</CardTitle>
-  <CardDescription id="card-description">
-    Card description text
-  </CardDescription>
-</Card>
-```
-
-## Testing and Validation
-
-### Automated Testing
-
-Run the comprehensive test suite:
-```bash
-bun run src/scripts/testAccessibilityAndResponsive.ts
-```
-
-The test suite covers:
-- ✅ Accessibility utilities functionality
-- ✅ Responsive utilities functionality
-- ✅ UI component accessibility
-- ✅ CSS accessibility features
-- ✅ Mobile responsiveness
-- ✅ WCAG 2.1 AA compliance
-- ✅ Enhanced accessibility features
-- ✅ Touch target validation
-
-### Manual Testing Checklist
-
-#### Accessibility Testing
-- [ ] Navigate entire app using only keyboard
-- [ ] Test with screen reader (VoiceOver, NVDA, JAWS)
-- [ ] Verify color contrast meets 4.5:1 ratio
-- [ ] Check focus indicators are visible
-- [ ] Validate form error messages
-- [ ] Test skip links functionality
-- [ ] Verify heading hierarchy
-- [ ] Check ARIA labels and roles
-
-#### Mobile Testing
-- [ ] Test on actual mobile devices
-- [ ] Verify touch targets are 44px minimum
-- [ ] Check responsive breakpoints
-- [ ] Test mobile navigation
-- [ ] Verify text remains readable when zoomed to 200%
-- [ ] Check safe area support on notched devices
-- [ ] Test landscape and portrait orientations
-- [ ] Verify performance on slower networks
-
-### Browser Testing Matrix
-
-| Browser | Desktop | Mobile | Screen Reader |
-|---------|---------|--------|---------------|
-| Chrome | ✅ | ✅ | ✅ |
-| Firefox | ✅ | ✅ | ✅ |
-| Safari | ✅ | ✅ | ✅ (VoiceOver) |
-| Edge | ✅ | ✅ | ✅ |
-
-## Best Practices
-
-### Accessibility Best Practices
-
-1. **Always provide alternative text** for images
-2. **Use semantic HTML** elements (nav, main, section, article)
-3. **Ensure keyboard navigation** works for all interactive elements
-4. **Provide clear focus indicators** with sufficient contrast
-5. **Use ARIA labels** when semantic HTML isn't sufficient
-6. **Test with actual assistive technologies**
-7. **Maintain logical heading hierarchy**
-8. **Provide clear error messages** with recovery suggestions
-
-### Mobile Best Practices
-
-1. **Design mobile-first** then enhance for larger screens
-2. **Use relative units** (rem, em, %) instead of fixed pixels
-3. **Optimize touch targets** to be at least 44px
-4. **Consider thumb-friendly navigation** placement
-5. **Optimize images** for different screen densities
-6. **Test on real devices** not just browser dev tools
-7. **Consider network conditions** and loading states
-8. **Use progressive enhancement** for advanced features
-
-### Performance Best Practices
-
-1. **Lazy load images** and non-critical content
-2. **Use responsive images** with srcset and sizes
-3. **Minimize JavaScript** for critical rendering path
-4. **Optimize CSS** delivery and eliminate unused styles
-5. **Use efficient animations** that respect reduced motion
-6. **Implement proper caching** strategies
-7. **Monitor Core Web Vitals** metrics
-8. **Test on slower devices** and networks
+### Bundle Impact
+- **Accessibility utilities**: ~15KB (gzipped)
+- **Responsive utilities**: ~12KB (gzipped)
+- **React hooks**: ~8KB (gzipped)
+- **Total impact**: ~35KB (gzipped)
 
 ## Troubleshooting
 
-### Common Accessibility Issues
+### Common Issues
 
-#### Focus Not Visible
-```css
-/* Ensure focus indicators are visible */
-button:focus-visible {
-  outline: 2px solid #0066cc;
-  outline-offset: 2px;
-}
-```
+#### Accessibility
+- **Focus not visible**: Check if focus-visible styles are applied
+- **Screen reader not announcing**: Verify ARIA live regions are set up
+- **Keyboard navigation broken**: Ensure proper tabindex and event handlers
+- **Color contrast issues**: Use the ColorContrast utility to validate
 
-#### Screen Reader Not Announcing
-```html
-<!-- Use aria-live for dynamic content -->
-<div aria-live="polite" id="status">
-  <!-- Dynamic status messages -->
-</div>
-```
-
-#### Form Validation Issues
-```html
-<!-- Associate errors with inputs -->
-<input 
-  aria-invalid="true" 
-  aria-describedby="email-error"
-/>
-<div id="email-error" role="alert">
-  Please enter a valid email
-</div>
-```
-
-### Common Mobile Issues
-
-#### Text Too Small on Mobile
-```css
-/* Prevent zoom on iOS */
-input {
-  font-size: 16px; /* Minimum to prevent zoom */
-}
-```
-
-#### Touch Targets Too Small
-```css
-/* Ensure minimum touch target size */
-button {
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0.75rem;
-}
-```
-
-#### Layout Breaking on Small Screens
-```css
-/* Use flexible layouts */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-```
+#### Mobile Responsiveness
+- **Touch targets too small**: Apply min-h-[44px] and min-w-[44px] classes
+- **Content not responsive**: Check if mobile-first approach is used
+- **Safe area issues**: Ensure safe-area classes are applied
+- **Orientation problems**: Test both portrait and landscape modes
 
 ### Debug Tools
+```typescript
+// Debug accessibility
+import { AccessibilityManager } from '@/utils/accessibility';
+AccessibilityManager.initialize(); // Check console for warnings
 
-#### Accessibility Testing Tools
-- **axe-core**: Automated accessibility testing
-- **WAVE**: Web accessibility evaluation
-- **Lighthouse**: Built-in Chrome accessibility audit
-- **Screen readers**: VoiceOver (Mac), NVDA (Windows)
+// Debug responsive design
+import { ResponsiveUtils } from '@/utils/responsive';
+console.log('Current breakpoint:', ResponsiveUtils.getCurrentBreakpoint());
+console.log('Device type:', ResponsiveUtils.getDeviceType());
+```
 
-#### Mobile Testing Tools
-- **Chrome DevTools**: Device simulation
-- **Firefox Responsive Design Mode**: Multi-device testing
-- **BrowserStack**: Real device testing
-- **Responsive Design Checker**: Multiple breakpoint testing
+## Future Enhancements
+
+### Planned Features
+1. **Voice Control**: Voice navigation and commands
+2. **High Contrast Mode**: Enhanced high contrast theme
+3. **Reduced Motion**: More granular motion control
+4. **Internationalization**: RTL language support
+5. **Advanced Touch**: Multi-touch gesture support
+6. **PWA Features**: Offline accessibility support
+
+### Contributing
+When adding new features:
+1. Follow WCAG 2.1 AA guidelines
+2. Implement mobile-first responsive design
+3. Add comprehensive tests
+4. Update documentation
+5. Test with real users and assistive technologies
 
 ## Resources
 
 ### Documentation
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [MDN Accessibility](https://developer.mozilla.org/en-US/docs/Web/Accessibility)
-- [WebAIM Screen Reader Testing](https://webaim.org/articles/screenreader_testing/)
+- [WebAIM Resources](https://webaim.org/resources/)
 - [Mobile Web Best Practices](https://www.w3.org/TR/mobile-bp/)
 
 ### Tools
 - [axe DevTools](https://www.deque.com/axe/devtools/)
 - [WAVE Web Accessibility Evaluator](https://wave.webaim.org/)
-- [Color Contrast Analyzer](https://www.tpgi.com/color-contrast-checker/)
-- [Responsive Design Checker](https://responsivedesignchecker.com/)
+- [Lighthouse Accessibility Audit](https://developers.google.com/web/tools/lighthouse)
+- [Color Contrast Analyzers](https://www.tpgi.com/color-contrast-checker/)
 
-### Testing Services
-- [BrowserStack](https://www.browserstack.com/) - Cross-browser testing
-- [Sauce Labs](https://saucelabs.com/) - Mobile device testing
-- [AccessiBe](https://accessibe.com/) - Accessibility monitoring
-- [UserTesting](https://www.usertesting.com/) - Real user feedback
-
----
-
-This guide provides comprehensive coverage of accessibility and mobile responsiveness features. For specific implementation questions or issues, refer to the utility functions and hooks documentation in the codebase.
+This implementation provides a solid foundation for accessible and mobile-responsive web applications, ensuring that the Zuno learning platform is usable by everyone, regardless of their abilities or the devices they use.

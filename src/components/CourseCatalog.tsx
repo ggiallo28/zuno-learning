@@ -53,7 +53,7 @@ export function CourseCatalog({ courses, onEnrollInCourse, isEnrolling }: Course
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger 
               id="category-select"
-              className="w-full sm:w-48"
+              className="w-full sm:w-48 min-h-[44px]"
               aria-label="Filter courses by category"
             >
               <SelectValue placeholder="All Categories" />
@@ -70,13 +70,13 @@ export function CourseCatalog({ courses, onEnrollInCourse, isEnrolling }: Course
         </div>
         
         <div className="flex-1 sm:flex-none">
-          <label htmlFor="difficulty-select" className="sr-only">
+          <label htmlFor="difficulty-select" className="block text-sm font-medium mb-2 sm:sr-only">
             Filter by difficulty level
           </label>
           <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
             <SelectTrigger 
               id="difficulty-select"
-              className="w-full sm:w-48"
+              className="w-full sm:w-48 min-h-[44px]"
               aria-label="Filter courses by difficulty level"
             >
               <SelectValue placeholder="All Levels" />

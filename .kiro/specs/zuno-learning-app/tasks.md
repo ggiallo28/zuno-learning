@@ -110,7 +110,7 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Dynamic Imports**: Implement route-based and component-based code splitting
   - _Requirements: Bundle optimization, code splitting, performance improvement_
 
-- [ ] 9. Enhance accessibility and mobile responsiveness
+- [x] 9. Enhance accessibility and mobile responsiveness
   - **Check documentation**: WCAG 2.1 AA, mobile-first design, keyboard navigation, ARIA labels, semantic HTML.
   - **Accessibility**: Ensure all existing components meet WCAG 2.1 AA accessibility standards
   - **Mobile Responsiveness**: Optimize existing components for mobile and tablet devices
@@ -128,6 +128,7 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Build Instructions**: Ignore the tests during the  build phase.
   - **Test Coverage**: Achieve high test coverage across all components and actions
   - **Check documentation**: Review MCP-collected resources on Next.js App Router testing, Vite/Vitest setup and coverage config, Jest vs Vitest, React Testing Library with user-event and jest-dom, MSW for API mocks, Playwright/Cypress E2E setup, test data generation (fishery, faker), tsconfig/build exclusions, recommended folder structure, and coverage thresholds.
+  - **Test Scope Requirement**: Write unit tests for pure functions, utilities, reducers, and custom hooks; integration tests for component interactions, context, and API-bound behavior; and E2E tests for the top-priority user flows (auth, critical task lifecycle, persistence). Focus tests on user-visible behavior and data contracts, not internal implementation details.
   - _Requirements: Testing coverage, quality assurance, automated testing_
 
 - [ ] 11. Deploy and monitor Amplify application

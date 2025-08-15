@@ -1,6 +1,6 @@
 /**
  * React hooks for responsive design features
- * Provides reusable responsive functionality for React components
+ * Provides easy-to-use hooks for responsive behavior and mobile-first development
  */
 
 import { useEffect, useState, useCallback, useRef } from 'react';
@@ -8,639 +8,402 @@ import {
   ResponsiveUtils,
   TouchUtils,
   ViewportUtils,
+  OrientationUtils,
   ResponsiveGridUtils,
-  ResponsiveTypography,
-  MediaQueryUtils,
-  BREAKPOINTS,
+  ResponsiveTypographyUtils,
   type Breakpoint
 } from '@/utils/responsive';
 
-/**
- * Hook for detecting current breakpoint
- */
+// Breakpoint detection hook
 export function useBreakpoint() {
-  const [breakpoint, setBreakpoint] = useState<Breakpoint | 'xs'>(() => 
+  const [currentBreakpoint, setCurrentBreakpoint] = useState<Breakpoint>(
     ResponsiveUtils.getCurrentBreakpoint()
   );
-  const [deviceType, setDeviceType] = useState(() => ResponsiveUtils.getDeviceType());
+  const [deviceType, setDeviceType] = useState(ResponsiveUtils.getDeviceType());
 
   useEffect(() => {
-    const handleResize = () => {
-      setBreakpoint(ResponsiveUtils.getCurrentBreakpoint());
+    const cleanup = ResponsiveUtils.watchBreakpoint((breakpoint) => {
+      setCurrentBreakpoint(breakpoint);
       setDeviceType(ResponsiveUtils.getDeviceType());
-    };
+    });
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return cleanup;
+  }, []);
+
+  const isBreakpoint = useCallback((breakpoint: Breakpoint) => {
+    return ResponsiveUtils.isBreakpoint(breakpoint);
   }, []);
 
   return {
-    breakpoint,
+    currentBreakpoint,
     deviceType,
     isMobile: deviceType === 'mobile',
     isTablet: deviceType === 'tablet',
     isDesktop: deviceType === 'desktop',
-    isBreakpoint: (bp: Breakpoint | 'xs') => breakpoint === bp,
-    isBreakpointUp: (bp: Breakpoint) => ResponsiveUtils.isBreakpoint(bp)
+    isBreakpoint,
+    // Specific breakpoint checks
+    isXs: currentBreakpoint === 'xs',
+    isSm: ResponsiveUtils.isBreakpoint('sm'),
+    isMd: ResponsiveUtils.isBreakpoint('md'),
+    isLg: ResponsiveUtils.isBreakpoint('lg'),
+    isXl: ResponsiveUtils.isBreakpoint('xl'),
+    is2Xl: ResponsiveUtils.isBreakpoint('2xl')
   };
 }
 
-/**
- * Hook for media query matching
- */
+// Media query hook
 export function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.matchMedia(query).matches;
-    }
-    return false;
-  });
+  const [matches, setMatches] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    const mediaQuery = window.matchMedia(query);
+    setMatches(mediaQuery.matches);
 
-    const cleanup = MediaQueryUtils.createMediaQueryListener(query, setMatches);
-    return cleanup;
+    const handleChange = (e: MediaQueryListEvent) => {
+      setMatches(e.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [query]);
 
   return matches;
 }
 
-/**
- * Hook for touch device detection and utilities
- */
+// Touch device detection hook
 export function useTouch() {
-  const [isTouchDevice] = useState(() => TouchUtils.isTouchDevice());
-  const [isPrimaryTouch] = useState(() => TouchUtils.isPrimaryTouchDevice());
-
-  const makeTouchFriendly = useCallback((element: HTMLElement) => {
-    TouchUtils.makeTouchFriendly(element);
-  }, []);
-
-  const addSwipeGesture = useCallback((
-    element: HTMLElement,
-    onSwipeLeft?: () => void,
-    onSwipeRight?: () => void,
-    threshold?: number
-  ) => {
-    return TouchUtils.addSwipeGesture(element, onSwipeLeft, onSwipeRight, threshold);
-  }, []);
+  const [isTouchDevice] = useState(TouchUtils.isTouchDevice());
+  const [supportsHover] = useState(TouchUtils.supportsHover());
+  const [supportsFinePointer] = useState(TouchUtils.supportsFinePointer());
+  const [pointerType] = useState(TouchUtils.getPointerType());
 
   return {
     isTouchDevice,
-    isPrimaryTouch,
-    makeTouchFriendly,
-    addSwipeGesture
+    supportsHover,
+    supportsFinePointer,
+    pointerType,
+    isCoarsePointer: pointerType === 'coarse',
+    isFinePointer: pointerType === 'fine'
   };
 }
 
-/**
- * Hook for viewport utilities
- */
+// Viewport size hook
 export function useViewport() {
-  const [viewportSize, setViewportSize] = useState(() => ViewportUtils.getViewportSize());
-  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>(() => 
-    ViewportUtils.isLandscape() ? 'landscape' : 'portrait'
-  );
+  const [viewport, setViewport] = useState(ViewportUtils.getViewportSize());
+  const [scrollPosition, setScrollPosition] = useState(ViewportUtils.getScrollPosition());
 
   useEffect(() => {
-    const handleResize = () => {
-      setViewportSize(ViewportUtils.getViewportSize());
-      setOrientation(ViewportUtils.isLandscape() ? 'landscape' : 'portrait');
+    const cleanupViewport = ViewportUtils.watchViewportChanges(setViewport);
+    
+    const handleScroll = () => {
+      setScrollPosition(ViewportUtils.getScrollPosition());
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      cleanupViewport();
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
-  const scrollToElement = useCallback((element: HTMLElement, offset?: number) => {
-    ViewportUtils.scrollToElement(element, offset);
-  }, []);
-
-  const applySafeAreaPadding = useCallback((element: HTMLElement) => {
-    ViewportUtils.applySafeAreaPadding(element);
+  const scrollToElement = useCallback((element: HTMLElement, behavior: ScrollBehavior = 'smooth') => {
+    ViewportUtils.scrollToElement(element, behavior);
   }, []);
 
   return {
-    viewportSize,
-    orientation,
-    isLandscape: orientation === 'landscape',
-    isPortrait: orientation === 'portrait',
-    safeAreaInsets: ViewportUtils.getSafeAreaInsets(),
-    scrollPosition: ViewportUtils.getScrollPosition(),
-    scrollToElement,
-    applySafeAreaPadding
+    width: viewport.width,
+    height: viewport.height,
+    scrollX: scrollPosition.x,
+    scrollY: scrollPosition.y,
+    scrollToElement
   };
 }
 
-/**
- * Hook for responsive grid calculations
- */
-export function useResponsiveGrid(minItemWidth: number, gap: number = 16) {
-  const { viewportSize } = useViewport();
-  const [columns, setColumns] = useState(1);
+// Element visibility hook
+export function useInViewport<T extends HTMLElement>(threshold: number = 0) {
+  const [isInViewport, setIsInViewport] = useState(false);
+  const elementRef = useRef<T>(null);
 
   useEffect(() => {
-    const newColumns = ResponsiveGridUtils.calculateGridColumns(
-      viewportSize.width,
-      minItemWidth,
-      gap
+    const element = elementRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInViewport(entry.isIntersecting);
+      },
+      { threshold: threshold / 100 }
     );
-    setColumns(newColumns);
-  }, [viewportSize.width, minItemWidth, gap]);
 
-  const getGridClasses = useCallback((
-    columnConfig: { xs?: number; sm?: number; md?: number; lg?: number; xl?: number }
-  ) => {
-    return ResponsiveGridUtils.getResponsiveGridClasses(columnConfig);
-  }, []);
+    observer.observe(element);
 
-  const createAutoFitGrid = useCallback((container: HTMLElement) => {
-    ResponsiveGridUtils.createAutoFitGrid(container, minItemWidth);
-  }, [minItemWidth]);
-
-  const createAutoFillGrid = useCallback((container: HTMLElement, itemWidth: number) => {
-    ResponsiveGridUtils.createAutoFillGrid(container, itemWidth);
-  }, []);
-
-  return {
-    columns,
-    getGridClasses,
-    createAutoFitGrid,
-    createAutoFillGrid
-  };
-}
-
-/**
- * Hook for responsive text sizing
- */
-export function useResponsiveText() {
-  const { deviceType } = useBreakpoint();
-
-  const generateFluidSize = useCallback((
-    minSize: number,
-    maxSize: number,
-    minViewport?: number,
-    maxViewport?: number
-  ) => {
-    return ResponsiveTypography.generateFluidSize(minSize, maxSize, minViewport, maxViewport);
-  }, []);
-
-  const applyResponsiveText = useCallback((
-    element: HTMLElement,
-    config: { mobile: number; tablet: number; desktop: number }
-  ) => {
-    ResponsiveTypography.applyResponsiveText(element, config);
-  }, []);
-
-  const getResponsiveLineHeight = useCallback((fontSize: number) => {
-    return ResponsiveTypography.getResponsiveLineHeight(fontSize);
-  }, []);
-
-  return {
-    deviceType,
-    generateFluidSize,
-    applyResponsiveText,
-    getResponsiveLineHeight
-  };
-}
-
-/**
- * Hook for responsive navigation (mobile menu, etc.)
- */
-export function useResponsiveNavigation() {
-  const { isMobile } = useBreakpoint();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // Close menu when switching to desktop
-  useEffect(() => {
-    if (!isMobile && isMenuOpen) {
-      setIsMenuOpen(false);
-    }
-  }, [isMobile, isMenuOpen]);
-
-  // Close menu on escape key
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isMenuOpen) {
-        setIsMenuOpen(false);
-      }
+    return () => {
+      observer.disconnect();
     };
-
-    if (isMenuOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isMenuOpen]);
-
-  const toggleMenu = useCallback(() => {
-    setIsMenuOpen(prev => !prev);
-  }, []);
-
-  const closeMenu = useCallback(() => {
-    setIsMenuOpen(false);
-  }, []);
-
-  const openMenu = useCallback(() => {
-    setIsMenuOpen(true);
-  }, []);
+  }, [threshold]);
 
   return {
-    isMobile,
-    isMenuOpen,
-    toggleMenu,
-    closeMenu,
-    openMenu
+    elementRef,
+    isInViewport
   };
 }
 
-/**
- * Hook for responsive image handling
- */
-export function useResponsiveImage() {
-  const lazyLoadImage = useCallback((
-    img: HTMLImageElement,
-    src: string,
-    srcset?: string
-  ) => {
-    // Use intersection observer for lazy loading
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          img.src = src;
-          if (srcset) img.srcset = srcset;
-          img.classList.remove('opacity-0');
-          img.classList.add('opacity-100');
-          observer.unobserve(img);
-        }
-      });
-    });
-
-    img.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-    observer.observe(img);
-
-    return () => observer.disconnect();
-  }, []);
-
-  const generateSrcSet = useCallback((basePath: string, sizes: number[]) => {
-    return sizes.map(size => `${basePath}?w=${size} ${size}w`).join(', ');
-  }, []);
-
-  const generateSizes = useCallback((
-    breakpoints: Array<{ breakpoint: Breakpoint | 'xs'; size: string }>
-  ) => {
-    return breakpoints
-      .map(({ breakpoint, size }) => {
-        if (breakpoint === 'xs') {
-          return size;
-        }
-        return `(min-width: ${BREAKPOINTS[breakpoint]}px) ${size}`;
-      })
-      .join(', ');
-  }, []);
-
-  return {
-    lazyLoadImage,
-    generateSrcSet,
-    generateSizes
-  };
-}
-
-/**
- * Hook for device orientation detection
- */
+// Orientation hook
 export function useOrientation() {
-  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>(() => 
-    ViewportUtils.isLandscape() ? 'landscape' : 'portrait'
-  );
+  const [orientation, setOrientation] = useState(OrientationUtils.getOrientation());
 
   useEffect(() => {
-    const cleanup = MediaQueryUtils.createOrientationListener(setOrientation);
+    const cleanup = OrientationUtils.watchOrientationChange(setOrientation);
     return cleanup;
   }, []);
 
   return {
     orientation,
-    isLandscape: orientation === 'landscape',
-    isPortrait: orientation === 'portrait'
+    isPortrait: orientation === 'portrait',
+    isLandscape: orientation === 'landscape'
   };
 }
 
-/**
- * Hook for container queries (modern browsers)
- */
-export function useContainerQuery(
-  queries: Array<{ minWidth: number; styles: Record<string, string> }>
+// Responsive grid hook
+export function useResponsiveGrid<T extends HTMLElement>(
+  minColumnWidth: number,
+  gap: number = 16
 ) {
-  const containerRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<T>(null);
+  const [columns, setColumns] = useState(1);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Use ResizeObserver to implement container query behavior
-    const observer = new ResizeObserver(entries => {
-      entries.forEach(entry => {
-        const width = entry.contentRect.width;
-        
-        queries.forEach(({ minWidth, styles }) => {
-          const shouldApply = width >= minWidth;
-          
-          Object.entries(styles).forEach(([property, value]) => {
-            if (shouldApply) {
-              container.style.setProperty(property, value);
-            } else {
-              container.style.removeProperty(property);
-            }
-          });
-        });
-      });
-    });
+    const updateColumns = () => {
+      const containerWidth = container.offsetWidth;
+      const newColumns = ResponsiveGridUtils.calculateColumns(containerWidth, minColumnWidth, gap);
+      setColumns(newColumns);
+    };
 
-    observer.observe(container);
-    
-    return () => observer.disconnect();
-  }, [queries]);
+    // Set up auto-fit grid
+    ResponsiveGridUtils.createAutoFitGrid(container, minColumnWidth, gap);
+
+    // Update columns on resize
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+
+    return () => {
+      window.removeEventListener('resize', updateColumns);
+    };
+  }, [minColumnWidth, gap]);
+
+  return {
+    containerRef,
+    columns
+  };
+}
+
+// Responsive text hook
+export function useResponsiveText(
+  minSize: number,
+  maxSize: number,
+  minViewport?: number,
+  maxViewport?: number
+) {
+  const [fontSize, setFontSize] = useState('');
+
+  useEffect(() => {
+    const fluidSize = ResponsiveTypographyUtils.createFluidTypography(
+      minSize,
+      maxSize,
+      minViewport,
+      maxViewport
+    );
+    setFontSize(fluidSize);
+  }, [minSize, maxSize, minViewport, maxViewport]);
+
+  return fontSize;
+}
+
+// Swipe gesture hook
+export function useSwipeGesture<T extends HTMLElement>(
+  onSwipe: (direction: 'left' | 'right' | 'up' | 'down') => void,
+  threshold: number = 50
+) {
+  const elementRef = useRef<T>(null);
+
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
+
+    const cleanup = TouchUtils.handleSwipeGesture(element, onSwipe, threshold);
+    return cleanup;
+  }, [onSwipe, threshold]);
+
+  return elementRef;
+}
+
+// Container query hook (for modern browsers)
+export function useContainerQuery(
+  containerName: string,
+  queries: { minWidth?: number; maxWidth?: number; styles: Record<string, string> }[]
+) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Apply container queries if supported
+    const { ContainerQueryUtils } = require('@/utils/responsive');
+    if (ContainerQueryUtils.supportsContainerQueries()) {
+      ContainerQueryUtils.createContainerQuery(container, containerName, queries);
+    }
+  }, [containerName, queries]);
 
   return containerRef;
 }
 
-/**
- * Hook for responsive component behavior
- */
-export function useResponsiveComponent<T extends Record<string, any>>(
-  config: {
-    mobile?: T;
-    tablet?: T;
-    desktop?: T;
-  }
-) {
-  const { deviceType } = useBreakpoint();
-  
-  const currentConfig = config[deviceType] || config.mobile || {};
-  
-  return currentConfig;
-}
-
-/**
- * Hook for responsive modal/dialog behavior
- */
-export function useResponsiveModal() {
+// Responsive navigation hook
+export function useResponsiveNavigation() {
   const { isMobile } = useBreakpoint();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const openModal = useCallback(() => {
-    setIsOpen(true);
-    
-    // On mobile, prevent body scroll
-    if (isMobile) {
-      document.body.style.overflow = 'hidden';
-    }
-  }, [isMobile]);
+  const openMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(true);
+    document.body.style.overflow = 'hidden';
+  }, []);
 
-  const closeModal = useCallback(() => {
-    setIsOpen(false);
-    
-    // Restore body scroll
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false);
     document.body.style.overflow = '';
   }, []);
 
-  const getModalProps = useCallback(() => ({
-    className: isMobile 
-      ? 'fixed inset-0 z-50 bg-background p-4 overflow-y-auto'
-      : 'fixed inset-0 z-50 flex items-center justify-center p-4',
-    'aria-modal': 'true',
-    role: 'dialog'
-  }), [isMobile]);
+  const toggleMobileMenu = useCallback(() => {
+    if (isMobileMenuOpen) {
+      closeMobileMenu();
+    } else {
+      openMobileMenu();
+    }
+  }, [isMobileMenuOpen, openMobileMenu, closeMobileMenu]);
 
-  const getContentProps = useCallback(() => ({
-    className: isMobile
-      ? 'w-full max-w-none'
-      : 'w-full max-w-lg bg-background rounded-lg shadow-lg'
-  }), [isMobile]);
+  // Close mobile menu when switching to desktop
+  useEffect(() => {
+    if (!isMobile && isMobileMenuOpen) {
+      closeMobileMenu();
+    }
+  }, [isMobile, isMobileMenuOpen, closeMobileMenu]);
+
+  // Close mobile menu on escape key
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMobileMenuOpen) {
+        closeMobileMenu();
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isMobileMenuOpen, closeMobileMenu]);
 
   return {
-    isOpen,
     isMobile,
-    openModal,
-    closeModal,
-    getModalProps,
-    getContentProps
+    isMobileMenuOpen,
+    openMobileMenu,
+    closeMobileMenu,
+    toggleMobileMenu
   };
 }
 
-/**
- * Hook for responsive form layout
- */
-export function useResponsiveForm() {
-  const { deviceType, isMobile } = useBreakpoint();
-
-  const getFormProps = useCallback(() => ({
-    className: isMobile 
-      ? 'space-y-4 p-4'
-      : 'space-y-6 p-6'
-  }), [isMobile]);
-
-  const getFieldGroupProps = useCallback(() => ({
-    className: isMobile
-      ? 'space-y-3'
-      : 'grid grid-cols-2 gap-4'
-  }), [isMobile]);
-
-  const getInputProps = useCallback(() => ({
-    className: isMobile
-      ? 'min-h-[44px] text-base' // Prevent zoom on iOS
-      : 'min-h-[40px] text-sm'
-  }), [isMobile]);
-
-  const getButtonProps = useCallback(() => ({
-    className: isMobile
-      ? 'w-full min-h-[44px] text-base'
-      : 'min-h-[40px] px-6'
-  }), [isMobile]);
-
-  return {
-    deviceType,
-    isMobile,
-    getFormProps,
-    getFieldGroupProps,
-    getInputProps,
-    getButtonProps
-  };
-}
-
-/**
- * Hook for responsive table behavior
- */
-export function useResponsiveTable() {
-  const { isMobile, isTablet } = useBreakpoint();
-  const [viewMode, setViewMode] = useState<'table' | 'cards' | 'list'>('table');
+// Responsive image hook
+export function useResponsiveImage(
+  src: string,
+  sizes: { breakpoint: Breakpoint; width: number }[]
+) {
+  const [imageSrc] = useState(src);
+  const [srcSet, setSrcSet] = useState('');
+  const [sizesAttr, setSizesAttr] = useState('');
 
   useEffect(() => {
-    if (isMobile) {
-      setViewMode('cards');
-    } else if (isTablet) {
-      setViewMode('list');
-    } else {
-      setViewMode('table');
-    }
-  }, [isMobile, isTablet]);
-
-  const getTableProps = useCallback(() => ({
-    className: viewMode === 'table' 
-      ? 'w-full table-auto'
-      : 'hidden'
-  }), [viewMode]);
-
-  const getCardViewProps = useCallback(() => ({
-    className: viewMode === 'cards'
-      ? 'grid gap-4 grid-cols-1'
-      : 'hidden'
-  }), [viewMode]);
-
-  const getListViewProps = useCallback(() => ({
-    className: viewMode === 'list'
-      ? 'space-y-2'
-      : 'hidden'
-  }), [viewMode]);
-
-  return {
-    viewMode,
-    isMobile,
-    isTablet,
-    setViewMode,
-    getTableProps,
-    getCardViewProps,
-    getListViewProps
-  };
-}
-
-/**
- * Hook for responsive carousel/slider
- */
-export function useResponsiveCarousel(totalItems: number) {
-  const { isMobile, isTablet } = useBreakpoint();
-  const [itemsPerView, setItemsPerView] = useState(1);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (isMobile) {
-      setItemsPerView(1);
-    } else if (isTablet) {
-      setItemsPerView(2);
-    } else {
-      setItemsPerView(3);
-    }
-  }, [isMobile, isTablet]);
-
-  const maxIndex = Math.max(0, totalItems - itemsPerView);
-
-  const goToSlide = useCallback((index: number) => {
-    const newIndex = Math.max(0, Math.min(index, maxIndex));
-    setCurrentIndex(newIndex);
-  }, [maxIndex]);
-
-  const nextSlide = useCallback(() => {
-    goToSlide(currentIndex + 1);
-  }, [currentIndex, goToSlide]);
-
-  const previousSlide = useCallback(() => {
-    goToSlide(currentIndex - 1);
-  }, [currentIndex, goToSlide]);
-
-  const canGoNext = currentIndex < maxIndex;
-  const canGoPrevious = currentIndex > 0;
-
-  const getCarouselProps = useCallback(() => ({
-    className: 'relative overflow-hidden',
-    style: {
-      touchAction: isMobile ? 'pan-y pinch-zoom' : 'auto'
-    }
-  }), [isMobile]);
-
-  const getSlideContainerProps = useCallback(() => ({
-    className: 'flex transition-transform duration-300 ease-in-out',
-    style: {
-      transform: `translateX(-${(currentIndex * 100) / itemsPerView}%)`
-    }
-  }), [currentIndex, itemsPerView]);
-
-  const getSlideProps = useCallback((index: number) => ({
-    className: `flex-shrink-0`,
-    style: {
-      width: `${100 / itemsPerView}%`
-    },
-    'aria-hidden': index < currentIndex || index >= currentIndex + itemsPerView
-  }), [currentIndex, itemsPerView]);
-
-  return {
-    currentIndex,
-    itemsPerView,
-    canGoNext,
-    canGoPrevious,
-    goToSlide,
-    nextSlide,
-    previousSlide,
-    getCarouselProps,
-    getSlideContainerProps,
-    getSlideProps
-  };
-}
-
-/**
- * Hook for responsive spacing and layout
- */
-export function useResponsiveLayout() {
-  const { deviceType, isMobile, isTablet } = useBreakpoint();
-
-  const getContainerProps = useCallback(() => ({
-    className: isMobile 
-      ? 'px-4 py-6'
-      : isTablet 
-        ? 'px-6 py-8'
-        : 'px-8 py-12'
-  }), [isMobile, isTablet]);
-
-  const getSectionProps = useCallback(() => ({
-    className: isMobile
-      ? 'space-y-6'
-      : isTablet
-        ? 'space-y-8'
-        : 'space-y-12'
-  }), [isMobile, isTablet]);
-
-  const getGridProps = useCallback((columns: { mobile: number; tablet: number; desktop: number }) => ({
-    className: `grid gap-4 grid-cols-${columns.mobile} md:grid-cols-${columns.tablet} lg:grid-cols-${columns.desktop}`
-  }), []);
-
-  const getTextProps = useCallback(() => ({
-    className: isMobile
-      ? 'text-sm leading-relaxed'
-      : isTablet
-        ? 'text-base leading-relaxed'
-        : 'text-lg leading-relaxed'
-  }), [isMobile, isTablet]);
-
-  const getHeadingProps = useCallback((level: 1 | 2 | 3 | 4 | 5 | 6) => {
-    const mobileSize = level <= 2 ? 'text-xl' : level <= 4 ? 'text-lg' : 'text-base';
-    const tabletSize = level <= 2 ? 'text-2xl' : level <= 4 ? 'text-xl' : 'text-lg';
-    const desktopSize = level <= 2 ? 'text-3xl' : level <= 4 ? 'text-2xl' : 'text-xl';
+    const { ResponsiveImageUtils } = require('@/utils/responsive');
     
-    return {
-      className: `${mobileSize} md:${tabletSize} lg:${desktopSize} font-bold leading-tight`
+    const widths = sizes.map(s => s.width);
+    const generatedSrcSet = ResponsiveImageUtils.generateSrcSet(src, widths);
+    
+    const sizeStrings = sizes.map(({ breakpoint, width }) => ({
+      breakpoint,
+      size: `${width}px`
+    }));
+    const generatedSizes = ResponsiveImageUtils.generateSizes(sizeStrings);
+
+    setSrcSet(generatedSrcSet);
+    setSizesAttr(generatedSizes);
+  }, [src, sizes]);
+
+  return {
+    src: imageSrc,
+    srcSet,
+    sizes: sizesAttr
+  };
+}
+
+// Safe area hook for devices with notches
+export function useSafeArea() {
+  const [safeArea, setSafeArea] = useState(ViewportUtils.getSafeAreaInsets());
+
+  useEffect(() => {
+    const updateSafeArea = () => {
+      setSafeArea(ViewportUtils.getSafeAreaInsets());
+    };
+
+    window.addEventListener('resize', updateSafeArea);
+    window.addEventListener('orientationchange', updateSafeArea);
+
+    return () => {
+      window.removeEventListener('resize', updateSafeArea);
+      window.removeEventListener('orientationchange', updateSafeArea);
     };
   }, []);
 
-  return {
-    deviceType,
-    isMobile,
-    isTablet,
-    getContainerProps,
-    getSectionProps,
-    getGridProps,
-    getTextProps,
-    getHeadingProps
-  };
+  return safeArea;
 }
 
-// All hooks are exported individually above
+// Responsive spacing hook
+export function useResponsiveSpacing(
+  baseSpacing: number,
+  breakpointMultipliers: Partial<Record<Breakpoint, number>> = {}
+) {
+  const { currentBreakpoint } = useBreakpoint();
+  const [spacing, setSpacing] = useState(baseSpacing);
+
+  useEffect(() => {
+    const multiplier = breakpointMultipliers[currentBreakpoint] || 1;
+    setSpacing(baseSpacing * multiplier);
+  }, [baseSpacing, breakpointMultipliers, currentBreakpoint]);
+
+  return spacing;
+}
+
+// Responsive columns hook
+export function useResponsiveColumns(
+  breakpointColumns: Partial<Record<Breakpoint, number>>
+) {
+  const { currentBreakpoint } = useBreakpoint();
+  const [columns, setColumns] = useState(1);
+
+  useEffect(() => {
+    // Find the appropriate number of columns for current breakpoint
+    const breakpoints: Breakpoint[] = ['2xl', 'xl', 'lg', 'md', 'sm', 'xs'];
+    
+    for (const bp of breakpoints) {
+      if (ResponsiveUtils.isBreakpoint(bp) && breakpointColumns[bp]) {
+        setColumns(breakpointColumns[bp]!);
+        break;
+      }
+    }
+  }, [currentBreakpoint, breakpointColumns]);
+
+  return columns;
+}
+
+// All hooks are already exported individually above

@@ -87,13 +87,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           buttonVariants({ variant, size, className }),
           loading && "cursor-not-allowed opacity-70",
           // Enhanced focus styles for better accessibility
-          "focus-visible:ring-offset-background",
+          "focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-blue-200",
           // Touch-friendly improvements
           "select-none touch-manipulation",
           // High contrast mode support
-          "border-2 border-transparent",
+          "border-2 border-transparent focus:border-blue-500",
           // Improved hover and active states
-          "hover:scale-[1.02] active:scale-95 transition-transform duration-150"
+          "hover:scale-[1.02] active:scale-95 transition-all duration-150",
+          // Mobile-specific enhancements
+          "min-h-[44px] py-3 px-4 text-base font-medium rounded-md",
+          // Focus indicators for keyboard navigation
+          "focus:ring-2 focus:ring-blue-200 focus:ring-offset-2"
         )}
         ref={ref}
         disabled={disabled || loading}
