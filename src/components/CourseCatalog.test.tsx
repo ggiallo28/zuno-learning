@@ -1,267 +1,353 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { CourseCatalog } from './CourseCatalog'
-import { AppDataContext } from '@/contexts/AppDataContext'
-import { CoachContext } from '@/contexts/CoachContext'
-import { createMockCourse } from '../../tests/factories/courseFactory'
-import { createMockCoachContext } from '../../tests/factories/coachFactory'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { CourseCatalog } from './CourseCatalog';
+import type { Course } from '@/types';
 
-// Mock the actions
-vi.mock('@/actions/loadCourses', () => ({
-  loadCourses: vi.fn()
-}))
+// Mock data for testing
+const mockCourses: Course[] = [
+  {
+    id: '1',
+    title: 'React Fundamentals',
+    description: 'Learn the basics of React',
+    category: 'TECHNOLOGY',
+    difficultyLevel: 'BEGINNER',
+    estimatedDurationDays: 14,
+    isPremium: false,
+    lessonCount: 10,
+    progressPercentage: 0,
+    totalLessons: 10,
+    completedLessons: 0
+  },
+  {
+    id: '2',
+    title: 'Advanced TypeScript',
+    description: 'Master TypeScript advanced features',
+    category: 'TECHNOLOGY',
+    difficultyLevel: 'ADVANCED',
+    estimatedDurationDays: 21,
+    isPremium: true,
+    lessonCount: 15,
+    progressPercentage: 45,
+    enrolledAt: '2024-01-01T00:00:00Z',
+    totalLessons: 15,
+    completedLessons: 7
+  },
+  {
+    id: '3',
+    title: 'Business Communication',
+    description: 'Improve your business communication skills',
+    category: 'BUSINESS',
+    difficultyLevel: 'INTERMEDIATE',
+    estimatedDurationDays: 10,
+    isPremium: false,
+    lessonCount: 8,
+    progressPercentage: 100,
+    enrolledAt: '2024-01-01T00:00:00Z',
+    completedAt: '2024-01-15T00:00:00Z',
+    totalLessons: 8,
+    completedLessons: 8
+  }
+];
 
-vi.mock('@/actions/enrollInCourse', () => ({
-  enrollInCourse: vi.fn()
-}))
+// Mock courses with snake_case properties (SQL format)
+const mockCoursesSQL = [
+  {
+    id: 1,
+    title: 'Python Basics',
+    description: 'Learn Python programming',
+    category: 'TECHNOLOGY',
+    difficulty_level: 'beginner',
+    estimated_duration_days: 12,
+    is_premium: false,
+    lesson_count: 8,
+    progress_percentage: 0,
+    total_lessons: 8,
+    completed_lessons: 0
+  }
+];
 
-const mockCourses = [
-  createMockCourse({ 
-    id: 'course-1', 
-    title: 'JavaScript Fundamentals',
-    category: 'Technology',
-    difficulty: 'Beginner'
-  }),
-  createMockCourse({ 
-    id: 'course-2', 
-    title: 'Advanced React',
-    category: 'Technology',
-    difficulty: 'Advanced'
-  }),
-  createMockCourse({ 
-    id: 'course-3', 
-    title: 'Spanish Basics',
-    category: 'Language',
-    difficulty: 'Beginner'
-  })
-]
+describe('CourseCatalog', () => {
+  const mockOnEnrollInCourse = vi.fn();
+  const mockOnCourseClick = vi.fn();
 
-const mockAppDataContext = {
-  courses: mockCourses,
-  userProfile: null,
-  userCourses: [],
-  isLoading: false,
-  error: null,
-  refreshCourses: vi.fn(),
-  refreshUserProfile: vi.fn(),
-  refreshUserCourses: vi.fn(),
-  enrollInCourse: vi.fn(),
-  updateUserProgress: vi.fn()
-}
-
-const renderWithProviders = (
-  component: React.ReactElement,
-  appDataValue = mockAppDataContext,
-  coachValue = createMockCoachContext()
-) => {
-  return render(
-    <AppDataContext.Provider value={appDataValue}>
-      <CoachContext.Provider value={coachValue}>
-        {component}
-      </CoachContext.Provider>
-    </AppDataContext.Provider>
-  )
-}
-
-describe('CourseCatalog Component', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
-  it('should render course list', async () => {
-    renderWithProviders(<CourseCatalog />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('JavaScript Fundamentals')).toBeInTheDocument()
-      expect(screen.getByText('Advanced React')).toBeInTheDocument()
-      expect(screen.getByText('Spanish Basics')).toBeInTheDocument()
-    })
-  })
+  it('renders course catalog with courses', () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+      />
+    );
 
-  it('should show loading state', () => {
-    const loadingContext = { ...mockAppDataContext, isLoading: true, courses: [] }
-    renderWithProviders(<CourseCatalog />, loadingContext)
-    
-    expect(screen.getByText(/caricamento/i)).toBeInTheDocument()
-  })
+    expect(screen.getByText('React Fundamentals')).toBeInTheDocument();
+    expect(screen.getByText('Advanced TypeScript')).toBeInTheDocument();
+    expect(screen.getByText('Business Communication')).toBeInTheDocument();
+  });
 
-  it('should show error state', () => {
-    const errorContext = { 
-      ...mockAppDataContext, 
-      error: 'Failed to load courses',
-      courses: []
-    }
-    renderWithProviders(<CourseCatalog />, errorContext)
-    
-    expect(screen.getByText(/errore/i)).toBeInTheDocument()
-    expect(screen.getByText(/failed to load courses/i)).toBeInTheDocument()
-  })
+  it('handles both camelCase and snake_case course properties', () => {
+    render(
+      <CourseCatalog
+        courses={[...mockCourses, ...mockCoursesSQL] as Course[]}
+        onEnrollInCourse={mockOnEnrollInCourse}
+      />
+    );
 
-  it('should filter courses by category', async () => {
-    const user = userEvent.setup()
-    renderWithProviders(<CourseCatalog />)
-    
+    // Should render both formats correctly
+    expect(screen.getByText('React Fundamentals')).toBeInTheDocument();
+    expect(screen.getByText('Python Basics')).toBeInTheDocument();
+  });
+
+  it('filters courses by category', async () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+      />
+    );
+
     // Open category filter
-    const categoryFilter = screen.getByRole('combobox', { name: /categoria/i })
-    await user.click(categoryFilter)
-    
-    // Select Technology category
-    const technologyOption = screen.getByRole('option', { name: /technology/i })
-    await user.click(technologyOption)
-    
-    await waitFor(() => {
-      expect(screen.getByText('JavaScript Fundamentals')).toBeInTheDocument()
-      expect(screen.getByText('Advanced React')).toBeInTheDocument()
-      expect(screen.queryByText('Spanish Basics')).not.toBeInTheDocument()
-    })
-  })
+    const categorySelect = screen.getByLabelText('Filter courses by category');
+    fireEvent.click(categorySelect);
 
-  it('should filter courses by difficulty', async () => {
-    const user = userEvent.setup()
-    renderWithProviders(<CourseCatalog />)
-    
+    // Select BUSINESS category
+    const businessOption = screen.getByText('BUSINESS');
+    fireEvent.click(businessOption);
+
+    await waitFor(() => {
+      expect(screen.getByText('Business Communication')).toBeInTheDocument();
+      expect(screen.queryByText('React Fundamentals')).not.toBeInTheDocument();
+      expect(screen.queryByText('Advanced TypeScript')).not.toBeInTheDocument();
+    });
+  });
+
+  it('filters courses by difficulty', async () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+      />
+    );
+
     // Open difficulty filter
-    const difficultyFilter = screen.getByRole('combobox', { name: /difficoltà/i })
-    await user.click(difficultyFilter)
-    
-    // Select Beginner difficulty
-    const beginnerOption = screen.getByRole('option', { name: /beginner/i })
-    await user.click(beginnerOption)
-    
+    const difficultySelect = screen.getByLabelText('Filter courses by difficulty level');
+    fireEvent.click(difficultySelect);
+
+    // Select Advanced difficulty
+    const advancedOption = screen.getByText('Advanced');
+    fireEvent.click(advancedOption);
+
     await waitFor(() => {
-      expect(screen.getByText('JavaScript Fundamentals')).toBeInTheDocument()
-      expect(screen.getByText('Spanish Basics')).toBeInTheDocument()
-      expect(screen.queryByText('Advanced React')).not.toBeInTheDocument()
-    })
-  })
+      expect(screen.getByText('Advanced TypeScript')).toBeInTheDocument();
+      expect(screen.queryByText('React Fundamentals')).not.toBeInTheDocument();
+      expect(screen.queryByText('Business Communication')).not.toBeInTheDocument();
+    });
+  });
 
-  it('should search courses by title', async () => {
-    const user = userEvent.setup()
-    renderWithProviders(<CourseCatalog />)
-    
-    const searchInput = screen.getByRole('textbox', { name: /cerca corsi/i })
-    await user.type(searchInput, 'JavaScript')
-    
+  it('searches courses by title and description', async () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+        showSearch={true}
+      />
+    );
+
+    const searchInput = screen.getByPlaceholderText('Search courses by title, description, or category...');
+    fireEvent.change(searchInput, { target: { value: 'React' } });
+
     await waitFor(() => {
-      expect(screen.getByText('JavaScript Fundamentals')).toBeInTheDocument()
-      expect(screen.queryByText('Advanced React')).not.toBeInTheDocument()
-      expect(screen.queryByText('Spanish Basics')).not.toBeInTheDocument()
-    })
-  })
+      expect(screen.getByText('React Fundamentals')).toBeInTheDocument();
+      expect(screen.queryByText('Advanced TypeScript')).not.toBeInTheDocument();
+      expect(screen.queryByText('Business Communication')).not.toBeInTheDocument();
+    });
+  });
 
-  it('should handle course enrollment', async () => {
-    const user = userEvent.setup()
-    const mockEnroll = vi.fn()
-    const contextWithEnroll = { ...mockAppDataContext, enrollInCourse: mockEnroll }
-    
-    renderWithProviders(<CourseCatalog />, contextWithEnroll)
-    
-    const enrollButton = screen.getAllByText(/iscriviti/i)[0]
-    await user.click(enrollButton)
-    
-    expect(mockEnroll).toHaveBeenCalledWith('course-1')
-  })
+  it('sorts courses correctly', async () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+        showSort={true}
+      />
+    );
 
-  it('should show course details on card click', async () => {
-    const user = userEvent.setup()
-    renderWithProviders(<CourseCatalog />)
-    
-    const courseCard = screen.getByText('JavaScript Fundamentals').closest('.course-card')
-    await user.click(courseCard!)
-    
-    // Should show course details modal or navigate to course page
+    // Open sort dropdown
+    const sortSelect = screen.getByLabelText('Sort courses');
+    fireEvent.click(sortSelect);
+
+    // Select difficulty sort
+    const difficultySort = screen.getByText('Difficulty');
+    fireEvent.click(difficultySort);
+
     await waitFor(() => {
-      expect(screen.getByText(/dettagli del corso/i)).toBeInTheDocument()
-    })
-  })
+      const courseCards = screen.getAllByRole('listitem');
+      // Should be sorted by difficulty: BEGINNER, INTERMEDIATE, ADVANCED
+      expect(courseCards[0]).toHaveTextContent('React Fundamentals'); // BEGINNER
+      expect(courseCards[1]).toHaveTextContent('Business Communication'); // INTERMEDIATE
+      expect(courseCards[2]).toHaveTextContent('Advanced TypeScript'); // ADVANCED
+    });
+  });
 
-  it('should display course metadata correctly', () => {
-    renderWithProviders(<CourseCatalog />)
-    
-    // Check for course duration
-    expect(screen.getByText(/120 min/i)).toBeInTheDocument()
-    
-    // Check for difficulty badges
-    expect(screen.getByText('Beginner')).toBeInTheDocument()
-    expect(screen.getByText('Advanced')).toBeInTheDocument()
-    
-    // Check for category badges
-    expect(screen.getAllByText('Technology')).toHaveLength(2)
-    expect(screen.getByText('Language')).toBeInTheDocument()
-  })
+  it('displays course progress for enrolled courses', () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+      />
+    );
 
-  it('should show empty state when no courses match filters', async () => {
-    const user = userEvent.setup()
-    renderWithProviders(<CourseCatalog />)
+    // Advanced TypeScript should show progress
+    expect(screen.getByText('45%')).toBeInTheDocument();
     
-    const searchInput = screen.getByRole('textbox', { name: /cerca corsi/i })
-    await user.type(searchInput, 'NonexistentCourse')
-    
+    // Business Communication should show completed status
+    expect(screen.getByText('Completed')).toBeInTheDocument();
+  });
+
+  it('shows premium badge for premium courses', () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+      />
+    );
+
+    expect(screen.getByText('Premium')).toBeInTheDocument();
+  });
+
+  it('calls onEnrollInCourse when enroll button is clicked', async () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+      />
+    );
+
+    const enrollButton = screen.getByText('Enroll Now');
+    fireEvent.click(enrollButton);
+
+    expect(mockOnEnrollInCourse).toHaveBeenCalledWith('1');
+  });
+
+  it('calls onCourseClick when course card is clicked', async () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+        onCourseClick={mockOnCourseClick}
+      />
+    );
+
+    const courseCard = screen.getByLabelText('React Fundamentals');
+    fireEvent.click(courseCard);
+
+    expect(mockOnCourseClick).toHaveBeenCalledWith(mockCourses[0]);
+  });
+
+  it('shows empty state when no courses match filters', async () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+        showSearch={true}
+      />
+    );
+
+    const searchInput = screen.getByPlaceholderText('Search courses by title, description, or category...');
+    fireEvent.change(searchInput, { target: { value: 'NonexistentCourse' } });
+
     await waitFor(() => {
-      expect(screen.getByText(/nessun corso trovato/i)).toBeInTheDocument()
-    })
-  })
+      expect(screen.getByText('No courses found')).toBeInTheDocument();
+      expect(screen.getByText('Try adjusting your filters to see more courses.')).toBeInTheDocument();
+    });
+  });
 
-  it('should clear filters', async () => {
-    const user = userEvent.setup()
-    renderWithProviders(<CourseCatalog />)
-    
-    // Apply a filter
-    const searchInput = screen.getByRole('textbox', { name: /cerca corsi/i })
-    await user.type(searchInput, 'JavaScript')
-    
-    // Clear filters
-    const clearButton = screen.getByRole('button', { name: /cancella filtri/i })
-    await user.click(clearButton)
-    
+  it('clears all filters when clear button is clicked', async () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+        showSearch={true}
+        showFilters={true}
+      />
+    );
+
+    // Apply some filters
+    const searchInput = screen.getByPlaceholderText('Search courses by title, description, or category...');
+    fireEvent.change(searchInput, { target: { value: 'React' } });
+
+    // Clear all filters
+    const clearButton = screen.getByText('Clear All');
+    fireEvent.click(clearButton);
+
     await waitFor(() => {
-      expect(screen.getByText('JavaScript Fundamentals')).toBeInTheDocument()
-      expect(screen.getByText('Advanced React')).toBeInTheDocument()
-      expect(screen.getByText('Spanish Basics')).toBeInTheDocument()
-    })
-  })
+      expect(searchInput).toHaveValue('');
+      expect(screen.getByText('React Fundamentals')).toBeInTheDocument();
+      expect(screen.getByText('Advanced TypeScript')).toBeInTheDocument();
+      expect(screen.getByText('Business Communication')).toBeInTheDocument();
+    });
+  });
 
-  it('should be accessible', () => {
-    renderWithProviders(<CourseCatalog />)
-    
-    // Check for proper headings
-    expect(screen.getByRole('heading', { name: /catalogo corsi/i })).toBeInTheDocument()
-    
-    // Check for proper form labels
-    expect(screen.getByLabelText(/cerca corsi/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/categoria/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/difficoltà/i)).toBeInTheDocument()
-    
-    // Check for proper button labels
-    expect(screen.getByRole('button', { name: /cancella filtri/i })).toBeInTheDocument()
-  })
+  it('displays correct difficulty colors', () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+      />
+    );
 
-  it('should handle keyboard navigation', async () => {
-    const user = userEvent.setup()
-    renderWithProviders(<CourseCatalog />)
-    
-    // Tab through interactive elements
-    await user.tab()
-    expect(screen.getByRole('textbox', { name: /cerca corsi/i })).toHaveFocus()
-    
-    await user.tab()
-    expect(screen.getByRole('combobox', { name: /categoria/i })).toHaveFocus()
-    
-    await user.tab()
-    expect(screen.getByRole('combobox', { name: /difficoltà/i })).toHaveFocus()
-  })
+    // Check that difficulty badges have correct styling
+    const beginnerBadge = screen.getByText('Beginner');
+    const intermediateBadge = screen.getByText('Intermediate');
+    const advancedBadge = screen.getByText('Advanced');
 
-  it('should refresh courses when refresh button is clicked', async () => {
-    const user = userEvent.setup()
-    const mockRefresh = vi.fn()
-    const contextWithRefresh = { ...mockAppDataContext, refreshCourses: mockRefresh }
-    
-    renderWithProviders(<CourseCatalog />, contextWithRefresh)
-    
-    const refreshButton = screen.getByRole('button', { name: /aggiorna/i })
-    await user.click(refreshButton)
-    
-    expect(mockRefresh).toHaveBeenCalled()
-  })
-})
+    expect(beginnerBadge).toHaveClass('bg-green-100', 'text-green-800');
+    expect(intermediateBadge).toHaveClass('bg-yellow-100', 'text-yellow-800');
+    expect(advancedBadge).toHaveClass('bg-red-100', 'text-red-800');
+  });
+
+  it('shows correct lesson count and duration', () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+      />
+    );
+
+    expect(screen.getByText('10 lessons')).toBeInTheDocument();
+    expect(screen.getByText('14 days')).toBeInTheDocument();
+  });
+
+  it('handles loading state correctly', () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+        isEnrolling={true}
+      />
+    );
+
+    const enrollButton = screen.getByText('Enrolling...');
+    expect(enrollButton).toBeDisabled();
+  });
+
+  it('meets accessibility requirements', () => {
+    render(
+      <CourseCatalog
+        courses={mockCourses}
+        onEnrollInCourse={mockOnEnrollInCourse}
+      />
+    );
+
+    // Check for proper ARIA labels
+    expect(screen.getByLabelText('Course search and filters')).toBeInTheDocument();
+    expect(screen.getByLabelText('Available courses')).toBeInTheDocument();
+    expect(screen.getByLabelText('Filter courses by category')).toBeInTheDocument();
+    expect(screen.getByLabelText('Filter courses by difficulty level')).toBeInTheDocument();
+
+    // Check for screen reader announcements
+    expect(screen.getByText('Showing 3 courses')).toBeInTheDocument();
+  });
+});

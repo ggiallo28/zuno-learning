@@ -13,6 +13,7 @@ import { ResponsiveManager } from '@/utils/responsive';
 const HomePage = lazy(() => import('@/components/HomePage').then(module => ({ default: module.HomePage })));
 const AuthFlow = lazy(() => import('@/components/auth/AuthFlow').then(module => ({ default: module.AuthFlow })));
 const AuthenticatedApp = lazy(() => import('@/components/AuthenticatedApp').then(module => ({ default: module.AuthenticatedApp })));
+const PublicCoursePage = lazy(() => import('@/components/course/PublicCoursePage').then(module => ({ default: module.PublicCoursePage })));
 
 // Loading component for suspense fallbacks
 function LoadingSpinner() {
@@ -59,6 +60,12 @@ function AppRoutes() {
         <Route 
           path="/" 
           element={<HomePage />} 
+        />
+        
+        {/* Public course preview routes */}
+        <Route 
+          path="/course/:courseId" 
+          element={<PublicCoursePage />} 
         />
         
         {/* Auth routes */}

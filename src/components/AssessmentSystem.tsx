@@ -48,7 +48,7 @@ interface Assessment {
 
 interface AssessmentSystemProps {
   userId: string;
-  onStartAssessment: (type: 'initial' | 'progress' | 'focus_check') => void;
+  onStartAssessment: (type: 'initial' | 'progress' | 'focus_check') => Promise<void> | void;
   onViewSkillMap: () => void;
   knowledgeGaps?: KnowledgeGap[];
   recentAssessments?: Assessment[];

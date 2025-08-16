@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useState, useEffect, Suspense, lazy } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { UserProfile } from '@/components/UserProfile';
 import { ZunoBrandHeader } from '@/components/ZunoBrandHeader';
 import { useCoach } from '@/contexts/CoachContext';
@@ -16,17 +17,21 @@ const CourseCatalog = lazy(() => import('@/components/CourseCatalog').then(modul
 const OnboardingFlow = lazy(() => import('@/components/OnboardingFlow').then(module => ({ default: module.OnboardingFlow })));
 const CoachSelection = lazy(() => import('@/components/CoachSelection').then(module => ({ default: module.CoachSelection })));
 const AssessmentSystem = lazy(() => import('@/components/AssessmentSystem').then(module => ({ default: module.AssessmentSystem })));
-const AdaptiveCoachIndicator = lazy(() => import('@/components/AdaptiveCoachIndicator').then(module => ({ default: module.AdaptiveCoachIndicator })));
 
-import loadCoursesAction from '@/actions/loadCourses';
+const AdaptiveCoachIndicator = lazy(() => import('@/components/AdaptiveCoachIndicator').then(module => ({ default: module.AdaptiveCoachIndicator })));
+const QuizRoute = lazy(() => import('@/components/quiz/QuizRoute').then(module => ({ default: module.QuizRoute })));
+const CoursePage = lazy(() => import('@/components/course/CoursePage').then(module => ({ default: module.CoursePage })));
+
 import loadUserProfileAction from '@/actions/loadUserProfile';
-import loadUserCoursesAction from '@/actions/loadUserCourses';
 import createUserAction from '@/actions/createUser';
-import enrollInCourseAction from '@/actions/enrollInCourse';
 import updateUserCoachAction from '@/actions/updateUserCoach';
 import loadUserAssessmentsAction from '@/actions/loadUserAssessments';
 import loadUserKnowledgeGapsAction from '@/actions/loadUserKnowledgeGaps';
 import createAssessmentAction from '@/actions/createAssessment';
+import { AppDataProvider } from '@/contexts/AppDataContext';
+
+// Import unified services
+import { CourseService } from '@/services/courseService';
 
 import type { User, Course, CoachType, Assessment, KnowledgeGap } from '@/types';
 import { CoachNameValues } from '@/api/amplify';
@@ -41,7 +46,8 @@ function TabLoadingSpinner() {
   );
 }
 
-export function AuthenticatedApp() {
+function AuthenticatedAppDashboard() {
+  const navigate = useNavigate();
   const { user: authUser, signOut } = useAuth();
   const [showCoachSettings, setShowCoachSettings] = useState(false);
 
@@ -57,6 +63,8 @@ export function AuthenticatedApp() {
   const [enrolling, setEnrolling] = useState(false);
   const [updatingCoach, setUpdatingCoach] = useState(false);
   const [assessmentLoading, setAssessmentLoading] = useState(false);
+  
+
 
   const { currentCoach, coachConfig, theme, setCoach } = useCoach();
   const { adaptToScenario, currentMode } = useAdaptiveBehavior({
@@ -92,9 +100,10 @@ export function AuthenticatedApp() {
           userProfile = await createUserAction();
         }
         
+        // Use unified course service
         const [allCourses, userCourses, userAssessments, userKnowledgeGaps] = await Promise.all([
-          loadCoursesAction(),
-          loadUserCoursesAction(),
+          CourseService.loadCourses(),
+          CourseService.loadUserCourses(userProfile.id),
           loadUserAssessmentsAction(userProfile.id, 10),
           loadUserKnowledgeGapsAction(userProfile.id)
         ]);
@@ -163,10 +172,10 @@ export function AuthenticatedApp() {
     
     try {
       setEnrolling(true);
-      await enrollInCourseAction({ userId: user.id, courseId });
+      await CourseService.enrollInCourse({ userId: user.id, courseId });
       confetti({ particleCount: 50, spread: 60 });
-      // Refresh data
-      const userCourses = await loadUserCoursesAction();
+      // Refresh data using unified service
+      const userCourses = await CourseService.loadUserCourses(user.id);
       setEnrolledCourses(userCourses);
     } catch (error) {
       console.error('Error enrolling in course:', error);
@@ -314,6 +323,7 @@ export function AuthenticatedApp() {
               courses={courses}
               onEnrollInCourse={handleEnrollInCourse}
               isEnrolling={enrolling}
+              onCourseClick={(course) => navigate(`/app/course/${course.id}`)}
             />
           </Suspense>
         </TabsContent>
@@ -326,6 +336,7 @@ export function AuthenticatedApp() {
                   courses={enrolledCourses}
                   onEnrollInCourse={handleEnrollInCourse}
                   isEnrolling={false}
+                  onCourseClick={(course) => navigate(`/app/course/${course.id}`)}
                 />
               </Suspense>
             ) : (
@@ -539,5 +550,33 @@ export function AuthenticatedApp() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export function AuthenticatedApp() {
+  const location = useLocation();
+  
+  // Check if we're on a course or quiz route
+  const isCourseRoute = location.pathname.includes('/course/');
+  const isQuizRoute = location.pathname.includes('/quiz');
+  
+  return (
+    <AppDataProvider>
+      {isCourseRoute || isQuizRoute ? (
+        <Suspense fallback={<TabLoadingSpinner />}>
+          <Routes>
+            {/* Course routes */}
+            <Route path="/course/:courseId" element={<CoursePage />} />
+            <Route path="/course/:courseId/lesson/:lessonId" element={<CoursePage />} />
+            <Route path="/course/:courseId/lesson/:lessonId/quiz" element={<QuizRoute />} />
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/app" replace />} />
+          </Routes>
+        </Suspense>
+      ) : (
+        // Default dashboard view
+        <AuthenticatedAppDashboard />
+      )}
+    </AppDataProvider>
   );
 }

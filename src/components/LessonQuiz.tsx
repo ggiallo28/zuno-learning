@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Brain } from "lucide-react";
+import { QuizSystem } from "@/components/quiz/QuizSystem";
 
 interface QuizQuestion {
   id: string;
@@ -15,9 +16,11 @@ interface QuizQuestion {
 interface LessonQuizProps {
   questions: QuizQuestion[];
   onQuizComplete: (score: number, totalQuestions: number) => void;
+  lessonId?: string;
+  useNewSystem?: boolean; // Flag to use the new quiz system
 }
 
-export function LessonQuiz({ questions, onQuizComplete }: LessonQuizProps) {
+export function LessonQuiz({ questions, onQuizComplete, lessonId, useNewSystem = false }: LessonQuizProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -26,6 +29,29 @@ export function LessonQuiz({ questions, onQuizComplete }: LessonQuizProps) {
 
   const question = questions[currentQuestion];
   const isLastQuestion = currentQuestion === questions.length - 1;
+
+  // Handle new quiz system completion
+  const handleNewQuizComplete = async (score: number, totalQuestions: number, _answers: Record<string, string>) => {
+    onQuizComplete(score, totalQuestions);
+  };
+
+  // Use new quiz system if enabled and lessonId is provided
+  if (useNewSystem && lessonId) {
+    return (
+      <QuizSystem
+        lessonId={lessonId}
+        questions={questions.map(q => ({
+          id: q.id,
+          questionText: q.question,
+          options: q.options,
+          correctAnswer: q.options[q.correctAnswer],
+          explanation: q.explanation
+        }))}
+        onQuizComplete={handleNewQuizComplete}
+        showNavigation={false}
+      />
+    );
+  }
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (showResult) return;

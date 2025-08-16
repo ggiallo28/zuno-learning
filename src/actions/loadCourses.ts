@@ -14,7 +14,7 @@ async function loadCourses(category?: string): Promise<Course[]> {
 
     const items = response.data?.zunoCatalogsByItemTypeAndTimestamp?.items || [];
     
-    const courses = items
+    let courses = items
       .filter((item: ZunoCatalog | null) => item?.metadata?.course)
       .map((item: ZunoCatalog) => ({
         id: item.id,
@@ -29,6 +29,51 @@ async function loadCourses(category?: string): Promise<Course[]> {
         totalLessons: 2,
         completedLessons: 0
       } as Course));
+
+    // If no courses found, provide sample courses for demonstration
+    if (courses.length === 0) {
+      courses = [
+        {
+          id: 'sample_course_programming_basics',
+          title: 'Fondamenti di Programmazione',
+          category: 'TECHNOLOGY',
+          difficultyLevel: 'BEGINNER',
+          description: 'Impara i concetti base della programmazione con esempi pratici e quiz interattivi.',
+          estimatedDurationDays: 7,
+          isPremium: false,
+          lessonCount: 3,
+          progressPercentage: 0,
+          totalLessons: 3,
+          completedLessons: 0
+        },
+        {
+          id: 'sample_course_web_development',
+          title: 'Sviluppo Web Moderno',
+          category: 'TECHNOLOGY',
+          difficultyLevel: 'INTERMEDIATE',
+          description: 'Scopri le tecnologie moderne per lo sviluppo web: HTML5, CSS3, JavaScript e framework.',
+          estimatedDurationDays: 14,
+          isPremium: false,
+          lessonCount: 5,
+          progressPercentage: 0,
+          totalLessons: 5,
+          completedLessons: 0
+        },
+        {
+          id: 'sample_course_data_science',
+          title: 'Introduzione alla Data Science',
+          category: 'TECHNOLOGY',
+          difficultyLevel: 'INTERMEDIATE',
+          description: 'Esplora il mondo della data science con Python, analisi dati e machine learning.',
+          estimatedDurationDays: 21,
+          isPremium: true,
+          lessonCount: 8,
+          progressPercentage: 0,
+          totalLessons: 8,
+          completedLessons: 0
+        }
+      ] as Course[];
+    }
 
     // Filter by category if provided
     if (category) {

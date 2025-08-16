@@ -1,6 +1,6 @@
 import { client } from '../lib/graphql';
 import { zunoCatalogsByParentWithMetadata, zunoEntriesByUserWithMetadata } from '../api/graphql/customQueries';
-import type { Lesson, CatalogItemTypeValues, ZunoEntryTypeValues, ZunoCatalog, ZunoEntry } from '../types';
+import type { Lesson, CatalogItemTypeValues, ZunoEntryTypeValues, ZunoCatalog, ZunoEntry, LessonTypeValues } from '../types';
 import type { GraphQLResult } from '@aws-amplify/api-graphql';
 
 interface LoadLessonsParams {
@@ -31,7 +31,7 @@ async function loadLessons(params: LoadLessonsParams): Promise<LessonWithStatus[
 
     const items = lessonsResponse.data?.zunoCatalogsByParentIdAndItemTypeAndTimestamp?.items || [];
     
-    const lessons: LessonWithStatus[] = items
+    let lessons: LessonWithStatus[] = items
       .filter((item: ZunoCatalog | null) => item?.metadata?.lesson)
       .map((item: ZunoCatalog) => ({
         id: item.id,
@@ -46,6 +46,51 @@ async function loadLessons(params: LoadLessonsParams): Promise<LessonWithStatus[
         score: 0,
         attempts: 0
       }));
+
+    // If no lessons found, provide sample lessons for demonstration
+    if (lessons.length === 0) {
+      lessons = [
+        {
+          id: `${params.courseId}_lesson_1`,
+          courseId: params.courseId,
+          title: 'Introduzione ai Concetti Base',
+          lessonOrder: 1,
+          lessonType: 'READING' as LessonTypeValues,
+          content: 'In questa lezione imparerai i concetti fondamentali della programmazione, inclusi variabili, tipi di dati e strutture di controllo.',
+          xpReward: 50,
+          estimatedMinutes: 10,
+          isCompleted: false,
+          score: 0,
+          attempts: 0
+        },
+        {
+          id: `${params.courseId}_lesson_2`,
+          courseId: params.courseId,
+          title: 'Funzioni e Modularità',
+          lessonOrder: 2,
+          lessonType: 'READING' as LessonTypeValues,
+          content: 'Scopri come organizzare il tuo codice utilizzando funzioni per creare programmi più leggibili e riutilizzabili.',
+          xpReward: 75,
+          estimatedMinutes: 15,
+          isCompleted: false,
+          score: 0,
+          attempts: 0
+        },
+        {
+          id: `${params.courseId}_lesson_3`,
+          courseId: params.courseId,
+          title: 'Quiz di Verifica',
+          lessonOrder: 3,
+          lessonType: 'QUIZ' as LessonTypeValues,
+          content: 'Metti alla prova le tue conoscenze con questo quiz interattivo sui concetti appresi.',
+          xpReward: 100,
+          estimatedMinutes: 8,
+          isCompleted: false,
+          score: 0,
+          attempts: 0
+        }
+      ];
+    }
 
     // If userId is provided, get completion status
     if (params.userId) {

@@ -5,9 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, Clock, Award, ArrowRight, ArrowLeft, Crown } from 'lucide-react';
+import { CheckCircle, Clock, Award, ArrowRight, ArrowLeft, Crown, Brain } from 'lucide-react';
 import { useZunoManager } from '@/contexts/ZunoManagerContext';
 import { useCoach } from '@/contexts/CoachContext';
+import { QuizSystem } from '@/components/quiz/QuizSystem';
+import { useQuizSystem } from '@/hooks/useQuizSystem';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Lesson } from '@/types';
 import { LessonTypeValues } from '@/types';
 
@@ -27,27 +30,57 @@ interface LessonViewerProps {
   onComplete: (score?: number) => Promise<void>;
   onNext?: () => void;
   onPrevious?: () => void;
+  onBackToCourse?: () => void;
   isCompleting?: boolean;
+  useIntegratedQuiz?: boolean; // New prop to use the integrated quiz system
 }
 
 export function LessonViewer({ 
   lesson, 
   questions = [], 
   onComplete, 
+  onBackToCourse,
   onNext, 
   onPrevious, 
-  isCompleting 
+  isCompleting,
+  useIntegratedQuiz = true
 }: LessonViewerProps) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState<number>(0);
   const { getCoordinationMessage } = useZunoManager();
   const { currentCoach } = useCoach();
+  const { user } = useAuth();
 
-  const lessonType = lesson.lessonType ?? LessonTypeValues.QUIZ;
+  // Integrated quiz system
+  const {
+    questions: integratedQuestions,
+    isLoading: quizLoading,
+    isCompleting: quizCompleting,
+    error: quizError,
+    getQuizStats
+  } = useQuizSystem({
+    lessonId: lesson.id,
+    userId: user?.userId || '',
+    autoLoad: useIntegratedQuiz && lesson.lessonType === LessonTypeValues.QUIZ
+  });
+
+  const lessonType = lesson.lessonType ?? LessonTypeValues.TEXT;
+  const quizStats = getQuizStats();
+
+  // Use integrated questions if available and enabled
+  const activeQuestions = useIntegratedQuiz && integratedQuestions.length > 0 
+    ? integratedQuestions 
+    : questions;
 
   const handleAnswerChange = (questionId: number, answer: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: answer }));
+  };
+
+  // Handle integrated quiz completion
+  const handleIntegratedQuizComplete = async (score: number, totalQuestions: number, _answers: Record<string, string>) => {
+    const finalScore = totalQuestions > 0 ? (score / totalQuestions) * 100 : 100;
+    await onComplete(finalScore);
   };
 
   const handleSubmitQuiz = async () => {
@@ -93,6 +126,20 @@ export function LessonViewer({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Back to Course Button */}
+      {onBackToCourse && (
+        <div className="flex items-center">
+          <Button
+            variant="ghost"
+            onClick={onBackToCourse}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Course
+          </Button>
+        </div>
+      )}
+      
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -142,53 +189,101 @@ export function LessonViewer({
 
           {lessonType === LessonTypeValues.QUIZ && !showResults && (
             <div className="space-y-6">
-              <div className="prose max-w-none mb-6">
-                <div className="whitespace-pre-line text-base leading-relaxed">
-                  {lesson.content}
+              {/* Lesson content */}
+              {lesson.content && (
+                <div className="prose max-w-none mb-6">
+                  <div className="whitespace-pre-line text-base leading-relaxed">
+                    {lesson.content}
+                  </div>
                 </div>
-              </div>
+              )}
               
-              <div className="space-y-6">
-                {questions.map((question, index) => (
-                  <Card key={question.id} className="p-4">
-                    <div className="space-y-4">
-                      <h4 className="font-medium">
-                        Question {index + 1}: {question.question_text}
-                      </h4>
-                      
-                      {question.question_type === 'multiple_choice' && question.options && (
-                        <RadioGroup
-                          value={answers[question.id] || ''}
-                          onValueChange={(value) => handleAnswerChange(question.id, value)}
-                        >
-                          {question.options.map((option, optionIndex) => (
-                            <div key={optionIndex} className="flex items-center space-x-2">
-                              <RadioGroupItem value={option} id={`q${question.id}_${optionIndex}`} />
-                              <Label htmlFor={`q${question.id}_${optionIndex}`}>{option}</Label>
+              {/* Integrated Quiz System */}
+              {useIntegratedQuiz && (quizStats.hasQuestions || lessonType === LessonTypeValues.QUIZ) ? (
+                <div className="space-y-4">
+                  {quizLoading && (
+                    <Card className="p-6 text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                      <div>Loading quiz questions...</div>
+                    </Card>
+                  )}
+                  
+                  {quizError && (
+                    <Card className="p-6 text-center border-red-200 bg-red-50">
+                      <Brain className="h-8 w-8 text-red-500 mx-auto mb-2" />
+                      <p className="text-red-700">Error loading quiz: {quizError}</p>
+                    </Card>
+                  )}
+                  
+                  {!quizLoading && !quizError && (
+                    <QuizSystem
+                      lessonId={lesson.id}
+                      questions={integratedQuestions.map(q => ({
+                        id: q.id,
+                        lessonId: q.lessonId,
+                        questionText: q.questionText,
+                        questionType: q.questionType,
+                        possibilities: q.possibilities?.map(p => ({
+                          __typename: "QuizPossibilityObject" as const,
+                          text: p.text,
+                          isCorrect: p.isCorrect,
+                          imageUrl: p.imageUrl,
+                          audioUrl: p.audioUrl
+                        })),
+                        rightAnswerCount: q.rightAnswerCount
+                      }))}
+                      onQuizComplete={handleIntegratedQuizComplete}
+                      onNext={onNext}
+                      onPrevious={onPrevious}
+                      isCompleting={isCompleting || quizCompleting}
+                      showNavigation={false} // Navigation handled by parent
+                    />
+                  )}
+                </div>
+              ) : (
+                // Fallback to legacy quiz system
+                <div className="space-y-6">
+                  {activeQuestions.map((question, index) => (
+                    <Card key={question.id} className="p-4">
+                      <div className="space-y-4">
+                        <h4 className="font-medium">
+                          Question {index + 1}: {(question as any).question_text}
+                        </h4>
+                        
+                        {(question as any).question_type === 'multiple_choice' && (question as any).options && (
+                          <RadioGroup
+                            value={answers[question.id as any] || ''}
+                            onValueChange={(value) => handleAnswerChange(question.id as any, value)}
+                          >
+                            {(question as any).options.map((option: any, optionIndex: number) => (
+                              <div key={optionIndex} className="flex items-center space-x-2">
+                                <RadioGroupItem value={option} id={`q${question.id}_${optionIndex}`} />
+                                <Label htmlFor={`q${question.id}_${optionIndex}`}>{option}</Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        )}
+                        
+                        {(question as any).question_type === 'true_false' && (
+                          <RadioGroup
+                            value={answers[question.id as any] || ''}
+                            onValueChange={(value) => handleAnswerChange(question.id as any, value)}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="true" id={`q${question.id}_true`} />
+                              <Label htmlFor={`q${question.id}_true`}>True</Label>
                             </div>
-                          ))}
-                        </RadioGroup>
-                      )}
-                      
-                      {question.question_type === 'true_false' && (
-                        <RadioGroup
-                          value={answers[question.id] || ''}
-                          onValueChange={(value) => handleAnswerChange(question.id, value)}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="true" id={`q${question.id}_true`} />
-                            <Label htmlFor={`q${question.id}_true`}>True</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="false" id={`q${question.id}_false`} />
-                            <Label htmlFor={`q${question.id}_false`}>False</Label>
-                          </div>
-                        </RadioGroup>
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="false" id={`q${question.id}_false`} />
+                              <Label htmlFor={`q${question.id}_false`}>False</Label>
+                            </div>
+                          </RadioGroup>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -278,10 +373,10 @@ export function LessonViewer({
         </Button>
 
         <div className="flex space-x-2">
-          {lessonType === LessonTypeValues.QUIZ && !showResults && (
+          {lessonType === LessonTypeValues.QUIZ && !showResults && !useIntegratedQuiz && (
             <Button 
               onClick={handleSubmitQuiz}
-              disabled={Object.keys(answers).length < questions.length || isCompleting}
+              disabled={Object.keys(answers).length < activeQuestions.length || isCompleting}
             >
               {isCompleting ? 'Submitting...' : 'Submit Quiz'}
             </Button>

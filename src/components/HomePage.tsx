@@ -12,6 +12,8 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { CourseService } from "@/services/courseService";
+import type { Course } from "@/types";
 import {
     Select,
     SelectContent,
@@ -68,6 +70,8 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
     const [videoTitle, setVideoTitle] = useState("");
     const [userProfile, setUserProfile] = useState<any>(null);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [coursesLoading, setCoursesLoading] = useState(true);
 
     // Close mobile menu on escape key
     useEffect(() => {
@@ -102,6 +106,23 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
                 });
         }
     }, [isAuthenticated]);
+
+    // Load courses for the catalog section
+    useEffect(() => {
+        const loadCourses = async () => {
+            try {
+                setCoursesLoading(true);
+                const loadedCourses = await CourseService.loadCourses();
+                setCourses(loadedCourses.slice(0, 6)); // Show first 6 courses
+            } catch (error) {
+                console.error("Error loading courses:", error);
+            } finally {
+                setCoursesLoading(false);
+            }
+        };
+
+        loadCourses();
+    }, []);
 
     // Default handlers if not provided
     const handleGetStarted =
@@ -1119,98 +1140,104 @@ export function HomePage({ onGetStarted, onLogin, onRegister }: HomePageProps) {
 
                     {/* Course Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[
-                            {
-                                title: "Python",
-                                subtitle: "Introduzione a Python",
-                                desc: "Le basi della programmazione con uno dei linguaggi più richiesti.",
-                                difficulty: "PRINCIPIANTI",
-                                color: "bg-blue-500",
-                                textColor: "text-blue-500",
-                                bgColor: "bg-blue-50",
-                            },
-                            {
-                                title: "Data Science",
-                                subtitle: "Data Science con Pandas",
-                                desc: "Analizza e manipola dati in modo efficiente.",
-                                difficulty: "INTERMEDIO",
-                                color: "bg-yellow-500",
-                                textColor: "text-yellow-600",
-                                bgColor: "bg-yellow-50",
-                            },
-                            {
-                                title: "AI/ML",
-                                subtitle: "Machine Learning Avanzato",
-                                desc: "Implementa modelli complessi con TensorFlow e PyTorch.",
-                                difficulty: "AVANZATO",
-                                color: "bg-orange-500",
-                                textColor: "text-orange-600",
-                                bgColor: "bg-orange-50",
-                            },
-                            {
-                                title: "React",
-                                subtitle: "Web Development con React",
-                                desc: "Costruisci interfacce web interattive e moderne.",
-                                difficulty: "INTERMEDIO",
-                                color: "bg-cyan-500",
-                                textColor: "text-cyan-600",
-                                bgColor: "bg-cyan-50",
-                            },
-                            {
-                                title: "UI/UX",
-                                subtitle: "Design di UI/UX",
-                                desc: "Progetta esperienze digitali intuitive e piacevoli.",
-                                difficulty: "PRINCIPIANTI",
-                                color: "bg-purple-500",
-                                textColor: "text-purple-600",
-                                bgColor: "bg-purple-50",
-                            },
-                            {
-                                title: "Agile",
-                                subtitle: "Project Management Agile",
-                                desc: "Gestisci progetti complessi con metodologie flessibili.",
-                                difficulty: "AVANZATO",
-                                color: "bg-blue-600",
-                                textColor: "text-blue-700",
-                                bgColor: "bg-blue-50",
-                            },
-                        ].map((course, index) => (
-                            <Card
-                                key={index}
-                                className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] hover:shadow-lg transition-all hover:scale-105 overflow-hidden"
-                            >
-                                <div
-                                    className={`h-24 ${course.color} flex items-center justify-center`}
+                        {coursesLoading ? (
+                            // Loading skeleton
+                            Array.from({ length: 6 }).map((_, index) => (
+                                <Card
+                                    key={index}
+                                    className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] overflow-hidden"
                                 >
-                                    <h3 className="text-white text-2xl font-bold">
-                                        {course.title}
-                                    </h3>
-                                </div>
-                                <CardContent className="p-5">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <Badge
-                                            className={`${course.bgColor} ${course.textColor} border-0 text-xs`}
-                                        >
-                                            {course.difficulty}
-                                        </Badge>
-                                    </div>
-                                    <h4 className="font-bold text-lg mb-2 text-foreground">
-                                        {course.subtitle}
-                                    </h4>
-                                    <p className="text-muted-foreground text-sm mb-4">
-                                        {course.desc}
-                                    </p>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className={`w-full border ${course.textColor} hover:${course.bgColor}`}
-                                        onClick={handleGetStarted}
+                                    <div className="h-24 bg-gray-200 animate-pulse"></div>
+                                    <CardContent className="p-5">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
+                                        </div>
+                                        <div className="h-6 w-full bg-gray-200 animate-pulse rounded mb-2"></div>
+                                        <div className="h-4 w-full bg-gray-200 animate-pulse rounded mb-2"></div>
+                                        <div className="h-4 w-3/4 bg-gray-200 animate-pulse rounded mb-4"></div>
+                                        <div className="h-9 w-full bg-gray-200 animate-pulse rounded"></div>
+                                    </CardContent>
+                                </Card>
+                            ))
+                        ) : courses.length > 0 ? (
+                            courses.map((course, index) => {
+                                // Color mapping based on category or index
+                                const colorSchemes = [
+                                    { color: "bg-blue-500", textColor: "text-blue-500", bgColor: "bg-blue-50" },
+                                    { color: "bg-yellow-500", textColor: "text-yellow-600", bgColor: "bg-yellow-50" },
+                                    { color: "bg-orange-500", textColor: "text-orange-600", bgColor: "bg-orange-50" },
+                                    { color: "bg-cyan-500", textColor: "text-cyan-600", bgColor: "bg-cyan-50" },
+                                    { color: "bg-purple-500", textColor: "text-purple-600", bgColor: "bg-purple-50" },
+                                    { color: "bg-blue-600", textColor: "text-blue-700", bgColor: "bg-blue-50" },
+                                ];
+                                const colorScheme = colorSchemes[index % colorSchemes.length];
+
+                                const getDifficultyDisplay = (difficulty: string) => {
+                                    switch (difficulty?.toLowerCase()) {
+                                        case 'beginner': return 'PRINCIPIANTI';
+                                        case 'intermediate': return 'INTERMEDIO';
+                                        case 'advanced': return 'AVANZATO';
+                                        default: return difficulty?.toUpperCase() || 'PRINCIPIANTI';
+                                    }
+                                };
+
+                                return (
+                                    <Card
+                                        key={course.id}
+                                        className="bg-card border border-border rounded-xl shadow-[0_4px_12px_rgba(24,39,75,0.06)] hover:shadow-lg transition-all hover:scale-105 overflow-hidden cursor-pointer"
+                                        onClick={() => navigate(`/course/${course.id}`)}
                                     >
-                                        Visualizza Corso
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                        <div
+                                            className={`h-24 ${colorScheme.color} flex items-center justify-center`}
+                                        >
+                                            <h3 className="text-white text-2xl font-bold">
+                                                {course.category || 'Course'}
+                                            </h3>
+                                        </div>
+                                        <CardContent className="p-5">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <Badge
+                                                    className={`${colorScheme.bgColor} ${colorScheme.textColor} border-0 text-xs`}
+                                                >
+                                                    {getDifficultyDisplay(course.difficultyLevel || '')}
+                                                </Badge>
+                                                {course.isPremium && (
+                                                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs">
+                                                        Premium
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                            <h4 className="font-bold text-lg mb-2 text-foreground">
+                                                {course.title}
+                                            </h4>
+                                            <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                                                {course.description}
+                                            </p>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className={`w-full border ${colorScheme.textColor} hover:${colorScheme.bgColor}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/course/${course.id}`);
+                                                }}
+                                            >
+                                                Visualizza Corso
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })
+                        ) : (
+                            // No courses available
+                            <div className="col-span-full text-center py-12">
+                                <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                <h3 className="text-lg font-semibold mb-2">Nessun corso disponibile</h3>
+                                <p className="text-muted-foreground">
+                                    I corsi saranno disponibili a breve.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>

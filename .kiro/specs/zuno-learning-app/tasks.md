@@ -118,53 +118,103 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Screen Reader Support**: Add proper ARIA labels and semantic HTML structure
   - _Requirements: Accessibility compliance, mobile support, inclusive design_
 
-- [-] 10. Fix failing tests and ensure comprehensive testing coverage
-  - **Critical Issue Resolution**: Fix all currently failing tests that are preventing proper test coverage validation
-  - **Test Framework Debugging**: Investigate and resolve test setup issues, configuration problems, and dependency conflicts
-  - **Test Environment Setup**: Ensure proper test environment configuration with correct mocks, setup files, and test utilities
-  - **E2E Testing**: Implement end-to-end testing for critical user flows
+- [x] 10. Set up testing foundation and organize existing tests
+  - **Test Structure Foundation**: Establish proper test organization structure:
+    - Unit/integration tests: Keep alongside source files as *.test.ts[x]
+    - E2E tests: Move to tests/e2e/
+    - Shared mocks: Organize in tests/mocks/
+    - Test factories: Place in tests/factories/
+    - Task-specific tests: Keep in tests/tasks/
+  - **Configuration Setup**: Ensure Vitest and Playwright configurations are properly set up
+  - **Build Integration**: Ensure tests are excluded from production builds
+  - **Test Scripts**: Configure package.json with proper test scripts for unit, integration, and E2E tests
   - **Test Organization**: Place unit and integration tests alongside source files as *.test.ts[x], keep E2E tests in tests/e2e/, shared mocks in tests/mocks/, factories/fixtures in tests/factories/ and AI-generated "Kiro’s task tests" in tests/tasks/. 
-  - **Reuse code**: Move existin tests into proper folder
-  - **Build Instructions**: Ignore the tests during the  build phase.
-  - **Test Coverage**: Achieve high test coverage across all components and actions
-  - **Test Data**: Ensure test factories and fixtures are working correctly and providing valid test data
-  - **Coverage Validation**: Verify test coverage is being calculated correctly and meets quality thresholds
-  - **Build Integration**: Ensure tests are properly excluded from production builds and don't interfere with deployment
-  - **Documentation Review**: Use Context7 to research current best practices for React testing, Vitest configuration, and test debugging
-  - _Requirements: Working test suite, quality assurance, reliable automated testing, debugging test failures_
+  - **Mock Foundation**: Set up basic mocks for AWS Amplify and external dependencies
+  - _Requirements: Organized test structure, working test configuration, foundation for subsequent testing tasks_
 
-#  bunx playwright install
+- [-] 11. Prepare deployment-ready production bundle
+  - **Build Configuration**: Optimize build configuration for production deployment
+  - **Dependency Bundling**: Ensure all dependencies are properly bundled and resolved
+  - **Asset Optimization**: Optimize assets for production (minification, compression, hashing)
+  - **Bundle Analysis**: Analyze production bundle for size optimization and dependency issues
+  - **Environment Configuration**: Set up proper environment variables and configuration for production
+  - **Build Validation**: Validate that the production build runs without errors locally
+  - **Deployment Preparation**: Prepare build artifacts and configuration for hosting deployment
+  - _Requirements: Production-ready bundle, optimized assets, deployment preparation_
 
-- [-] 11. Fix CloudFront deployment issues and ensure proper application deployment
-  - **Critical Deployment Issues**: Fix CloudFront distribution showing errors instead of the Zuno app
-  - **JavaScript Error Resolution**: Resolve "useMergeRef.js:4 Uncaught TypeError: Cannot read properties of undefined (reading 'useLayoutEffect')" error
-  - **Editor.js Error Fix**: Fix "editor.js:1 Uncaught ReferenceError: Communicator is not defined" error
-  - **Build Configuration**: Review and fix build configuration to ensure all dependencies are properly bundled
-  - **Dependency Analysis**: Investigate and resolve missing or incorrectly loaded dependencies in production build
-  - **CloudFront Configuration**: Verify CloudFront distribution settings, cache behaviors, and error page configurations
-  - **Asset Loading**: Ensure all JavaScript assets are properly loaded and accessible via CloudFront
-  - **Production Testing**: Test the deployed application thoroughly to ensure all functionality works in production
-  - **Error Monitoring**: Set up proper error monitoring to catch and resolve deployment issues quickly
-  - **Rollback Strategy**: Implement rollback procedures for failed deployments
-  - **Documentation Review**: Use Context7 to research CloudFront deployment best practices and common issues
-  - _Requirements: Working production deployment, error-free application, proper asset loading, monitoring_
+- [ ] 11.1 Optimize build configuration and resolve dependency issues
+  - **Vite Configuration**: Review and optimize Vite build configuration for production
+  - **Dependency Resolution**: Ensure all dependencies are properly resolved and imported
+  - **Bundle Optimization**: Implement proper code splitting and chunk optimization
+  - **Asset Handling**: Configure proper asset handling and static file management
+  - **Source Maps**: Set up source maps for production debugging
+  - **Build Scripts**: Optimize build scripts and commands for production deployment
+  - **Error Handling**: Add proper error boundaries and runtime error handling
+  - _Requirements: Optimized build configuration, resolved dependencies, production-ready bundle_
 
-- [ ] 11.1 Debug and fix specific JavaScript runtime errors in production
-  - **useMergeRef Error Investigation**: Debug the "Cannot read properties of undefined (reading 'useLayoutEffect')" error in useMergeRef.js
-  - **React Hook Dependencies**: Ensure all React hooks and dependencies are properly imported and available at runtime
-  - **Editor.js Communicator Error**: Investigate and fix the "Communicator is not defined" error in editor.js
-  - **Third-party Library Issues**: Check for missing or incorrectly loaded third-party libraries causing runtime errors
-  - **Bundle Analysis**: Analyze the production bundle to identify missing dependencies or circular imports
-  - **Source Map Debugging**: Use source maps to trace the exact location and cause of runtime errors
-  - **Environment Differences**: Compare development vs production environments to identify configuration differences
-  - **Polyfill Requirements**: Add necessary polyfills for browser compatibility if needed
-  - **Error Boundary Implementation**: Add error boundaries to gracefully handle and report JavaScript errors
-  - **Runtime Error Logging**: Implement comprehensive error logging to capture and analyze production errors
-  - _Requirements: Error-free JavaScript execution, proper dependency loading, robust error handling_
+- [x] 12. Integrate Assessment Logic from Backend into Home App
+  - **Assessment Component Analysis**: Analyze existing assessment components in the backend app
+  - **Assessment Logic Extraction**: Extract assessment logic from backend app for integration into home app
+  - **Assessment API Integration**: Integrate backend assessment API endpoints into home app
+  - **Assessment UI Migration**: Move assessment UI components from backend to home app
+  - **Assessment State Management**: Implement assessment state management in home app
+  - **Assessment Data Flow**: Establish proper data flow for assessment results in home app
+  - **Assessment Navigation**: Integrate assessment flows into home app navigation
+  - **Assessment Testing**: Test assessment system functionality in home app environment
+  - _Requirements: Assessment functionality in home app, consistent assessment experience, proper data flow_
 
-- [x] 12. Clean up task
+- [x] 13. Integrate Quiz System from Backend into Home App
+  - **Quiz Component Analysis**: Analyze existing quiz components and functionality in backend app
+  - **Quiz Logic Migration**: Move quiz delivery logic from backend to home app
+  - **Quiz API Integration**: Integrate backend quiz API endpoints into home app
+  - **Quiz UI Migration**: Move quiz UI components from backend to home app
+  - **Quiz State Management**: Implement quiz state management in home app
+  - **Quiz Progress Integration**: Ensure quiz scores and progress tracking work in home app
+  - **Quiz Navigation**: Integrate quiz flows into home app navigation and routing
+  - **Quiz Testing**: Verify quiz system works properly in home app environment
+  - _Requirements: Quiz functionality in home app, consistent quiz delivery, seamless quiz experience_
+
+- [x] 14. Unify Course Catalog Between Backend and Home Apps
+  - **Course Catalog Analysis**: Analyze course catalog implementations in both backend and home apps
+  - **Course Data Model Alignment**: Align course data models and structures between applications
+  - **Course API Consolidation**: Ensure consistent course API endpoints between apps
+  - **Course UI Consistency**: Standardize course catalog UI components between applications
+  - **Course Navigation Integration**: Implement unified course navigation and routing
+  - **Course Progress Synchronization**: Ensure course progress tracking syncs properly between systems
+  - **Course Metadata Alignment**: Align course metadata, categories, and filtering between apps
+  - **Course Catalog Testing**: Test unified course catalog functionality across both environments
+  - _Requirements: Consistent course catalog experience, unified course data, seamless navigation_
+
+- [ ] 15. Repository Cleanup and Organization
+  - **Project Structure Analysis**: Use Context7 MCP to research React/TypeScript project organization best practices
+  - **Temporary File Cleanup**: Remove temporary scripts and files that are no longer needed
+  - **Folder Structure Optimization**: Reorganize project structure following industry best practices
   - **Merge Specs**: Merge home-page-layout-fixes specs into zuno-learning-app (excluding tasks)
-  - **Consolidate**: Consolidate all the TASK_(1 to 11)_COMPLETION_SUMMARY.md into the steering doc, delete the summaries
+  - **Consolidate Documentation**: Consolidate all TASK_(1 to 11)_COMPLETION_SUMMARY.md into the steering doc, delete the summaries
+  - **Script Organization**: Move utility scripts to proper locations and remove unused ones
+  - **Dependency Cleanup**: Remove unused dependencies and organize package.json
+  - **Build Configuration**: Optimize build configuration and remove redundant config files
+  - _Requirements: Clean project structure, organized codebase, industry best practices, maintainable architecture_
+
+- [ ] 15.1 Identify and remove temporary files
+  - **Delete Completion Summaries**: Remove TASK_1_COMPLETION_SUMMARY.md through TASK_11_COMPLETION_SUMMARY.md files
+  - **Remove Temporary Scripts**: Delete temporary migration and setup scripts that are no longer needed
+  - **Clean Build Artifacts**: Remove any build artifacts and temporary build files
+  - **Remove Duplicate Files**: Identify and remove duplicate configuration or component files
+  - **Clean Test Files**: Remove any temporary or obsolete test files
+  - **Archive Old Versions**: Move or delete old version folders that are no longer needed
+  - **Remove Debug Files**: Delete any debug logs, temporary data files, or development artifacts
+  - _Requirements: Clean file system, reduced project size, organized structure_
+
+- [ ] 15.2 Optimize project structure following best practices
+  - **Research Best Practices**: Use Context7 MCP to gather React/TypeScript project organization guidelines
+  - **Implement Folder Structure**: Reorganize components, utilities, and services following industry standards
+  - **Optimize Import Paths**: Implement proper import path aliases and barrel exports
+  - **Separate Concerns**: Ensure proper separation between business logic, UI components, and utilities
+  - **Documentation Organization**: Organize documentation files in proper structure
+  - **Configuration Consolidation**: Merge and optimize configuration files
+  - **Asset Organization**: Properly organize images, icons, and other static assets
+  - _Requirements: Industry-standard structure, maintainable codebase, clear organization_
 
 ## Phase 2: Enhanced Learning Features
 

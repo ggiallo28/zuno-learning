@@ -4,6 +4,7 @@ import loadLessons from '@/actions/loadLessons';
 import loadQuizQuestions from '@/actions/loadQuizQuestions';
 import completeLessonProgress from '@/actions/completeLessonProgress';
 import { useAppData } from '@/contexts/AppDataContext';
+import { useQuizSystem } from './useQuizSystem';
 
 interface QuizQuestion {
   id: string;
@@ -180,17 +181,29 @@ export function useLesson(lessonId: string) {
   };
 }
 
-// Hook for managing quiz state
-export function useQuiz(lessonId: string) {
+// Hook for managing quiz state with integrated quiz system
+export function useQuiz(lessonId: string, userId: string) {
   const { quizQuestions, loading, error, actions } = useLessonData();
+  
+  // Use the new integrated quiz system
+  const integratedQuiz = useQuizSystem({
+    lessonId,
+    userId,
+    autoLoad: true
+  });
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [score, setScore] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
 
-  const currentQuestion = quizQuestions[currentQuestionIndex];
-  const totalQuestions = quizQuestions.length;
+  // Use integrated questions if available, fallback to legacy
+  const activeQuestions = integratedQuiz.questions.length > 0 
+    ? integratedQuiz.questions 
+    : quizQuestions;
+
+  const currentQuestion = activeQuestions[currentQuestionIndex];
+  const totalQuestions = activeQuestions.length;
   const progress = totalQuestions > 0 ? ((currentQuestionIndex + 1) / totalQuestions) * 100 : 0;
 
   // Load quiz questions when lessonId changes
@@ -245,7 +258,7 @@ export function useQuiz(lessonId: string) {
 
   return {
     // Quiz data
-    questions: quizQuestions,
+    questions: activeQuestions,
     currentQuestion,
     currentQuestionIndex,
     totalQuestions,
@@ -258,13 +271,21 @@ export function useQuiz(lessonId: string) {
     scorePercentage: getScorePercentage(),
     
     // Loading and error states
-    loading: loading.quiz,
-    error: error.quiz,
+    loading: loading.quiz || integratedQuiz.isLoading,
+    error: error.quiz || integratedQuiz.error,
     
     // Actions
     submitAnswer,
     nextQuestion,
     previousQuestion,
     resetQuiz,
+    
+    // Integrated quiz system
+    integratedQuiz: {
+      completeQuiz: integratedQuiz.completeQuiz,
+      getQuizStats: integratedQuiz.getQuizStats,
+      lastResult: integratedQuiz.lastResult,
+      isCompleting: integratedQuiz.isCompleting
+    }
   };
 }

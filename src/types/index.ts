@@ -94,6 +94,17 @@ export interface Course {
   completedAt?: string;
   totalLessons?: number;
   completedLessons?: number;
+  // Unified properties for compatibility
+  difficulty_level?: DifficultyLevelValues; // snake_case alias
+  estimated_duration_days?: number; // snake_case alias
+  cover_image_url?: string; // snake_case alias
+  is_premium?: boolean; // snake_case alias
+  lesson_count?: number; // snake_case alias
+  progress_percentage?: number; // snake_case alias
+  enrolled_at?: string; // snake_case alias
+  completed_at?: string; // snake_case alias
+  total_lessons?: number; // snake_case alias
+  completed_lessons?: number; // snake_case alias
 }
 
 export interface Lesson {
