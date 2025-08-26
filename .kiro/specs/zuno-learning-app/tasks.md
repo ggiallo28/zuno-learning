@@ -14,7 +14,7 @@ Before implementing each phase, comprehensive documentation will be retrieved us
 
 Each task will begin with relevant documentation research to ensure high-quality, standards-compliant implementation.
 
-## Phase 1: Foundation and Core System Enhancement
+## Phase 1: Foundation and Core System (Completed)
 
 - [x] 1. Initialize AWS Amplify project with React web and Bun
   - **Amplify Initialization**: Initialize new Amplify project with React web configuration
@@ -185,7 +185,7 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Course Catalog Testing**: Test unified course catalog functionality across both environments
   - _Requirements: Consistent course catalog experience, unified course data, seamless navigation_
 
-- [ ] 15. Repository Cleanup and Organization
+- [x] 15. Repository Cleanup and Organization
   - **Project Structure Analysis**: Use Context7 MCP to research React/TypeScript project organization best practices
   - **Temporary File Cleanup**: Remove temporary scripts and files that are no longer needed
   - **Folder Structure Optimization**: Reorganize project structure following industry best practices
@@ -196,7 +196,7 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Build Configuration**: Optimize build configuration and remove redundant config files
   - _Requirements: Clean project structure, organized codebase, industry best practices, maintainable architecture_
 
-- [ ] 15.1 Identify and remove temporary files
+- [x] 15.1 Identify and remove temporary files
   - **Delete Completion Summaries**: Remove TASK_1_COMPLETION_SUMMARY.md through TASK_11_COMPLETION_SUMMARY.md files
   - **Remove Temporary Scripts**: Delete temporary migration and setup scripts that are no longer needed
   - **Clean Build Artifacts**: Remove any build artifacts and temporary build files
@@ -206,7 +206,7 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Remove Debug Files**: Delete any debug logs, temporary data files, or development artifacts
   - _Requirements: Clean file system, reduced project size, organized structure_
 
-- [ ] 15.2 Optimize project structure following best practices
+- [x] 15.2 Optimize project structure following best practices
   - **Research Best Practices**: Use Context7 MCP to gather React/TypeScript project organization guidelines
   - **Implement Folder Structure**: Reorganize components, utilities, and services following industry standards
   - **Optimize Import Paths**: Implement proper import path aliases and barrel exports
@@ -216,152 +216,280 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Asset Organization**: Properly organize images, icons, and other static assets
   - _Requirements: Industry-standard structure, maintainable codebase, clear organization_
 
-## Phase 2: Enhanced Learning Features
+## Phase 2: Advanced Assessment and Learning Features
 
-- [ ] 12. Add file upload and media management capabilities
-  - **Amplify Storage Setup**: Configure S3 storage bucket via Amplify CLI for file uploads
-  - **Upload Components**: Create file upload components for lesson content, user avatars, and course materials
-  - **GraphQL Schema Extension**: Extend existing ZunoCatalog model to include file references and metadata
-  - **Media Actions**: Create new actions for uploadFile.ts, deleteFile.ts, and loadMediaFiles.ts using Amplify Storage
-  - **Content Management**: Add media management interface for course creators and administrators
-  - **File Processing**: Implement image optimization and file validation using Lambda triggers
-  - **Integration**: Update existing LessonViewer and CourseCatalog components to display media content
-  - _Requirements: File storage, media management, content delivery, GraphQL integration_
+- [ ] 16. Implement Adaptive Assessment System (One Question at a Time)
+  - **Documentation Research**: Use MCP to research adaptive assessment algorithms (IRT, CAT, BKT), React state management patterns, and educational psychology principles for personalized learning
+  - **Assessment Interface Enhancement**: Enhance existing `src/components/assessment/AssessmentInterface.tsx` to show ONE question at a time with adaptive difficulty
+  - **Tag Selection System**: Implement intelligent tag selection using `src/components/assessment/TagSelector.tsx` with 4-5 recommended tags and expandable options
+  - **Question Type Support**: Utilize existing question components in `src/components/assessment/questions/` for multiple choice, cloze, ordering, debug/explain, and code execution
+  - **Coach-Specific Assessment Modes**: Integrate existing coach system with assessment modes:
+    - Elia: Deep, reflective mode with extended explanations using `src/components/assessment/ModelExplanation.tsx` (no timer, detailed feedback, "Certo/Forse" confidence levels)
+    - Skippy: Fast, timed mode with immediate feedback using `src/components/assessment/Timer.tsx` (timer per question/global, maximum questions possible, early stopping)
+    - Lupa: Collaborative mode with peer review using `src/components/assessment/PeerSnippetsCompare.tsx` (multiple choice → personal explanation → peer evaluation → model explanation)
+    - Polpo: Adaptive hybrid mode combining all approaches dynamically (dynamic switching between styles, community-driven content)
+  - **Confidence System**: Enhance `src/components/assessment/ConfidencePicker.tsx` and `src/components/assessment/ConfidenceSlider.tsx` with "Certo" (sure) vs "Forse" (maybe) scoring system with differentiated points/penalties
+  - **Early Stopping**: Implement precision-based early stopping using `src/components/assessment/EarlyStopDialog.tsx` with visual precision indicator via `src/components/assessment/PrecisionBar.tsx` (stop at 95% confidence)
+  - **Interleaving System**: Add intelligent topic interleaving using `src/components/assessment/InterleavingBadge.tsx` to prevent false mastery from blocked practice
+  - **Micro-Explanations**: Add optional flash explanation questions using `src/components/assessment/ExplainYourChoice.tsx` (5-7 words) for bonus XP
+  - **Real-time Skill Map**: Implement live skill progression visualization using `src/components/assessment/SkillMap.tsx` during assessment
+  - **Recovery Rewards**: Add XP/badge bonuses for correcting previously missed questions using existing gamification components
+  - **Progress Tracking**: Utilize `src/components/assessment/ProgressAnnouncer.tsx` and `src/components/assessment/ItemCounter.tsx` for session progress
+  - **Assessment Report**: Enhance `src/components/assessment/AssessmentReport.tsx` with mastery analysis, knowledge gaps, and personalized learning recommendations
+  - _Requirements: One-question-at-a-time flow, coach-specific modes, confidence tracking, early stopping, interleaving_
 
-- [ ] 13. Enhance existing assessment system with advanced features
-  - **Assessment Analytics**: Extend existing AssessmentSystem component with detailed analytics and progress tracking
-  - **Adaptive Questioning**: Implement intelligent question selection based on user performance and knowledge gaps
-  - **Custom Resolvers**: Create Lambda resolvers for complex assessment scoring and knowledge gap analysis
-  - **Skill Map Visualization**: Add visual skill mapping and learning path recommendations to existing components
-  - **Assessment History**: Enhance assessment history tracking with trend analysis and performance insights
-  - **Integration**: Connect assessment results with lesson recommendations and difficulty adaptation
-  - **Real-time Updates**: Add GraphQL subscriptions for real-time assessment progress and collaborative features
-  - _Requirements: Advanced analytics, adaptive learning, skill mapping, real-time features_
+- [ ] 17. Implement Code Execution Sandbox and AI Error Detection
+  - **Documentation Research**: Use MCP to research WebWorker security patterns, JavaScript sandboxing techniques, code editor libraries (Monaco, CodeMirror), AI code analysis, and autograding systems for educational platforms
+  - **Sandbox Environment**: Create secure JavaScript/TypeScript code execution using WebWorker or iframe isolation
+  - **Code Editor Integration**: Enhance existing `src/components/assessment/questions/CodeRunQuestion.tsx` with syntax highlighting and auto-completion
+  - **Test Runner**: Implement autograder with partial scoring for N tests out of M total tests
+  - **AI Error Spotter**: Implement AI-generated code with intentional errors for users to identify using `src/components/assessment/ErrorSpotter.tsx`
+    - Present AI-generated solutions with subtle bugs
+    - Users identify and explain the errors
+    - Valuable for training against AI hallucinations
+    - Data can be used to improve AI systems
+  - **Debug/Explain Questions**: Enhance `src/components/assessment/questions/DebugExplainQuestion.tsx` for comprehensive code analysis
+  - **Error Handling**: Add comprehensive error catching with timeout and memory limits
+  - **Diff Visualization**: Show expected vs actual output with clear diff highlighting
+  - **Performance Metrics**: Track execution time, memory usage, and code quality metrics
+  - **Integration**: Connect with existing `src/components/assessment/AssessmentInterface.tsx` and assessment flow components
+  - _Requirements: Secure code execution, AI error detection, autograding, debug challenges_
 
-- [ ] 14. Implement spaced repetition and review system
-  - **GraphQL Schema Extension**: Extend existing schema with spaced repetition models (ReviewCard, ReviewSession, ReviewSchedule)
-  - **SM-2 Algorithm**: Implement spaced repetition algorithm using Lambda resolvers for optimal review scheduling
-  - **Review Interface**: Create ReviewSystem component integrated with existing LessonViewer for seamless review sessions
-  - **Notification System**: Build review reminder system with coach-specific messaging and scheduling
-  - **Progress Integration**: Connect spaced repetition data with existing user progress and XP systems
-  - _Requirements: Spaced repetition, review scheduling_
+- [ ] 18. Enhance Gamification System with Professional Design
+  - **Documentation Research**: Use MCP to research gamification best practices for adult learners, animation libraries (Framer Motion, Lottie), professional badge design principles, and engagement psychology for educational platforms
+  - **XP System Enhancement**: Upgrade existing `src/components/gamification/XPBar.tsx` with smooth animations and milestone celebrations
+  - **Achievement System**: Enhance `src/components/gamification/AchievementWall.tsx` with professional badge designs and unlock animations
+  - **Streak Tracking**: Improve `src/components/gamification/DailyStreakTracker.tsx` with visual fire effects and motivational messaging
+  - **Leaderboards**: Enhance `src/components/gamification/LeaderboardPopup.tsx` with coach-specific rankings and social features
+  - **Progress Visualization**: Upgrade `src/components/gamification/PerformanceGraph.tsx` with interactive charts and trend analysis
+  - **Level System**: Enhance `src/components/gamification/LevelUpModal.tsx` with satisfying progression animations
+  - **Customization Options**: Add gamification intensity settings (minimal/moderate/full) to user preferences
+  - **Coach Integration**: Connect gamification elements with coach personalities for themed rewards and celebrations
+  - _Requirements: Professional gamification, coach integration, customizable intensity, engaging animations_
 
-- [ ] 15. Add advanced search and filtering capabilities
-  - **Search Implementation**: Add advanced search and filtering capabilities to CourseCatalog component using GraphQL queries
-  - **Progress Analytics**: Enhance UserProfile component with detailed progress visualization and learning analytics
-  - **Interactive Lessons**: Extend LessonViewer component with interactive elements, embedded quizzes, and multimedia support
-  - **Real-time Features**: Add GraphQL subscriptions for real-time progress updates and collaborative features
-  - **Search Indexing**: Implement search indexing using DynamoDB GSI or Amazon OpenSearch for fast content discovery
-  - _Requirements: Advanced search, enhanced UX, real-time updates_
+- [ ] 19. Implement Progress Evaluation and Manual Learning Tracking
+  - **Documentation Research**: Use MCP to research data visualization libraries (Chart.js, D3.js, Recharts), AI analysis APIs, progress tracking UX patterns, and professional portfolio export formats (PDF, JSON, CSV)
+  - **Progress Dashboard**: Create comprehensive progress evaluation page with visual charts and insights
+  - **Manual Entry System**: Build interface for users to manually add learning achievements from external sources
+  - **AI Analysis Integration**: Implement AI-powered analysis of combined progress data (app + manual entries)
+  - **Skill Map Visualization**: Enhance existing `src/components/assessment/SkillMap.tsx` with comprehensive skill tracking
+  - **Timeline View**: Create learning timeline showing daily progress and manual entries
+  - **Export Functionality**: Add progress export for job applications and professional portfolios
+  - **Achievement Badges**: Integrate with existing badge system for manual learning milestones
+  - **Progress Insights**: Generate AI-powered insights and recommendations based on complete learning profile
+  - _Requirements: Progress evaluation, manual tracking, AI analysis, skill visualization, export functionality_
 
-## Phase 3: Advanced Learning Systems
+- [ ] 20. Implement Daily Mission System with Quiz Integration
+  - **Documentation Research**: Use MCP to research habit formation psychology, daily engagement patterns, personalization algorithms, and industry trend APIs for educational content
+  - **Mission Generation**: Create daily mission system with personalized quiz challenges
+  - **Topic Selection**: Implement intelligent topic selection based on recent learning and industry trends
+  - **Mission Types**: Support various mission types (quick review, new concept, skill reinforcement)
+  - **Quiz Integration**: Connect with existing quiz system for mission completion
+  - **Streak Tracking**: Integrate with existing streak system for daily mission completion
+  - **Difficulty Adaptation**: Adjust mission difficulty based on user performance and preferences
+  - **Coach Personalization**: Customize mission presentation and feedback based on selected coach
+  - **Progress Integration**: Connect mission completion with overall learning progress and XP system
+  - _Requirements: Daily missions, quiz integration, adaptive difficulty, coach personalization_
 
-- [ ] 16. Enhance existing adaptive difficulty system
-  - **Difficulty Algorithm**: Enhance existing lesson completion logic with adaptive difficulty based on user performance
-  - **Performance Tracking**: Extend existing progress tracking with detailed performance analytics and trend analysis
-  - **Automatic Adjustments**: Implement automatic difficulty adjustments based on accuracy rates and completion patterns
-  - **Feedback System**: Add immediate feedback components to existing LessonViewer for lesson completion
-  - **GraphQL Schema**: Extend existing schema to track difficulty adjustments and adaptation history
-  - **Integration**: Connect difficulty system with existing XP and progress tracking systems
-  - _Requirements: Adaptive learning, performance tracking, automatic adjustments, user feedback_
+- [ ] 21. Enhance Course Detail Pages with Rich Information
+  - **Documentation Research**: Use MCP to research course catalog UX patterns, learning path visualization, prerequisite mapping algorithms, and educational content metadata standards
+  - **Course Detail Enhancement**: Enhance existing course pages with comprehensive course information
+  - **Prerequisites Display**: Show clear prerequisite requirements and skill dependencies
+  - **Learning Time Estimates**: Display accurate time estimates for course completion
+  - **Difficulty Indicators**: Add visual difficulty ratings and skill level requirements
+  - **Content Preview**: Provide detailed course content breakdown and learning objectives
+  - **Progress Integration**: Show personalized progress indicators and completion estimates
+  - **Enrollment Flow**: Streamline course enrollment with clear value proposition
+  - **Related Courses**: Suggest related courses and learning paths
+  - _Requirements: Rich course information, prerequisites, time estimates, difficulty indicators_
 
-- [ ] 17. Enhance interactive learning elements in existing lessons
-  - **Quiz Enhancement**: Extend existing quiz components in LessonViewer with immediate feedback and explanations
-  - **Practice Interface**: Add interactive practice components with performance tracking using GraphQL
-  - **Mini-Game Framework**: Create gamified learning elements that integrate with existing lesson types
-  - **User Preferences**: Update existing user profile to track interaction type preferences and learning styles
-  - **Feedback System**: Enhance existing feedback components with detailed explanations and coaching tips
-  - **Schema Enhancement**: Extend GraphQL schema to support interactive elements and user preferences
-  - _Requirements: Interactive learning, gamification, user preferences, enhanced feedback_
+- [ ] 22. Implement Enhanced Learning Experience for Enrolled Courses
+  - **Documentation Research**: Use MCP to research adaptive learning interfaces, content highlighting techniques, interactive learning design patterns, and personalized education algorithms
+  - **Learning Interface**: Create immersive learning interface for enrolled courses
+  - **Content Highlighting**: Implement intelligent content highlighting based on user's knowledge gaps
+  - **Adaptive Content**: Show personalized content recommendations based on assessment results
+  - **Challenge Integration**: Embed learning challenges and interactive exercises within course content
+  - **Progress Tracking**: Real-time progress tracking with visual indicators and milestones
+  - **Coach Integration**: Personalize learning experience based on selected coach personality
+  - **Knowledge Gap Focus**: Highlight areas needing improvement based on assessment data
+  - **Interactive Elements**: Integrate quizzes, exercises, and hands-on practice within lessons
+  - _Requirements: Enhanced learning interface, adaptive content, challenge integration, progress tracking_
 
-- [ ] 18. Extend existing gamification system with professional enhancements
-  - **XP Enhancement**: Enhance existing XP calculation to include performance and difficulty factors
-  - **Badge System**: Extend existing level and badge system with sophisticated, professional badge designs
-  - **Streak Tracking**: Improve existing streak tracking with engaging visual elements and motivational features
-  - **Achievement System**: Enhance existing achievement system with coach-specific celebrations and animations
-  - **Customization**: Add gamification customization options (minimal/moderate/full) to user settings
-  - **Progress Visualization**: Implement advanced progress visualization with animated bars and milestone markers
-  - _Requirements: Enhanced gamification, professional design, user customization, progress visualization_
+## Phase 3: Advanced Learning Systems and Visual Enhancement
 
-## Phase 4: Collaborative Learning Features
+- [ ] 23. Implement Visual Design Overhaul for Engaging Learning Experience
+  - **Documentation Research**: Use MCP to research modern UI design trends, color psychology in education, animation best practices, accessibility guidelines (WCAG 2.1 AA), and design systems for learning platforms
+  - **Modern UI Enhancement**: Transform existing components with colorful, engaging design inspired by modern learning platforms
+  - **Card-Based Layouts**: Enhance existing card components with gradients, shadows, and visual hierarchy
+  - **Progress Visualization**: Upgrade progress bars, completion indicators, and achievement displays with animations
+  - **Coach-Specific Theming**: Enhance existing coach themes with more vibrant, engaging color palettes
+  - **Interactive Elements**: Add hover effects, micro-interactions, and satisfying feedback animations
+  - **Professional Gamification**: Transform gamification elements to feel rewarding without being juvenile
+  - **Visual Consistency**: Ensure consistent visual language across all components and pages
+  - **Accessibility Compliance**: Maintain WCAG 2.1 AA compliance while enhancing visual appeal
+  - _Requirements: Modern visual design, engaging UI, professional gamification, accessibility_
 
-- [ ] 19. Implement real-time collaborative learning features
-  - **Study Groups**: Create study group creation and management system using existing GraphQL schema
-  - **Real-time Sessions**: Build real-time group session functionality using GraphQL subscriptions
-  - **Group Activities**: Implement group challenges and shared learning activities with collaborative progress tracking
-  - **Communication**: Create chat and messaging features for group sessions using real-time GraphQL updates
-  - **Peer Learning**: Build peer-to-peer learning activity framework with progress sharing and mutual support
-  - **Group Achievements**: Implement collective achievement system for group progress and milestones
-  - **Privacy Controls**: Add privacy controls for collaborative vs solo learning preferences
-  - _Requirements: Real-time collaboration, group management, peer learning, privacy controls_
+- [ ] 24. Implement Spaced Repetition and Review System
+  - **Documentation Research**: Use MCP to research spaced repetition algorithms (SM-2, SM-15, Anki), memory retention psychology, notification timing optimization, and review scheduling best practices
+  - **Review Scheduling**: Implement SM-2 algorithm for optimal review timing based on performance
+  - **Review Interface**: Create dedicated review interface using existing quiz components
+  - **Knowledge Retention**: Track long-term retention and adjust review intervals accordingly
+  - **Coach Integration**: Personalize review sessions based on selected coach personality
+  - **Progress Integration**: Connect review performance with overall learning progress
+  - **Notification System**: Implement review reminders with coach-specific messaging
+  - **Analytics**: Track review effectiveness and retention rates for continuous improvement
+  - **Mobile Optimization**: Ensure review system works seamlessly on mobile devices
+  - _Requirements: Spaced repetition, review scheduling, retention tracking, coach integration_
 
-## Phase 5: Content Management and Analytics
+- [ ] 25. Enhance Collaborative Learning Features (Lupa Mode)
+  - **Documentation Research**: Use MCP to research collaborative learning theories, peer review psychology, social learning patterns, and community-driven educational platforms
+  - **Lupa Assessment Flow**: Implement the complete Lupa assessment experience using existing components:
+    1. Multiple choice question response using `src/components/assessment/questions/MultipleChoiceQuestion.tsx`
+    2. Personal explanation requirement (1-3 sentences) using `src/components/assessment/SelfExplanationEditor.tsx`
+    3. Peer explanation evaluation using `src/components/assessment/PeerSnippetsCompare.tsx` (choose best from 2-3 AI-generated options)
+    4. Lupa feedback on user's explanation using `src/components/assessment/CoachMiniDialogue.tsx`
+    5. Model explanation comparison using `src/components/assessment/ModelExplanation.tsx` showing what user included/missed
+  - **Simulated Peer Learning**: Create AI-generated "virtual classmates" with realistic explanations and common errors
+  - **Error Normalization**: Implement "40% of classmates made this error" messaging to reduce learning anxiety
+  - **Collaborative Challenges**: Add "help a classmate" explanation prompts using `src/components/assessment/CommunityChallengeCard.tsx` for deeper learning
+  - **Virtual Group Feedback**: Provide social recognition ("top 20% of virtual class", "helped team reach 70% accuracy") using `src/components/assessment/Leaderboard.tsx`
+  - **Community Snippets**: Use existing `src/components/assessment/CommunitySnippetFeed.tsx` for shared learning content
+  - **Peer Vote System**: Enhance `src/components/assessment/PeerVoteBar.tsx` for explanation quality voting
+  - **Study Group Recommendations**: Suggest study topics based on "virtual class" activity
+  - **Real Peer Integration**: Allow real users to evaluate each other's explanations using `src/components/assessment/CommunityConsentDialog.tsx` (optional/premium feature)
+  - _Requirements: Collaborative assessment flow, simulated peer learning, social feedback, explanation evaluation_
 
-- [ ] 20. Enhance existing content management system
-  - **Multi-Subject Support**: Extend existing course/lesson system to support expandable subject areas
-  - **Content Discovery**: Improve content discovery by subject and difficulty using enhanced GraphQL queries
-  - **Coach Adaptation**: Enhance coach-specific content adaptation in existing lesson delivery system
-  - **Learning Paths**: Implement prerequisite checking and automated learning path generation
-  - **Content Versioning**: Add content versioning and update management to existing content system
-  - **Admin Interface**: Create content management interface for administrators and course creators
-  - _Requirements: Content scalability, discovery, personalization, management tools_
+## Phase 4: Advanced Features and Content Management
 
-- [ ] 21. Extend existing analytics and progress tracking
-  - **Analytics Dashboard**: Enhance existing progress dashboard with detailed learning analytics and insights
-  - **Pattern Detection**: Implement learning pattern detection and automatic adaptation recommendations
-  - **Trend Analysis**: Extend existing accuracy and time tracking with comprehensive trend analysis
-  - **Study Scheduling**: Add personalized study schedule suggestions based on learning patterns
-  - **Data Export**: Implement progress export functionality for users and administrators
-  - **Privacy Controls**: Add analytics data pipeline with comprehensive privacy controls and user consent
-  - _Requirements: Advanced analytics, pattern recognition, personalization, privacy compliance_
+- [ ] 26. Implement Document Upload and AI-Powered Learning Analysis
+  - **Documentation Research**: Use MCP to research document parsing libraries, AI text analysis APIs, file upload security patterns, PDF processing techniques, and knowledge extraction algorithms
+  - **Document Upload**: Create interface for users to upload documents, PDFs, or provide links for study material
+  - **Content Analysis**: Implement AI-powered analysis to identify key concepts and knowledge areas
+  - **Knowledge Gap Mapping**: Map document content against user's current knowledge from assessments
+  - **Highlighting System**: Implement intelligent highlighting of unknown or weak areas in uploaded content
+  - **Study Plan Generation**: Generate personalized study plans based on document analysis and knowledge gaps
+  - **Progress Tracking**: Track learning progress on document-based content
+  - **Integration**: Connect document analysis with existing assessment and progress systems
+  - **File Management**: Implement secure file storage and management for uploaded documents
+  - _Requirements: Document upload, AI analysis, knowledge gap mapping, study plan generation_
 
-## Phase 6: Premium Features and User Experience
+- [ ] 27. Implement Coach Customization and Collectible System
+  - **Documentation Research**: Use MCP to research collectible system design, in-app purchase patterns, character customization UX, rarity systems in games, and monetization strategies for educational apps
+  - **Coach Customization**: Allow users to customize coach appearance, gender, name, and personality traits using existing `src/components/gamification/AvatarCustomizer.tsx`
+  - **Mythological Naming System**: Implement coach naming system with mythological names:
+    - Manager: Atlas, Apollo, Orion (masculine) / Athena, Minerva, Brigid (feminine)
+    - Elia: Thoth, Ọrunmila, Nabu (masculine) / Seshat, Saraswati, Ceridwen (feminine)
+    - Skippy: Hermes, Zephyr, Anansi (masculine) / Eos, Aura (feminine)
+    - Lupa: Ogma, Anulap, Apollo (masculine) / Anahit, Neith, Egeria (feminine)
+    - Polpo: Quetzalcoatl, Metis, Prometheus (masculine) / Maat, Isis, Minerva (feminine)
+  - **Skin System**: Implement collectible coach skins with different rarity levels and unlock conditions using existing gamification components
+  - **Stat Bonuses**: Add stat bonuses for certain premium skins (XP boost, streak protection, etc.) integrated with existing `src/components/gamification/XPBar.tsx`
+  - **Unlock System**: Create achievement-based and level-based skin unlock system using `src/components/gamification/AchievementWall.tsx`
+  - **Marketplace**: Implement in-app purchase system for premium skins and customizations
+  - **Collection Interface**: Create collection interface showing owned and available customizations
+  - **Coach Personality**: Allow fine-tuning of coach personality traits and communication style
+  - **Social Features**: Enable sharing and showcasing of coach customizations
+  - _Requirements: Coach customization, mythological naming, collectible system, stat bonuses, marketplace integration_
 
-- [ ] 22. Implement freemium model and subscription management
-  - **Subscription Tiers**: Extend existing subscription system with sophisticated tier management and feature gating
-  - **Premium Features**: Implement premium feature access for generative AI, collaborative learning, group learning, advanced analytics, unlimited content, and priority support.
-  - **Payment Integration**: Add payment processing and subscription management using Stripe or similar service
-  - **Feature Gating**: Create intelligent feature gating system that gracefully handles tier limitations
-  - **Upgrade Flow**: Build seamless upgrade and downgrade flows with clear value proposition communication
-  - **Trial Management**: Implement free trial periods and conversion optimization features
-  - **Access Control (Cognito Groups)**: Users in zuno-free have access to free capabilities; users in zuno-premium have access to all capabilities
-  - _Requirements: Subscription management, payment processing, feature gating, conversion optimization_
+- [ ] 28. Implement Multi-Agent Coach System (Polpo Mode Enhancement)
+  - **Documentation Research**: Use MCP to research multi-agent systems, AI dialogue generation, collaborative AI patterns, consensus algorithms, and machine learning optimization techniques
+  - **Coach Mini-Dialogues**: Implement mini-dialogues between coaches after difficult questions using `src/components/assessment/CoachMiniDialogue.tsx`
+    - Elia provides deep explanation using `src/components/assessment/ModelExplanation.tsx`
+    - Skippy offers quick trick/shortcut using `src/components/assessment/HintPopover.tsx`
+    - Lupa shares peer perspective using `src/components/assessment/PeerSnippetsCompare.tsx`
+    - Polpo synthesizes and decides next step using `src/components/assessment/AdaptiveNextUp.tsx`
+  - **Community-Driven Content**: Enhance Polpo to use real user data via `src/components/assessment/CommunitySnippetFeed.tsx`:
+    - Real explanations and errors from previous users (anonymized)
+    - Community trend-based micro-challenges using `src/components/assessment/CommunityChallengeCard.tsx` ("65% of users missed this")
+    - Global leaderboards using `src/components/assessment/Leaderboard.tsx` and positioning
+    - Community-driven topic interleaving using `src/components/assessment/InterleavingBadge.tsx`
+  - **Dynamic Style Switching**: Implement intelligent switching between coach approaches using `src/components/assessment/ModeToggle.tsx`:
+    - Start with one style (e.g., Skippy for speed)
+    - Switch to Elia for consolidation when user struggles
+    - Add Lupa peer review for complex topics
+    - Use performance signals (time, errors, confidence) to trigger switches
+  - **Transparent Adaptivity**: Show users why Polpo is making decisions using `src/components/assessment/CoachChip.tsx` and which coach approach is currently active
+  - **Multi-Coach Feedback**: Combine feedback styles (brief + detailed, individual + social) based on context
+  - **Strategy Optimization**: Track which coach combinations work best for different user types and topics using existing analytics components
+  - _Requirements: Multi-coach dialogues, community integration, dynamic switching, transparent adaptivity_
 
-- [ ] 23. Add offline mode and enhanced user experience features
-  - **Offline Storage**: Implement content download and offline storage system using browser storage APIs
-  - **Offline Sync**: Build offline progress tracking with automatic synchronization when online
-  - **Focus Mode**: Create Focus Mode with minimized distractions and enhanced concentration features
-  - **Accessibility**: Enhance accessibility features and ensure WCAG 2.1 AA compliance across all components
-  - **User Preferences**: Add comprehensive user preference management for personalized experience
-  - _Requirements: Offline functionality, accessibility, user customization_
+## Phase 5: User Experience and Accessibility Enhancement
 
-## Phase 7: Brand Consistency and Privacy
+- [ ] 29. Implement Focus Check System with Contextual Explanations
+  - **Documentation Research**: Use MCP to research targeted assessment strategies, contextual learning theories, knowledge gap analysis techniques, and industry trend tracking for educational content
+  - **Focus Check Interface**: Create focused assessment interface for targeted knowledge verification
+  - **Contextual Explanations**: Implement system to explain why specific questions are being asked
+  - **Gap Analysis**: Show whether questions target identified knowledge gaps from assessments
+  - **Manual Learning Integration**: Include questions based on manually entered learning progress
+  - **Course Update Checks**: Add questions for updates on previously completed courses
+  - **Industry Trend Integration**: Include questions about new developments in the user's field
+  - **Explanation System**: Provide clear explanations for question selection and learning rationale
+  - **Progress Integration**: Connect focus check results with overall learning progress and recommendations
+  - _Requirements: Focus check system, contextual explanations, gap analysis, progress integration_
 
-- [ ] 24. Implement Zuno voice and tone consistency system
-  - **Brand Voice**: Update all existing messaging to follow consistent Zuno brand voice guidelines
-  - **Coach Messaging**: Enhance coach-specific messaging while maintaining professional brand consistency
-  - **Contextual Feedback**: Improve existing feedback system with context-aware, specific guidance and coaching
-  - **System Messaging**: Update all system messaging to feel authentic and helpful from Zuno and chosen coach
-  - **Tone Validation**: Implement tone validation and consistency checking for all user-facing text
-  - **Error Messaging**: Enhance error messaging with helpful, intelligent tone and actionable guidance
-  - _Requirements: Brand consistency, coach authenticity, helpful communication, professional tone_
+- [ ] 30. Enhance User Profile and Settings Management
+  - **Documentation Research**: Use MCP to research privacy compliance (GDPR, CCPA), user preference management patterns, accessibility standards, data export formats, and personalization algorithms
+  - **Extended Profile Settings**: Allow users to set additional attributes (gender, locale, full name, age) in app settings
+  - **Privacy Controls**: Implement comprehensive privacy controls and data management options
+  - **Personalization Settings**: Add options to adjust AI suggestions, coaching intensity, and learning preferences
+  - **Notification Management**: Provide granular control over notification types, frequency, and timing
+  - **Coach Preferences**: Allow fine-tuning of coach communication style and interaction preferences
+  - **Data Export**: Implement progress and data export functionality for professional use
+  - **Account Management**: Add account deletion, data portability, and privacy compliance features
+  - **Accessibility Options**: Provide accessibility customization options for diverse user needs
+  - _Requirements: Extended profile management, privacy controls, personalization, accessibility_
 
-- [ ] 25. Enhance privacy controls and user data management
-  - **Privacy Controls**: Extend existing user settings with comprehensive privacy controls and data management
-  - **Personalization Settings**: Add options to adjust personalization depth, AI suggestions, and data usage
-  - **Analytics Controls**: Implement granular toggles for analytics tracking, recommendations, and data sharing
-  - **Notification Management**: Enhance notification controls with frequency, type, tone, and timing options
-  - **Coach Preferences**: Add coach communication preference controls and interaction customization
-  - **Data Rights**: Implement data deletion, export, and portability functionality for user data sovereignty
-  - _Requirements: Privacy compliance, user control, data sovereignty, personalization management_
+## Phase 6: Premium Features and Monetization
 
-## Phase 8: Final Integration and Quality Assurance
+- [ ] 31. Implement Freemium Model and Subscription Management
+  - **Documentation Research**: Use MCP to research freemium model best practices, Stripe payment integration, subscription management patterns, feature gating strategies, and conversion optimization techniques
+  - **Subscription Tiers**: Implement free and premium tier system with clear feature differentiation
+  - **Feature Gating**: Create intelligent feature gating that gracefully handles tier limitations
+  - **Premium Features**: Unlock advanced analytics, unlimited assessments, coach customization, and priority support for premium users
+  - **Payment Integration**: Integrate payment processing using Stripe or similar service
+  - **Upgrade Flow**: Build seamless upgrade flow with clear value proposition and trial options
+  - **Access Control**: Implement Cognito groups for zuno-free and zuno-premium user access control
+  - **Trial Management**: Add free trial periods and conversion optimization features
+  - **Billing Management**: Provide subscription management, billing history, and cancellation options
+  - _Requirements: Subscription management, feature gating, payment processing, conversion optimization_
 
-- [ ] 26. Enhance onboarding experience with Zuno Manager integration
-  - **Manager Introduction**: Update existing onboarding to feature Zuno Manager as primary guide and coordinator
-  - **Coach Demonstration**: Enhance coach explanation and selection with interactive demonstrations of all four coaches
-  - **Sample Lessons**: Add sample lesson system that showcases each coach's unique approach and personality
-  - **Assessment Integration**: Integrate optional initial assessment into onboarding flow for personalized recommendations
+- [ ] 32. Implement Advanced Analytics and Insights
+  - **Documentation Research**: Use MCP to research learning analytics frameworks, predictive modeling techniques, data visualization best practices, machine learning for education, and privacy-preserving analytics
+  - **Learning Analytics**: Create comprehensive analytics dashboard with learning patterns and insights
+  - **Performance Tracking**: Implement detailed performance tracking across all learning activities
+  - **Trend Analysis**: Add trend analysis for learning velocity, retention rates, and skill development
+  - **Predictive Analytics**: Use machine learning to predict learning outcomes and recommend optimizations
+  - **Export Functionality**: Allow users to export learning analytics for professional portfolios
+  - **Privacy Controls**: Implement granular privacy controls for analytics data collection and usage
+  - **Coach Analytics**: Provide coach-specific analytics and effectiveness measurements
+  - **Comparative Analysis**: Show progress comparisons with anonymized peer groups
+  - _Requirements: Advanced analytics, performance tracking, predictive insights, privacy compliance_
+
+## Phase 7: Quality Assurance and Optimization
+
+- [ ] 33. Comprehensive Testing and Quality Assurance
+  - **Documentation Research**: Use MCP to research testing strategies for React applications, accessibility testing tools, performance testing frameworks, security testing methodologies, and quality assurance best practices
+  - **Test Coverage**: Achieve comprehensive test coverage across all new Phase 2+ features
+  - **Integration Testing**: Test integration between assessment system, gamification, and progress tracking
+  - **Performance Testing**: Ensure optimal performance with large datasets and concurrent users
+  - **Accessibility Testing**: Verify WCAG 2.1 AA compliance across all new components
+  - **Cross-browser Testing**: Test compatibility across different browsers and devices
+  - **User Experience Testing**: Conduct usability testing for new features and workflows
+  - **Security Testing**: Verify security of new features, especially payment and data handling
+  - **Load Testing**: Test system performance under various load conditions
+  - _Requirements: Comprehensive testing, performance optimization, accessibility compliance, security_
+
+- [ ] 34. Final Integration and Production Deployment
+  - **Documentation Research**: Use MCP to research production deployment strategies, monitoring best practices, rollback procedures, feature flag systems, and launch optimization techniques
+  - **Feature Integration**: Ensure seamless integration of all Phase 2+ features with existing system
+  - **Performance Optimization**: Optimize bundle size, loading times, and runtime performance
+  - **Production Deployment**: Deploy all new features to production with proper monitoring
+  - **Documentation**: Create comprehensive documentation for new features and systems
+  - **User Onboarding**: Update onboarding flow to introduce new features appropriately
+  - **Monitoring Setup**: Implement monitoring and alerting for new features and systems
+  - **Rollback Planning**: Prepare rollback strategies for critical new features
+  - **Launch Strategy**: Plan phased rollout of new features to users
+  - _Requirements: Production deployment, performance optimization, monitoring, documentation_ns
   - **Personalized Flow**: Implement coach-specific onboarding flows that adapt based on user preferences and assessment results
   - **Learning Plan**: Add assessment-driven learning plan generation and goal setting to onboarding completion
   - _Requirements: Enhanced onboarding, coach demonstration, personalization, goal setting_

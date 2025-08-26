@@ -106,10 +106,8 @@
     },
     "devDependencies": {
         "@eslint/js": "9.11.1",
-        "@expo/cli": "^0.24.20",
         "@faker-js/faker": "^9.9.0",
         "@playwright/test": "^1.54.2",
-        "@react-native-community/cli": "^19.1.1",
         "@testing-library/jest-dom": "^6.6.3",
         "@testing-library/react": "^16.1.0",
         "@testing-library/user-event": "^14.5.2",
