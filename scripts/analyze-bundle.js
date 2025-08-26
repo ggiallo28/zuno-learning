@@ -15,7 +15,8 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const DIST_DIR = join(__dirname, '..', 'dist', 'assets');
+const DIST_DIR = join(__dirname, '..', 'dist', 'assets', 'js');
+const CSS_DIR = join(__dirname, '..', 'dist', 'assets', 'css');
 const SIZE_THRESHOLD_KB = 150; // Warn about files larger than 150KB (more realistic for vendor chunks)
 
 function formatBytes(bytes) {
@@ -30,9 +31,8 @@ function analyzeBundle() {
   console.log('🔍 Analyzing Zuno bundle...\n');
 
   try {
-    const files = readdirSync(DIST_DIR);
-    const jsFiles = files.filter(file => extname(file) === '.js');
-    const cssFiles = files.filter(file => extname(file) === '.css');
+    const jsFiles = readdirSync(DIST_DIR).filter(file => extname(file) === '.js');
+    const cssFiles = readdirSync(CSS_DIR).filter(file => extname(file) === '.css');
     
     let totalSize = 0;
     let jsSize = 0;
@@ -71,7 +71,7 @@ function analyzeBundle() {
     console.log('─'.repeat(60));
     
     cssFiles.forEach(file => {
-      const filePath = join(DIST_DIR, file);
+      const filePath = join(CSS_DIR, file);
       const stats = statSync(filePath);
       const sizeKB = stats.size / 1024;
       

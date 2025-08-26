@@ -5,12 +5,20 @@ import './app/globals.css'
 
 // Import and configure Amplify
 import { configureAmplify } from './lib/authConfig'
+// Import error handling
+import { setupGlobalErrorHandling } from './lib/errorHandling'
+import ErrorBoundary from './components/ErrorBoundary'
+
+// Set up global error handling
+setupGlobalErrorHandling()
 
 // Configure Amplify with Cognito authentication
 configureAmplify()
-console.log('🚀 Starting Zuno with Cognito authentication')
 
-import ErrorBoundary from './components/ErrorBoundary'
+// Only log in development
+if (!import.meta.env.PROD) {
+  console.log('🚀 Starting Zuno with Cognito authentication')
+}
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
