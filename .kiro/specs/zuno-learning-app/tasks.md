@@ -218,48 +218,48 @@ Each task will begin with relevant documentation research to ensure high-quality
 
 ## Phase 2: Core Learning Features
 
-- [ ] 16. Implement Adaptive Assessment System (One Question at a Time)
+- [-] 16. Implement Adaptive Assessment System (One Question at a Time)
   - **Documentation Research**: Use MCP to research adaptive assessment algorithms (IRT, CAT, BKT), React state management patterns, and educational psychology principles for personalized learning
   - _Requirements: One-question-at-a-time flow, coach-specific modes, confidence tracking, early stopping, interleaving_
 
-- [ ] 16.1 Enhance Assessment Interface for Single Question Display
+- [x] 16.1 Enhance Assessment Interface for Single Question Display
   - **Assessment Interface Enhancement**: Enhance existing `src/components/assessment/AssessmentInterface.tsx` to show ONE question at a time with adaptive difficulty
   - **Question Type Support**: Utilize existing question components in `src/components/assessment/questions/` for multiple choice, cloze, ordering, debug/explain, and code execution
   - **Progress Tracking**: Utilize `src/components/assessment/ProgressAnnouncer.tsx` and `src/components/assessment/ItemCounter.tsx` for session progress
   - _Requirements: Single question interface, existing component integration, progress visualization_
 
-- [ ] 16.2 Implement Tag Selection and Question Filtering
+- [x] 16.2 Implement Tag Selection and Question Filtering
   - **Tag Selection System**: Implement intelligent tag selection using `src/components/assessment/TagSelector.tsx` with 4-5 recommended tags and expandable options
   - **Question Filtering**: Connect tag selection with question database to filter relevant content
   - **Smart Recommendations**: Implement algorithm to suggest most relevant tags based on user history
   - _Requirements: Intelligent tag selection, content filtering, personalized recommendations_
 
-- [ ] 16.3 Implement Coach-Specific Assessment Modes
+- [x] 16.3 Implement Coach-Specific Assessment Modes
   - **Elia Mode**: Deep, reflective mode with extended explanations using `src/components/assessment/ModelExplanation.tsx` (no timer, detailed feedback, "Certo/Forse" confidence levels)
   - **Skippy Mode**: Fast, timed mode with immediate feedback using `src/components/assessment/Timer.tsx` (timer per question/global, maximum questions possible, early stopping)
   - **Lupa Mode**: Collaborative mode with peer review using `src/components/assessment/PeerSnippetsCompare.tsx` (multiple choice → personal explanation → peer evaluation → model explanation)
   - **Polpo Mode**: Adaptive hybrid mode combining all approaches dynamically (dynamic switching between styles, community-driven content)
   - _Requirements: Coach-specific assessment experiences, existing component integration, mode switching_
 
-- [ ] 16.4 Enhance Confidence and Scoring System
+- [x] 16.4 Enhance Confidence and Scoring System
   - **Confidence System**: Enhance `src/components/assessment/ConfidencePicker.tsx` and `src/components/assessment/ConfidenceSlider.tsx` with "Certo" (sure) vs "Forse" (maybe) scoring system with differentiated points/penalties
   - **Scoring Algorithm**: Implement confidence-based scoring with appropriate point rewards and penalties
   - **Visual Feedback**: Provide clear visual feedback for confidence levels and scoring
   - _Requirements: Confidence tracking, differentiated scoring, visual feedback_
 
-- [ ] 16.5 Implement Early Stopping and Precision Tracking
+- [x] 16.5 Implement Early Stopping and Precision Tracking
   - **Early Stopping**: Implement precision-based early stopping using `src/components/assessment/EarlyStopDialog.tsx` with visual precision indicator via `src/components/assessment/PrecisionBar.tsx` (stop at 95% confidence)
   - **Precision Calculation**: Develop algorithm to calculate assessment precision in real-time
   - **User Choice**: Allow users to continue or stop when precision threshold is reached
   - _Requirements: Precision-based early stopping, real-time calculation, user control_
 
-- [ ] 16.6 Add Interleaving and Micro-Explanations
+- [x] 16.6 Add Interleaving and Micro-Explanations
   - **Interleaving System**: Add intelligent topic interleaving using `src/components/assessment/InterleavingBadge.tsx` to prevent false mastery from blocked practice
   - **Micro-Explanations**: Add optional flash explanation questions using `src/components/assessment/ExplainYourChoice.tsx` (5-7 words) for bonus XP
   - **Recovery Rewards**: Add XP/badge bonuses for correcting previously missed questions using existing gamification components
   - _Requirements: Topic interleaving, micro-explanations, recovery rewards_
 
-- [ ] 16.7 Implement Real-time Skill Mapping and Assessment Reports
+- [x] 16.7 Implement Real-time Skill Mapping and Assessment Reports
   - **Real-time Skill Map**: Implement live skill progression visualization using `src/components/assessment/SkillMap.tsx` during assessment
   - **Assessment Report**: Enhance `src/components/assessment/AssessmentReport.tsx` with mastery analysis, knowledge gaps, and personalized learning recommendations
   - **Data Integration**: Connect skill mapping with assessment results and learning recommendations
@@ -339,7 +339,7 @@ Each task will begin with relevant documentation research to ensure high-quality
   - **Coach Theming**: Adapt gamification visuals to match selected coach personality
   - _Requirements: Customizable intensity, coach integration, personalization, themed elements_
 
-- [ ] 19. Implement Progress Evaluation and Manual Learning Tracking
+- [-] 19. Implement Progress Evaluation and Manual Learning Tracking
   - **Documentation Research**: Use MCP to research data visualization libraries (Chart.js, D3.js, Recharts), AI analysis APIs, progress tracking UX patterns, and professional portfolio export formats (PDF, JSON, CSV)
   - _Requirements: Progress evaluation, manual tracking, AI analysis, skill visualization, export functionality_
 

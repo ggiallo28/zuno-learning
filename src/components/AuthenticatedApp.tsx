@@ -21,6 +21,27 @@ const AssessmentSystem = lazy(() => import('@/components/AssessmentSystem').then
 const AdaptiveCoachIndicator = lazy(() => import('@/components/AdaptiveCoachIndicator').then(module => ({ default: module.AdaptiveCoachIndicator })));
 const QuizRoute = lazy(() => import('@/components/quiz/QuizRoute').then(module => ({ default: module.QuizRoute })));
 const CoursePage = lazy(() => import('@/components/course/CoursePage').then(module => ({ default: module.CoursePage })));
+const EarlyStoppingDemo = lazy(() => import('@/components/assessment/EarlyStoppingDemo').then(module => ({ default: module.EarlyStoppingDemo })));
+
+// Demo page component
+function EarlyStoppingDemoPage() {
+  const navigate = useNavigate();
+  
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <Button 
+        onClick={() => navigate('/app')} 
+        variant="outline" 
+        className="mb-6"
+      >
+        ← Back to Dashboard
+      </Button>
+      <Suspense fallback={<TabLoadingSpinner />}>
+        <EarlyStoppingDemo />
+      </Suspense>
+    </div>
+  );
+}
 
 import loadUserProfileAction from '@/actions/loadUserProfile';
 import createUserAction from '@/actions/createUser';
@@ -521,6 +542,27 @@ function AuthenticatedAppDashboard() {
               </Card>
             )}
 
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Early Stopping Demo
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Test the precision-based early stopping functionality for assessments.
+                </p>
+                <Button
+                  onClick={() => navigate('/app/demo/early-stopping')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Open Early Stopping Demo
+                </Button>
+              </CardContent>
+            </Card>
+
             <Card className="p-8 text-center">
               <Settings className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Altre Impostazioni</h3>
@@ -569,6 +611,8 @@ export function AuthenticatedApp() {
             <Route path="/course/:courseId" element={<CoursePage />} />
             <Route path="/course/:courseId/lesson/:lessonId" element={<CoursePage />} />
             <Route path="/course/:courseId/lesson/:lessonId/quiz" element={<QuizRoute />} />
+            {/* Demo routes */}
+            <Route path="/demo/early-stopping" element={<EarlyStoppingDemoPage />} />
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/app" replace />} />
           </Routes>
